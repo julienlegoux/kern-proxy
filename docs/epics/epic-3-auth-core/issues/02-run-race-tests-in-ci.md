@@ -3,12 +3,12 @@ type: Issue
 title: "Run the test suite under -race in CI"
 description: "Minimal GitHub Actions workflow running go test ./... -race on Linux so the concurrent-refresh race test actually executes."
 tags: [epic-3]
-timestamp: 2026-07-07T07:40:00Z
+timestamp: 2026-07-07T22:10:00Z
 epic: 3
 issue: 02
 slug: run-race-tests-in-ci
 size: S
-status: open
+status: in-progress
 gh_issue: 17
 resource: https://github.com/julienlegoux/kern-proxy/issues/17
 depends_on: []
