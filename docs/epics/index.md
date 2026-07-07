@@ -9,6 +9,12 @@ Epics for the Go rebuild of `@earendil-works/pi-ai` (kern-proxy), split from
 Phases 1–2 were implemented before this split (their issues are closed for the
 record); epic 3 was partially delivered early (see its file for what remains).
 
+Note on links: per the OKF v0.1 spec this bundle follows, epic cross-links are
+bundle-relative absolute paths (leading `/`, resolved against `docs/epics/`).
+GitHub's web renderer resolves leading-slash links against the repository root,
+so they won't click through on github.com — navigate via the folder listing
+there, or use an OKF-aware reader.
+
 * [Epic 1: Foundation](/epic-1-foundation/EPIC_1.md) - done, [#2](https://github.com/julienlegoux/kern-proxy/issues/2) (closed)
 * [Epic 2: Faux provider & registry](/epic-2-faux-provider-registry/EPIC_2.md) - done, [#3](https://github.com/julienlegoux/kern-proxy/issues/3) (closed)
 * [Epic 3: Auth core](/epic-3-auth-core/EPIC_3.md) - open (partially done), [#4](https://github.com/julienlegoux/kern-proxy/issues/4)

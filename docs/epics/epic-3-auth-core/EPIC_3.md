@@ -3,7 +3,7 @@ type: Epic
 title: "Auth core"
 description: "Credential types, in-memory and flock-locked file stores, resolve precedence, and env-key mapping with ambient sentinels."
 tags: [epic]
-timestamp: 2026-07-07T05:34:54Z
+timestamp: 2026-07-07T06:19:34Z
 epic: 3
 slug: auth-core
 status: open
@@ -30,12 +30,12 @@ Provide the credential storage and resolution layer every provider adapter authe
 ### Already completed (delivered early in commit `61ce7d6`, see Epic 2)
 
 - Credential types (`ai/auth.go`), `InMemoryCredentialStore` (`ai/credentialstore.go`), resolve precedence (`ai/resolve.go` + tests), env-key map, auth context.
+- Double-checked locking on OAuth refresh under `CredentialStore.Modify` (`resolveStoredOAuth` in `ai/resolve.go`): optimistic expiry check, re-check under the lock, single refresh, persisted rotation — covered by the concurrent `TestResolveExpiredOAuthRefreshesOnceUnderLock`.
 
 ### Remaining
 
 - The flock-locked file store (`~/.pi/agent/auth.json`, 0600/0700 + flock).
-- Verify/complete double-checked locking on OAuth refresh under `CredentialStore.Modify`.
-- Concurrent-refresh race test under `-race`.
+- Run the existing concurrent-refresh test under `go test -race` (blocked on Windows as of 2026-07-07: race mode requires cgo plus a C compiler such as `gcc` in `PATH`; the non-race suite passes).
 
 ## Out of scope
 

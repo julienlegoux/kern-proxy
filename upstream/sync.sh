@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Diff the pinned upstream revision against upstream HEAD for packages/ai,
 # bucketing changed files by area so they can be mapped to Go packages via
-# PORTING.md. Usage: upstream/sync.sh [ref]   (default: origin/main)
+# docs/PORTING.md. Usage: upstream/sync.sh [ref]   (default: origin/main)
 set -euo pipefail
 
 here="$(cd "$(dirname "$0")" && pwd)"

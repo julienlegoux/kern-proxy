@@ -1,5 +1,7 @@
 # Rebuild `@earendil-works/pi-ai` in Go (kern-proxy)
 
+> **Status note (2026-07-07):** this document is the original roadmap, preserved as written — not a live implementation inventory. Work has started: phases 1–2 are done, phase 3 is partially done; current status is tracked per-epic in [`docs/epics/`](epics/index.md) and the matching GitHub milestones/issues. The directory tree below is the **target** layout; known deviations so far: the `internal/httpx` utilities live in the `ai` package root (see epic 1's notes), and `PORTING.md` lives at `docs/PORTING.md`. As of this date `go test ./...` passes locally; race-mode verification on Windows additionally needs cgo and a C compiler (`gcc`) in `PATH`.
+
 ## Context
 
 `julienlegoux/kern-proxy` is empty (README only). The goal is a **full-parity Go rebuild** of [`@earendil-works/pi-ai`](https://github.com/earendil-works/pi/tree/main/packages/ai) (v0.80.3, ~34k lines TS): a unified multi-provider LLM streaming library — unified message/event model, ~35 providers over 9 wire protocols, auth resolution (env / credential store / OAuth), token+cost tracking, model catalog, image generation, and an OAuth-login CLI. Same purpose, same functionality, no deviations; the port must be **kept in sync with upstream** over time. Method: TDD, SOLID, clean architecture.
@@ -12,7 +14,7 @@ Module `github.com/julienlegoux/kern-proxy`. Dependency rule (clean architecture
 
 ```
 kern-proxy/
-├── PORTING.md                    # TS-file → Go-package map + intentional deviations
+├── docs/PORTING.md               # TS-file → Go-package map + intentional deviations
 ├── upstream/UPSTREAM.lock        # pinned earendil-works/pi SHA + pi-ai version
 ├── upstream/sync.sh              # diff pinned..HEAD -- packages/ai, bucketed by area
 ├── tools/export-catalog/         # tiny tsx script: upstream models.generated.ts → JSON
@@ -22,7 +24,7 @@ kern-proxy/
 ├── ai/internal/sse/              # hand-rolled SSE: CR/LF/CRLF, early-EOF detection
 ├── ai/internal/partialjson/      # strict → repair → partial → {} cascade (written from scratch)
 ├── ai/internal/jsonschema/       # santhosh-tekuri/jsonschema/v6 + ported coercion pass
-├── ai/internal/httpx/            # retry classifier, overflow regexes, error-body normalize, proxy, zstd, unicode scrub
+├── ai/internal/httpx/            # retry classifier, overflow regexes, error-body normalize, proxy, zstd, unicode scrub — implemented in the ai root instead (retry.go, overflow.go, sanitize.go)
 ├── ai/apis/                      # transform.go (cross-provider normalizer), simpleopts.go, lazy.go
 │   ├── anthropic/  openaicompletions/  openairesponses/ (+azure/, codex/)
 │   ├── google/ (+vertex/)  mistral/  bedrock/
