@@ -1,10 +1,10 @@
 // Package anthropic implements the core of the anthropic-messages wire
-// adapter: request building (messages, system, tools, sampling params) and
-// SSE stream decoding into the unified event protocol, over raw net/http and
-// the hand-rolled SSE parser from ai/internal/sse.
+// adapter: request building (messages, system, tools, sampling params,
+// adaptive/budget-based thinking, cache_control) and SSE stream decoding into
+// the unified event protocol, over raw net/http and the hand-rolled SSE
+// parser from ai/internal/sse.
 //
 // Out of scope (follow-up issues in epic 5, layered on top of this core):
-//   - Adaptive thinking and cache_control — epic 5 issue 02.
 //   - OAuth Claude Code impersonation — epic 5 issue 03.
 //   - Retry/overflow classifier integration and the live smoke — epic 5
 //     issue 04.
@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -55,17 +56,75 @@ func Stream(ctx context.Context, model *ai.Model, chat ai.Context, opts *ai.Stre
 	return out
 }
 
-// StreamSimple implements ai.SimpleStreamFunc. Reasoning-level mapping
-// (adaptive thinking / budget-based thinking) lands in epic 5 issue 02; until
-// then this clamps maxTokens to the context window and delegates to Stream,
-// ignoring SimpleStreamOptions.Reasoning.
+// StreamSimple implements ai.SimpleStreamFunc, mapping the abstract Reasoning
+// level to an adaptive-thinking effort or a budget-based thinking config.
+// Ports the streamSimple half of anthropic-messages.ts.
 func StreamSimple(ctx context.Context, model *ai.Model, chat ai.Context, opts *ai.SimpleStreamOptions) *ai.Stream {
 	apiKey := ""
 	if opts != nil {
 		apiKey = opts.APIKey
 	}
 	base := apis.BuildBaseOptions(model, chat, opts, apiKey)
+
+	if opts == nil || opts.Reasoning == "" {
+		off := false
+		base.ThinkingEnabled = &off
+		return Stream(ctx, model, chat, &base)
+	}
+
+	if forceAdaptiveThinking(model) {
+		on := true
+		base.ThinkingEnabled = &on
+		base.Effort = mapThinkingLevelToEffort(model, opts.Reasoning)
+		return Stream(ctx, model, chat, &base)
+	}
+
+	// Undefined means the caller did not request an output cap; let the
+	// helper use the model cap. Do not coerce to 0, or the thinking budget
+	// would become the entire max_tokens value.
+	maxTokens, thinkingBudget := apis.AdjustMaxTokensForThinking(base.MaxTokens, model.MaxTokens, opts.Reasoning, opts.ThinkingBudgets)
+	clamped := apis.ClampMaxTokensToContext(model, chat, maxTokens)
+	base.MaxTokens = &clamped
+	on := true
+	base.ThinkingEnabled = &on
+	budget := minInt(thinkingBudget, maxInt(0, clamped-1024))
+	base.ThinkingBudgetTokens = &budget
 	return Stream(ctx, model, chat, &base)
+}
+
+// mapThinkingLevelToEffort maps the abstract ThinkingLevel to an Anthropic
+// adaptive-thinking effort, preferring an explicit model.ThinkingLevelMap
+// override (needed for e.g. "xhigh", which otherwise falls back to "high").
+func mapThinkingLevelToEffort(model *ai.Model, level ai.ThinkingLevel) ai.AnthropicEffort {
+	if model.ThinkingLevelMap != nil {
+		if mapped, ok := model.ThinkingLevelMap[level]; ok && mapped != nil {
+			return ai.AnthropicEffort(*mapped)
+		}
+	}
+	switch level {
+	case ai.ThinkingMinimal, ai.ThinkingLow:
+		return ai.AnthropicEffortLow
+	case ai.ThinkingMedium:
+		return ai.AnthropicEffortMedium
+	case ai.ThinkingHigh:
+		return ai.AnthropicEffortHigh
+	default:
+		return ai.AnthropicEffortHigh
+	}
+}
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, opts *ai.StreamOptions) {
@@ -267,6 +326,20 @@ func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, 
 				blocks = append(blocks, &blockState{kind: "text", eventIndex: blk.Index})
 				idx := len(output.Content) - 1
 				out.Push(ai.TextStartEvent{ContentIndex: idx, Partial: output.Clone()})
+			case "thinking":
+				output.Content = append(output.Content, ai.ThinkingContent{})
+				blocks = append(blocks, &blockState{kind: "thinking", eventIndex: blk.Index})
+				idx := len(output.Content) - 1
+				out.Push(ai.ThinkingStartEvent{ContentIndex: idx, Partial: output.Clone()})
+			case "redacted_thinking":
+				output.Content = append(output.Content, ai.ThinkingContent{
+					Thinking:          "[Reasoning redacted]",
+					ThinkingSignature: blk.ContentBlock.Data,
+					Redacted:          true,
+				})
+				blocks = append(blocks, &blockState{kind: "thinking", eventIndex: blk.Index})
+				idx := len(output.Content) - 1
+				out.Push(ai.ThinkingStartEvent{ContentIndex: idx, Partial: output.Clone()})
 			case "tool_use":
 				var input map[string]any
 				if len(blk.ContentBlock.Input) > 0 {
@@ -284,7 +357,7 @@ func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, 
 				idx := len(output.Content) - 1
 				out.Push(ai.ToolCallStartEvent{ContentIndex: idx, Partial: output.Clone()})
 			default:
-				// "thinking" / "redacted_thinking": deferred to epic 5 issue 02.
+				// unknown content_block type: ignored, matching upstream.
 			}
 
 		case "content_block_delta":
@@ -314,8 +387,26 @@ func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, 
 				cur.Arguments = partialjson.ParseStreamingObject(b.partialJSON.String())
 				output.Content[pos] = cur
 				out.Push(ai.ToolCallDeltaEvent{ContentIndex: pos, Delta: delta.Delta.PartialJSON, Partial: output.Clone()})
+			case "thinking_delta":
+				if b.kind != "thinking" {
+					continue
+				}
+				cur := output.Content[pos].(ai.ThinkingContent)
+				cur.Thinking += delta.Delta.Thinking
+				output.Content[pos] = cur
+				out.Push(ai.ThinkingDeltaEvent{ContentIndex: pos, Delta: delta.Delta.Thinking, Partial: output.Clone()})
+			case "signature_delta":
+				// No stream event: signature accrual is internal bookkeeping
+				// for multi-turn replay, matching upstream (which pushes no
+				// event for signature_delta).
+				if b.kind != "thinking" {
+					continue
+				}
+				cur := output.Content[pos].(ai.ThinkingContent)
+				cur.ThinkingSignature += delta.Delta.Signature
+				output.Content[pos] = cur
 			default:
-				// "thinking_delta" / "signature_delta": deferred to issue 02.
+				// unknown delta type: ignored, matching upstream.
 			}
 
 		case "content_block_stop":
@@ -336,6 +427,9 @@ func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, 
 				cur.Arguments = partialjson.ParseStreamingObject(b.partialJSON.String())
 				output.Content[pos] = cur
 				out.Push(ai.ToolCallEndEvent{ContentIndex: pos, ToolCall: cur, Partial: output.Clone()})
+			case "thinking":
+				cur := output.Content[pos].(ai.ThinkingContent)
+				out.Push(ai.ThinkingEndEvent{ContentIndex: pos, Content: cur.Thinking, Partial: output.Clone()})
 			}
 
 		case "message_delta":
@@ -368,11 +462,19 @@ func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, 
 	return nil
 }
 
+// applyUsage seeds usage from message_start. CacheWrite1h is always set here
+// (defaulting to 0), matching upstream's `|| 0`: message_delta never reports
+// the cache_creation breakdown, so this is the only place it is populated.
 func applyUsage(usage *ai.Usage, raw rawUsage) {
 	usage.Input = intOr0(raw.InputTokens)
 	usage.Output = intOr0(raw.OutputTokens)
 	usage.CacheRead = intOr0(raw.CacheReadInputTokens)
 	usage.CacheWrite = intOr0(raw.CacheCreationInputTokens)
+	oneHour := 0
+	if raw.CacheCreation != nil {
+		oneHour = intOr0(raw.CacheCreation.Ephemeral1hInputTokens)
+	}
+	usage.CacheWrite1h = &oneHour
 }
 
 // applyUsageDelta only overwrites fields the server actually sent (non-null),
@@ -402,11 +504,16 @@ func intOr0(p *int) int {
 
 // --- wire event decoding ------------------------------------------------------
 
+type rawCacheCreation struct {
+	Ephemeral1hInputTokens *int `json:"ephemeral_1h_input_tokens"`
+}
+
 type rawUsage struct {
-	InputTokens              *int `json:"input_tokens"`
-	OutputTokens             *int `json:"output_tokens"`
-	CacheReadInputTokens     *int `json:"cache_read_input_tokens"`
-	CacheCreationInputTokens *int `json:"cache_creation_input_tokens"`
+	InputTokens              *int              `json:"input_tokens"`
+	OutputTokens             *int              `json:"output_tokens"`
+	CacheReadInputTokens     *int              `json:"cache_read_input_tokens"`
+	CacheCreationInputTokens *int              `json:"cache_creation_input_tokens"`
+	CacheCreation            *rawCacheCreation `json:"cache_creation"`
 }
 
 type rawMessageStart struct {
@@ -423,6 +530,7 @@ type rawContentBlockStart struct {
 		ID    string          `json:"id"`
 		Name  string          `json:"name"`
 		Input json.RawMessage `json:"input"`
+		Data  string          `json:"data"` // redacted_thinking opaque payload
 	} `json:"content_block"`
 }
 
@@ -432,6 +540,8 @@ type rawContentBlockDelta struct {
 		Type        string `json:"type"`
 		Text        string `json:"text"`
 		PartialJSON string `json:"partial_json"`
+		Thinking    string `json:"thinking"`
+		Signature   string `json:"signature"`
 	} `json:"delta"`
 }
 
@@ -495,20 +605,24 @@ func mapStopReason(reason string, details *rawStopDetails) (ai.StopReason, strin
 // --- request building ---------------------------------------------------------
 
 // wireRequest is the Anthropic Messages API streaming request body (the core
-// subset: no thinking, cache_control, or OAuth identity fields).
+// subset plus adaptive thinking/cache_control; OAuth identity fields are
+// epic 5 issue 03).
 type wireRequest struct {
-	Model       string          `json:"model"`
-	Messages    []wireMessage   `json:"messages"`
-	MaxTokens   int             `json:"max_tokens"`
-	Stream      bool            `json:"stream"`
-	System      []wireTextBlock `json:"system,omitempty"`
-	Temperature *float64        `json:"temperature,omitempty"`
-	Tools       []wireTool      `json:"tools,omitempty"`
+	Model        string            `json:"model"`
+	Messages     []wireMessage     `json:"messages"`
+	MaxTokens    int               `json:"max_tokens"`
+	Stream       bool              `json:"stream"`
+	System       []wireTextBlock   `json:"system,omitempty"`
+	Temperature  *float64          `json:"temperature,omitempty"`
+	Tools        []wireTool        `json:"tools,omitempty"`
+	Thinking     *wireThinking     `json:"thinking,omitempty"`
+	OutputConfig *wireOutputConfig `json:"output_config,omitempty"`
 }
 
 type wireTextBlock struct {
-	Type string `json:"type"`
-	Text string `json:"text"`
+	Type         string            `json:"type"`
+	Text         string            `json:"text"`
+	CacheControl *wireCacheControl `json:"cache_control,omitempty"`
 }
 
 type wireMessage struct {
@@ -518,10 +632,11 @@ type wireMessage struct {
 }
 
 type wireTool struct {
-	Name                string          `json:"name"`
-	Description         string          `json:"description"`
-	EagerInputStreaming bool            `json:"eager_input_streaming,omitempty"`
-	InputSchema         wireInputSchema `json:"input_schema"`
+	Name                string            `json:"name"`
+	Description         string            `json:"description"`
+	EagerInputStreaming bool              `json:"eager_input_streaming,omitempty"`
+	InputSchema         wireInputSchema   `json:"input_schema"`
+	CacheControl        *wireCacheControl `json:"cache_control,omitempty"`
 }
 
 type wireInputSchema struct {
@@ -530,27 +645,84 @@ type wireInputSchema struct {
 	Required   []string       `json:"required,omitempty"`
 }
 
+// wireCacheControl is an Anthropic ephemeral cache_control breakpoint. TTL is
+// "1h" for long retention on models that support it, or omitted for the
+// default (5m) retention.
+type wireCacheControl struct {
+	Type string `json:"type"`
+	TTL  string `json:"ttl,omitempty"`
+}
+
+// wireThinking is the Anthropic `thinking` request field: "adaptive" (model
+// decides), "enabled" (budget-based), or "disabled".
+type wireThinking struct {
+	Type         string `json:"type"`
+	BudgetTokens int    `json:"budget_tokens,omitempty"`
+	Display      string `json:"display,omitempty"`
+}
+
+// wireOutputConfig carries the adaptive-thinking effort level.
+type wireOutputConfig struct {
+	Effort string `json:"effort,omitempty"`
+}
+
 func buildParams(model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *wireRequest {
 	maxTokens := model.MaxTokens
 	if opts != nil && opts.MaxTokens != nil {
 		maxTokens = *opts.MaxTokens
 	}
+
+	var cacheRetention ai.CacheRetention
+	var env ai.ProviderEnv
+	if opts != nil {
+		cacheRetention = opts.CacheRetention
+		env = opts.Env
+	}
+	cacheControl := getCacheControl(model, cacheRetention, env)
+
 	req := &wireRequest{
 		Model:     model.ID,
-		Messages:  convertMessages(chat.Messages, model),
+		Messages:  convertMessages(chat.Messages, model, cacheControl),
 		MaxTokens: maxTokens,
 		Stream:    true,
 	}
 	if chat.SystemPrompt != "" {
-		req.System = []wireTextBlock{{Type: "text", Text: ai.SanitizeSurrogates(chat.SystemPrompt)}}
+		req.System = []wireTextBlock{{Type: "text", Text: ai.SanitizeSurrogates(chat.SystemPrompt), CacheControl: cacheControl}}
 	}
-	if opts != nil && opts.Temperature != nil && supportsTemperature(model) {
+
+	thinkingEnabled := opts != nil && opts.ThinkingEnabled != nil && *opts.ThinkingEnabled
+	if opts != nil && opts.Temperature != nil && !thinkingEnabled && supportsTemperature(model) {
 		t := *opts.Temperature
 		req.Temperature = &t
 	}
 	if len(chat.Tools) > 0 {
-		req.Tools = convertTools(chat.Tools, model)
+		req.Tools = convertTools(chat.Tools, model, cacheControl)
 	}
+
+	// Configure thinking mode: adaptive, budget-based, or explicitly disabled.
+	if model.Reasoning && opts != nil {
+		if thinkingEnabled {
+			display := string(ai.AnthropicThinkingSummarized)
+			if opts.ThinkingDisplay != "" {
+				display = string(opts.ThinkingDisplay)
+			}
+			if forceAdaptiveThinking(model) {
+				req.Thinking = &wireThinking{Type: "adaptive", Display: display}
+				if opts.Effort != "" {
+					req.OutputConfig = &wireOutputConfig{Effort: string(opts.Effort)}
+				}
+			} else {
+				budget := 1024
+				if opts.ThinkingBudgetTokens != nil {
+					budget = *opts.ThinkingBudgetTokens
+				}
+				req.Thinking = &wireThinking{Type: "enabled", BudgetTokens: budget, Display: display}
+			}
+		} else if opts.ThinkingEnabled != nil && !*opts.ThinkingEnabled && sendDisabledThinking(model) {
+			req.Thinking = &wireThinking{Type: "disabled"}
+		}
+	}
+
 	return req
 }
 
@@ -561,6 +733,87 @@ func supportsTemperature(model *ai.Model) bool {
 	return *model.Compat.SupportsTemperature
 }
 
+// forceAdaptiveThinking reports whether model.Compat.ForceAdaptiveThinking is
+// explicitly true (an override; the default is model-catalog driven upstream,
+// which this Go port does not yet embed — epic 11).
+func forceAdaptiveThinking(model *ai.Model) bool {
+	return model.Compat != nil && model.Compat.ForceAdaptiveThinking != nil && *model.Compat.ForceAdaptiveThinking
+}
+
+// sendDisabledThinking reports whether thinking.type=disabled should be sent
+// when thinking is explicitly turned off. A model.ThinkingLevelMap["off"]
+// entry present but nil (TS null) marks the level unsupported, so some models
+// (e.g. Claude Fable 5) must omit the field entirely rather than send it.
+func sendDisabledThinking(model *ai.Model) bool {
+	if model.ThinkingLevelMap == nil {
+		return true
+	}
+	mapped, present := model.ThinkingLevelMap[ai.ThinkingOff]
+	return !(present && mapped == nil)
+}
+
+// --- cache_control -----------------------------------------------------------
+
+// resolveCacheRetention resolves the caller's preference against
+// PI_CACHE_RETENTION (checked in env first, then the process environment),
+// defaulting to "short". Ports resolveCacheRetention from
+// anthropic-messages.ts.
+func resolveCacheRetention(retention ai.CacheRetention, env ai.ProviderEnv) ai.CacheRetention {
+	if retention != "" {
+		return retention
+	}
+	if providerEnvValue("PI_CACHE_RETENTION", env) == "long" {
+		return ai.CacheRetentionLong
+	}
+	return ai.CacheRetentionShort
+}
+
+// providerEnvValue reads name from the request-scoped env override first,
+// falling back to the process environment. The Bun sandbox /proc/self/environ
+// fallback from provider-env.ts is an intentional deviation (see PORTING.md);
+// Go reads the process environment directly.
+func providerEnvValue(name string, env ai.ProviderEnv) string {
+	if v, ok := env[name]; ok && v != "" {
+		return v
+	}
+	return os.Getenv(name)
+}
+
+// getCacheControl builds the cache_control breakpoint to apply across the
+// request (system prompt, last tool, last user-message block), or nil when
+// retention is "none". Ports getCacheControl from anthropic-messages.ts.
+func getCacheControl(model *ai.Model, retention ai.CacheRetention, env ai.ProviderEnv) *wireCacheControl {
+	resolved := resolveCacheRetention(retention, env)
+	if resolved == ai.CacheRetentionNone {
+		return nil
+	}
+	cc := &wireCacheControl{Type: "ephemeral"}
+	if resolved == ai.CacheRetentionLong && supportsLongCacheRetention(model) {
+		cc.TTL = "1h"
+	}
+	return cc
+}
+
+func supportsLongCacheRetention(model *ai.Model) bool {
+	if model.Compat == nil || model.Compat.SupportsLongCacheRetention == nil {
+		return true
+	}
+	return *model.Compat.SupportsLongCacheRetention
+}
+
+func supportsCacheControlOnTools(model *ai.Model) bool {
+	if model.Compat == nil || model.Compat.SupportsCacheControlOnTools == nil {
+		return true
+	}
+	return *model.Compat.SupportsCacheControlOnTools
+}
+
+// allowEmptySignature reports whether model.Compat.AllowEmptySignature is
+// explicitly true (default false, matching upstream).
+func allowEmptySignature(model *ai.Model) bool {
+	return model.Compat != nil && model.Compat.AllowEmptySignature != nil && *model.Compat.AllowEmptySignature
+}
+
 func supportsEagerToolInputStreaming(model *ai.Model) bool {
 	if model.Compat == nil || model.Compat.SupportsEagerToolInputStreaming == nil {
 		return true
@@ -568,10 +821,11 @@ func supportsEagerToolInputStreaming(model *ai.Model) bool {
 	return *model.Compat.SupportsEagerToolInputStreaming
 }
 
-func convertTools(tools []ai.Tool, model *ai.Model) []wireTool {
+func convertTools(tools []ai.Tool, model *ai.Model, cacheControl *wireCacheControl) []wireTool {
 	eager := supportsEagerToolInputStreaming(model)
+	applyCacheControl := cacheControl != nil && supportsCacheControlOnTools(model)
 	out := make([]wireTool, 0, len(tools))
-	for _, t := range tools {
+	for i, t := range tools {
 		var schema struct {
 			Properties map[string]any `json:"properties"`
 			Required   []string       `json:"required"`
@@ -583,12 +837,16 @@ func convertTools(tools []ai.Tool, model *ai.Model) []wireTool {
 		if props == nil {
 			props = map[string]any{}
 		}
-		out = append(out, wireTool{
+		tool := wireTool{
 			Name:                t.Name,
 			Description:         t.Description,
 			EagerInputStreaming: eager,
 			InputSchema:         wireInputSchema{Type: "object", Properties: props, Required: schema.Required},
-		})
+		}
+		if applyCacheControl && i == len(tools)-1 {
+			tool.CacheControl = cacheControl
+		}
+		out = append(out, tool)
 	}
 	return out
 }
@@ -611,7 +869,7 @@ func normalizeToolCallID(id string, _ *ai.Model, _ *ai.AssistantMessage) string 
 	return out
 }
 
-func convertMessages(messages []ai.Message, model *ai.Model) []wireMessage {
+func convertMessages(messages []ai.Message, model *ai.Model, cacheControl *wireCacheControl) []wireMessage {
 	transformed := apis.TransformMessages(messages, model, normalizeToolCallID)
 	out := make([]wireMessage, 0, len(transformed))
 	for i := 0; i < len(transformed); i++ {
@@ -632,7 +890,7 @@ func convertMessages(messages []ai.Message, model *ai.Model) []wireMessage {
 			out = append(out, wireMessage{Role: "user", Content: blocks})
 
 		case *ai.AssistantMessage:
-			blocks := convertAssistantBlocks(m.Content)
+			blocks := convertAssistantBlocks(m.Content, model)
 			if len(blocks) == 0 {
 				continue
 			}
@@ -653,7 +911,36 @@ func convertMessages(messages []ai.Message, model *ai.Model) []wireMessage {
 			out = append(out, wireMessage{Role: "user", Content: results})
 		}
 	}
+	applyCacheControlToLastUserMessage(out, cacheControl)
 	return out
+}
+
+// applyCacheControlToLastUserMessage caches conversation history by adding
+// cache_control to the last block of the last message, if it is a user turn.
+// A plain-string message is upgraded to a one-block array so the breakpoint
+// has somewhere to attach. Ports the trailing block of convertMessages in
+// anthropic-messages.ts.
+func applyCacheControlToLastUserMessage(messages []wireMessage, cacheControl *wireCacheControl) {
+	if cacheControl == nil || len(messages) == 0 {
+		return
+	}
+	last := &messages[len(messages)-1]
+	if last.Role != "user" {
+		return
+	}
+	switch content := last.Content.(type) {
+	case string:
+		last.Content = []map[string]any{{"type": "text", "text": content, "cache_control": cacheControl}}
+	case []map[string]any:
+		if len(content) == 0 {
+			return
+		}
+		lastBlock := content[len(content)-1]
+		switch lastBlock["type"] {
+		case "text", "image", "tool_result":
+			lastBlock["cache_control"] = cacheControl
+		}
+	}
 }
 
 func convertUserBlocks(blocks []ai.UserContentPart) []map[string]any {
@@ -673,7 +960,7 @@ func convertUserBlocks(blocks []ai.UserContentPart) []map[string]any {
 	return out
 }
 
-func convertAssistantBlocks(content []ai.AssistantContentPart) []map[string]any {
+func convertAssistantBlocks(content []ai.AssistantContentPart, model *ai.Model) []map[string]any {
 	var out []map[string]any
 	for _, block := range content {
 		switch b := block.(type) {
@@ -692,9 +979,19 @@ func convertAssistantBlocks(content []ai.AssistantContentPart) []map[string]any 
 			if strings.TrimSpace(b.Thinking) == "" {
 				continue
 			}
-			if b.ThinkingSignature == "" {
-				// No signature to replay: downgrade to plain text, matching
-				// upstream's default (allowEmptySignature compat is issue 02).
+			if strings.TrimSpace(b.ThinkingSignature) == "" {
+				// No signature to replay: some compatible providers accept
+				// (and expect) an empty signature on marked models, so
+				// compat.AllowEmptySignature preserves the thinking block;
+				// otherwise downgrade to plain text (Anthropic's own default).
+				if allowEmptySignature(model) {
+					out = append(out, map[string]any{
+						"type":      "thinking",
+						"thinking":  ai.SanitizeSurrogates(b.Thinking),
+						"signature": "",
+					})
+					continue
+				}
 				out = append(out, map[string]any{"type": "text", "text": ai.SanitizeSurrogates(b.Thinking)})
 				continue
 			}

@@ -44,6 +44,31 @@ type ProviderResponse struct {
 	Headers map[string]string `json:"headers"`
 }
 
+// AnthropicEffort selects the adaptive-thinking effort level (anthropic-messages
+// only, `Model.Compat.ForceAdaptiveThinking` models). "max" is Opus 4.6 only;
+// "xhigh" requires an explicit `Model.ThinkingLevelMap` entry.
+type AnthropicEffort string
+
+const (
+	AnthropicEffortLow    AnthropicEffort = "low"
+	AnthropicEffortMedium AnthropicEffort = "medium"
+	AnthropicEffortHigh   AnthropicEffort = "high"
+	AnthropicEffortXHigh  AnthropicEffort = "xhigh"
+	AnthropicEffortMax    AnthropicEffort = "max"
+)
+
+// AnthropicThinkingDisplay controls how thinking content is returned
+// (anthropic-messages only).
+type AnthropicThinkingDisplay string
+
+const (
+	// AnthropicThinkingSummarized returns thinking blocks with summarized text.
+	AnthropicThinkingSummarized AnthropicThinkingDisplay = "summarized"
+	// AnthropicThinkingOmitted returns an empty thinking field; the encrypted
+	// signature still travels back for multi-turn continuity.
+	AnthropicThinkingOmitted AnthropicThinkingDisplay = "omitted"
+)
+
 // DefaultMaxRetryDelay caps server-requested retry waits (TS: 60000 ms).
 const DefaultMaxRetryDelay = 60 * time.Second
 
@@ -88,6 +113,25 @@ type StreamOptions struct {
 	// Env holds provider-scoped environment values that take precedence over
 	// the process environment.
 	Env ProviderEnv
+
+	// --- anthropic-messages only (mirrors upstream AnthropicOptions, merged
+	// here since Go's fixed StreamFunc signature can't carry a per-adapter
+	// options type the way TS's per-api function overloads do — the same
+	// flat-merge deviation already applied to Compat) ---
+
+	// ThinkingEnabled explicitly toggles extended thinking. nil means unset
+	// (thinking is omitted from the request); StreamSimple always sets this
+	// explicitly to true or false.
+	ThinkingEnabled *bool
+	// ThinkingBudgetTokens is the token budget for budget-based thinking
+	// models. nil uses the adapter default (1024).
+	ThinkingBudgetTokens *int
+	// Effort selects the adaptive-thinking effort level; only read when the
+	// model has Compat.ForceAdaptiveThinking true.
+	Effort AnthropicEffort
+	// ThinkingDisplay controls thinking-content verbosity. Empty uses the
+	// adapter default (AnthropicThinkingSummarized).
+	ThinkingDisplay AnthropicThinkingDisplay
 }
 
 // EffectiveCacheRetention resolves the zero value to the "short" default.
