@@ -32,7 +32,7 @@ naming its upstream source.
 | persistent auth.json store (from `packages/coding-agent/src/core/auth-storage.ts`) | `ai/auth/filestore.go` | ported |
 | `src/auth/helpers.ts` | `ai/auth` | phase 11 (envApiKeyAuth backs the provider bindings; lazyOAuth is a TS bundler concern) |
 | `src/utils/oauth/*`, `src/oauth.ts` | `ai/auth/oauth` | phase 12 |
-| `src/api/transform-messages.ts` | `ai/apis/transform.go` | phase 4 |
+| `src/api/transform-messages.ts` | `ai/apis/transform.go` | ported |
 | `src/utils/validation.ts`, `src/utils/typebox-helpers.ts` | `ai/internal/jsonschema` | ported (typebox-helpers' StringEnum is a TypeBox schema-authoring convenience; plain JSON Schema documents need no equivalent) |
 | `src/api/anthropic-messages.ts` | `ai/apis/anthropic` | phase 5 |
 | `src/api/openai-completions.ts`, `openai-prompt-cache.ts` | `ai/apis/openaicompletions` | phase 6 |

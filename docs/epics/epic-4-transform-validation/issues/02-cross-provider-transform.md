@@ -3,13 +3,14 @@ type: Issue
 title: "Add the cross-provider message transform"
 description: "transform-messages normalizer: same-model thinking replay, cross-model downgrade, tool-call id remap, orphan toolResult synthesis, plus unicode-scrub verification."
 tags: [epic-4]
-timestamp: 2026-07-07T08:20:43Z
+timestamp: 2026-07-08T00:05:00Z
 epic: 4
 issue: 02
 slug: cross-provider-transform
 size: M
-status: open
+status: pr-open
 gh_issue: 19
+gh_pr: 49
 resource: https://github.com/julienlegoux/kern-proxy/issues/19
 depends_on: []
 ---
