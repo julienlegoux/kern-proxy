@@ -3,12 +3,12 @@ type: Issue
 title: "Add the anthropic-messages adapter core"
 description: "Request building and SSE stream decoding for the Anthropic adapter, including the message_start/message_delta usage-seeding contract."
 tags: [epic-5]
-timestamp: 2026-07-07T08:21:48Z
+timestamp: 2026-07-08T00:00:00Z
 epic: 5
 issue: 01
 slug: anthropic-adapter-core
 size: L
-status: open
+status: in-progress
 gh_issue: 20
 resource: https://github.com/julienlegoux/kern-proxy/issues/20
 depends_on: []
