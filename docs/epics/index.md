@@ -15,6 +15,25 @@ GitHub's web renderer resolves leading-slash links against the repository root,
 so they won't click through on github.com — navigate via the folder listing
 there, or use an OKF-aware reader.
 
+## Conventions
+
+- **Paths**: [docs/PORTING.md](../PORTING.md) is the canonical TS-file →
+  Go-package map. Epic and issue files must quote its paths verbatim (e.g.
+  `ai/internal/jsonschema`, `ai/providers/faux`) — never shorthand like
+  `internal/sse`.
+- **Dependencies**: issue frontmatter uses two fields. `depends_on` holds
+  within-epic issue numbers (build order inside one epic). `blocked_by` holds
+  cross-epic GitHub refs — issue numbers (`"#16"`) or epic tracking-issue
+  numbers (`"#5"`) when an entire epic must land first. Prose in the issue's
+  Dependencies section explains the why.
+- **GitHub issue bodies** are generated from the local issue file: frontmatter
+  and the H1 stripped, a `Part of epic #N. Spec: …` header prepended, and OKF
+  links rewritten to `blob/develop` URLs. All sections are preserved verbatim,
+  so the local file and the GitHub body never diverge — edit the local file
+  and regenerate rather than editing on GitHub.
+
+## Epics
+
 * [Epic 1: Foundation](/epic-1-foundation/EPIC_1.md) - done, [#2](https://github.com/julienlegoux/kern-proxy/issues/2) (closed)
 * [Epic 2: Faux provider & registry](/epic-2-faux-provider-registry/EPIC_2.md) - done, [#3](https://github.com/julienlegoux/kern-proxy/issues/3) (closed)
 * [Epic 3: Auth core](/epic-3-auth-core/EPIC_3.md) - open (partially done), [#4](https://github.com/julienlegoux/kern-proxy/issues/4)

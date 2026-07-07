@@ -48,4 +48,4 @@ Port the full anthropic-messages adapter — the first real provider adapter, an
 
 - Size: L. Plan weighting: epics 5–7 together ≈ 45% of total effort.
 - Key risk #5 from the plan: SSE edge cases feed the retry classifier — must be bit-exact (fixtures exist).
-- Project-wide: TDD gate; `// Ports:` headers; PORTING.md mapping discipline; retry/overflow/scrub utilities live in the `ai` root, not `internal/httpx` (layout deviation recorded in Epic 1).
+- Project-wide: TDD gate; `// Ports:` headers; PORTING.md mapping discipline; retry/overflow/scrub utilities live in the `ai` root, not `ai/internal/httpx` (layout deviation recorded in Epic 1).

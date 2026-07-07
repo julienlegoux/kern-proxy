@@ -21,7 +21,7 @@ Freeze the event contract with an executable specification (the faux provider) a
 
 ## Scope
 
-- `providers/faux`: the faux provider — the executable spec of the event contract, enabling the whole test suite to run with no network.
+- `ai/providers/faux`: the faux provider — the executable spec of the event contract, enabling the whole test suite to run with no network.
 - Provider/Models registry (`createProvider`/`createModels`).
 - `lazy.go`: `Stream()` returns synchronously; auth resolution/setup runs in a goroutine; setup failure becomes an in-band `error` event with a zero-usage AssistantMessage.
 - `simpleopts.go`: `SimpleStreamOptions` embedding `StreamOptions`.

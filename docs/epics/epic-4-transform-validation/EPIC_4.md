@@ -25,7 +25,7 @@ Build the cross-provider normalizer and tool-schema validation that make convers
   - Same-model replay keeps thinking blocks + signatures; cross-model downgrades thinking→text and remaps tool-call ids.
   - Synthesizes `"No result provided"` toolResults for orphaned tool calls.
   - Skips errored/aborted assistant turns; drops `stopReason:"aborted"` turns from replay.
-- `internal/jsonschema`: `santhosh-tekuri/jsonschema/v6` plus a hand-port of upstream's coercion pass (`Tool.parameters` stays a `json.RawMessage` document).
+- `ai/internal/jsonschema`: `santhosh-tekuri/jsonschema/v6` plus a hand-port of upstream's coercion pass (`Tool.parameters` stays a `json.RawMessage` document).
 - Unicode scrub integration (surrogate handling).
 
 ## Out of scope
