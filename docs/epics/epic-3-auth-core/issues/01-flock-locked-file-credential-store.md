@@ -3,12 +3,12 @@ type: Issue
 title: "Add flock-locked file credential store"
 description: "Persistent CredentialStore backed by ~/.pi/agent/auth.json with 0600/0700 modes and a cross-process file lock."
 tags: [epic-3]
-timestamp: 2026-07-07T07:40:00Z
+timestamp: 2026-07-07T09:30:00Z
 epic: 3
 issue: 01
 slug: flock-locked-file-credential-store
 size: M
-status: open
+status: in-progress
 gh_issue: 16
 resource: https://github.com/julienlegoux/kern-proxy/issues/16
 depends_on: []
