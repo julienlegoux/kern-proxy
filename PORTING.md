@@ -15,7 +15,7 @@ naming its upstream source.
 | `src/types.ts` | `ai/types.go`, `ai/model.go`, `ai/options.go`, `ai/events.go` | ported |
 | `src/utils/event-stream.ts` | `ai/stream.go` | ported |
 | `src/models.ts` (calculateCost, thinking helpers) | `ai/cost.go`, `ai/model.go` | ported |
-| `src/models.ts` (Provider/Models/createProvider) | `ai/provider.go` (phase 2) | pending |
+| `src/models.ts` (Provider/Models/createProvider) | `ai/provider.go`, `ai/lazy.go` | ported |
 | `src/utils/retry.ts` | `ai/retry.go` | ported |
 | `src/utils/overflow.ts` | `ai/overflow.go` | ported |
 | `src/utils/estimate.ts` | `ai/estimate.go` | ported |
@@ -25,9 +25,11 @@ naming its upstream source.
 | `src/utils/diagnostics.ts` | `ai/diagnostics.go` | ported |
 | `src/utils/json-parse.ts` + npm `partial-json` | `ai/internal/partialjson` | ported |
 | SSE parsing (from `src/api/anthropic-messages.ts`) | `ai/internal/sse` | ported |
-| `src/providers/faux.ts` | `ai/providers/faux` | phase 2 |
-| `src/api/lazy.ts`, `src/api/simple-options.ts` | `ai/apis` | phase 2 |
-| `src/auth/*` | `ai/auth` | phase 3 |
+| `src/providers/faux.ts` | `ai/providers/faux` | ported |
+| `src/api/lazy.ts` | `ai/lazy.go` | ported (module lazy-loading is a TS concern; only lazyStream semantics carry over) |
+| `src/api/simple-options.ts` | `ai/apis/simpleopts.go` | ported |
+| `src/auth/types.ts`, `src/auth/resolve.ts`, `src/auth/credential-store.ts`, `src/auth/context.ts` | `ai/auth.go`, `ai/resolve.go`, `ai/credentialstore.go`, `ai/authcontext.go` (in package `ai`: the Provider interface references ProviderAuth, so a separate package would cycle) | ported |
+| `src/auth/helpers.ts`, persistent auth.json store | `ai/auth` | phase 3 |
 | `src/utils/oauth/*`, `src/oauth.ts` | `ai/auth/oauth` | phase 12 |
 | `src/api/transform-messages.ts` | `ai/apis/transform.go` | phase 4 |
 | `src/utils/validation.ts`, `src/utils/typebox-helpers.ts` | `ai/internal/jsonschema` | phase 4 |
@@ -44,7 +46,7 @@ naming its upstream source.
 | `src/cli.ts` | `cmd/pi-ai` | phase 14 |
 | `src/utils/error-body.ts` | `ai/internal/httpx` | phase 5 (shape depends on Go HTTP errors) |
 | `src/utils/node-http-proxy.ts` | Go `net/http` ProxyFromEnvironment + adapter checks | phase 5 |
-| `src/session-resources.ts` | `ai` (phase 2) | pending |
+| `src/session-resources.ts` | `ai/sessionresources.go` | ported |
 
 ## Intentional deviations
 
