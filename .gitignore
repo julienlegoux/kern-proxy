@@ -1,0 +1,5 @@
+upstream/.upstream-clone/
+*.test
+coverage.out
+dist/
+node_modules/
