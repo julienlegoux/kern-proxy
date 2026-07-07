@@ -3,12 +3,12 @@ type: Issue
 title: "Add ai/internal/jsonschema with the ported coercion pass"
 description: "Tool-parameter validation via santhosh-tekuri/jsonschema/v6 plus a hand-port of upstream's coercion pass, fixture-locked against validation.test.ts."
 tags: [epic-4]
-timestamp: 2026-07-07T22:14:30Z
+timestamp: 2026-07-08T00:00:00Z
 epic: 4
 issue: 01
 slug: jsonschema-validation-coercion
 size: M
-status: pr-open
+status: done
 gh_issue: 18
 gh_pr: 48
 resource: https://github.com/julienlegoux/kern-proxy/issues/18
