@@ -311,10 +311,12 @@ func TestStream_RequestBodyMatchesExpectedShape(t *testing.T) {
 		"stream":     true,
 		"max_tokens": float64(1024),
 		"messages": []any{
-			map[string]any{"role": "user", "content": "Hello"},
+			map[string]any{"role": "user", "content": []any{
+				map[string]any{"type": "text", "text": "Hello", "cache_control": map[string]any{"type": "ephemeral"}},
+			}},
 		},
 		"system": []any{
-			map[string]any{"type": "text", "text": "Be concise."},
+			map[string]any{"type": "text", "text": "Be concise.", "cache_control": map[string]any{"type": "ephemeral"}},
 		},
 		"temperature": 0.5,
 		"tools": []any{
@@ -327,6 +329,7 @@ func TestStream_RequestBodyMatchesExpectedShape(t *testing.T) {
 					"properties": map[string]any{"query": map[string]any{"type": "string"}},
 					"required":   []any{"query"},
 				},
+				"cache_control": map[string]any{"type": "ephemeral"},
 			},
 		},
 	}
@@ -465,5 +468,647 @@ func TestStream_OnPayloadCanReplaceRequestBody(t *testing.T) {
 	}
 	if captured["model"] != "claude-haiku-4-5" {
 		t.Errorf("captured model = %v", captured["model"])
+	}
+}
+
+// --- cache_control -----------------------------------------------------------
+//
+// Ports: packages/ai/test/cache-retention.test.ts (Anthropic Provider
+// describe block only; OpenAI Responses/Completions cases are out of scope).
+// Upstream captures the payload via onPayload against a request that's
+// allowed to fail past that point; these ports instead point at a real
+// httptest SSE server so the request completes successfully, which is
+// simpler and matches this package's existing test style.
+
+// capturePayload runs model/chat/opts through Stream against a local SSE
+// server that always succeeds, and returns the JSON request body it sent, as
+// a generic map for flexible assertions.
+func capturePayload(t *testing.T, model *ai.Model, chat ai.Context, opts *ai.StreamOptions) map[string]any {
+	t.Helper()
+	srv := sseServer(t, minimalAnthropicEvents())
+	m := *model
+	m.BaseURL = srv.URL
+
+	var captured any
+	opts.OnPayload = func(_ context.Context, payload any, _ *ai.Model) (any, error) {
+		captured = payload
+		return payload, nil
+	}
+
+	stream := Stream(context.Background(), &m, chat, opts)
+	if _, err := stream.Result(context.Background()); err != nil {
+		t.Fatalf("Result: %v", err)
+	}
+
+	raw, err := json.Marshal(captured)
+	if err != nil {
+		t.Fatalf("marshal captured payload: %v", err)
+	}
+	var out map[string]any
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatalf("unmarshal captured payload: %v", err)
+	}
+	return out
+}
+
+// captureSimplePayload is capturePayload's StreamSimple counterpart.
+func captureSimplePayload(t *testing.T, model *ai.Model, chat ai.Context, opts *ai.SimpleStreamOptions) map[string]any {
+	t.Helper()
+	srv := sseServer(t, minimalAnthropicEvents())
+	m := *model
+	m.BaseURL = srv.URL
+
+	var captured any
+	opts.OnPayload = func(_ context.Context, payload any, _ *ai.Model) (any, error) {
+		captured = payload
+		return payload, nil
+	}
+
+	stream := StreamSimple(context.Background(), &m, chat, opts)
+	if _, err := stream.Result(context.Background()); err != nil {
+		t.Fatalf("Result: %v", err)
+	}
+
+	raw, err := json.Marshal(captured)
+	if err != nil {
+		t.Fatalf("marshal captured payload: %v", err)
+	}
+	var out map[string]any
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatalf("unmarshal captured payload: %v", err)
+	}
+	return out
+}
+
+func cacheControlContext() ai.Context {
+	return ai.Context{
+		SystemPrompt: "You are a helpful assistant.",
+		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}},
+	}
+}
+
+func systemCacheControl(t *testing.T, payload map[string]any) map[string]any {
+	t.Helper()
+	system, ok := payload["system"].([]any)
+	if !ok || len(system) == 0 {
+		t.Fatalf("system = %#v, want non-empty array", payload["system"])
+	}
+	block, ok := system[0].(map[string]any)
+	if !ok {
+		t.Fatalf("system[0] = %#v, want object", system[0])
+	}
+	cc, _ := block["cache_control"].(map[string]any)
+	return cc
+}
+
+func TestBuildParams_CacheControlDefaultRetentionOmitsTTL(t *testing.T) {
+	model := testModel("")
+	payload := capturePayload(t, model, cacheControlContext(), &ai.StreamOptions{APIKey: "fake-key"})
+	cc := systemCacheControl(t, payload)
+	want := map[string]any{"type": "ephemeral"}
+	if !mapsEqual(cc, want) {
+		t.Errorf("system cache_control = %#v, want %#v", cc, want)
+	}
+}
+
+func TestBuildParams_CacheControlLongRetentionAddsOneHourTTL(t *testing.T) {
+	model := testModel("")
+	payload := capturePayload(t, model, cacheControlContext(), &ai.StreamOptions{
+		APIKey:         "fake-key",
+		CacheRetention: ai.CacheRetentionLong,
+	})
+	cc := systemCacheControl(t, payload)
+	want := map[string]any{"type": "ephemeral", "ttl": "1h"}
+	if !mapsEqual(cc, want) {
+		t.Errorf("system cache_control = %#v, want %#v", cc, want)
+	}
+}
+
+func TestBuildParams_CacheControlLongRetentionOmitsTTLWhenModelDoesNotSupportIt(t *testing.T) {
+	model := testModel("")
+	no := false
+	model.Compat = &ai.Compat{SupportsLongCacheRetention: &no}
+	payload := capturePayload(t, model, cacheControlContext(), &ai.StreamOptions{
+		APIKey:         "fake-key",
+		CacheRetention: ai.CacheRetentionLong,
+	})
+	cc := systemCacheControl(t, payload)
+	want := map[string]any{"type": "ephemeral"}
+	if !mapsEqual(cc, want) {
+		t.Errorf("system cache_control = %#v, want %#v", cc, want)
+	}
+}
+
+func TestBuildParams_CacheControlNoneOmitsCacheControlEntirely(t *testing.T) {
+	model := testModel("")
+	chat := cacheControlContext()
+	chat.Tools = []ai.Tool{{
+		Name:        "search",
+		Description: "Search the web.",
+		Parameters:  json.RawMessage(`{"type":"object","properties":{},"required":[]}`),
+	}}
+	payload := capturePayload(t, model, chat, &ai.StreamOptions{
+		APIKey:         "fake-key",
+		CacheRetention: ai.CacheRetentionNone,
+	})
+
+	system := payload["system"].([]any)
+	sysBlock := system[0].(map[string]any)
+	if _, has := sysBlock["cache_control"]; has {
+		t.Errorf("system[0] = %#v, want no cache_control", sysBlock)
+	}
+
+	tools := payload["tools"].([]any)
+	toolBlock := tools[0].(map[string]any)
+	if _, has := toolBlock["cache_control"]; has {
+		t.Errorf("tools[0] = %#v, want no cache_control", toolBlock)
+	}
+
+	messages := payload["messages"].([]any)
+	lastMsg := messages[len(messages)-1].(map[string]any)
+	if _, isString := lastMsg["content"].(string); !isString {
+		t.Errorf("last message content = %#v, want plain string (untouched)", lastMsg["content"])
+	}
+}
+
+func TestBuildParams_CacheControlAppliesToStringUserMessage(t *testing.T) {
+	model := testModel("")
+	payload := capturePayload(t, model, cacheControlContext(), &ai.StreamOptions{APIKey: "fake-key"})
+
+	messages := payload["messages"].([]any)
+	lastMsg := messages[len(messages)-1].(map[string]any)
+	blocks, ok := lastMsg["content"].([]any)
+	if !ok || len(blocks) != 1 {
+		t.Fatalf("last message content = %#v, want 1-block array", lastMsg["content"])
+	}
+	block := blocks[0].(map[string]any)
+	cc, _ := block["cache_control"].(map[string]any)
+	want := map[string]any{"type": "ephemeral"}
+	if !mapsEqual(cc, want) {
+		t.Errorf("last block cache_control = %#v, want %#v", cc, want)
+	}
+}
+
+func TestBuildParams_CacheControlEnvVarSelectsLongRetention(t *testing.T) {
+	model := testModel("")
+	payload := capturePayload(t, model, cacheControlContext(), &ai.StreamOptions{
+		APIKey: "fake-key",
+		Env:    ai.ProviderEnv{"PI_CACHE_RETENTION": "long"},
+	})
+	cc := systemCacheControl(t, payload)
+	want := map[string]any{"type": "ephemeral", "ttl": "1h"}
+	if !mapsEqual(cc, want) {
+		t.Errorf("system cache_control = %#v, want %#v", cc, want)
+	}
+}
+
+func TestBuildParams_CacheControlOnToolsAppliesToLastToolOnly(t *testing.T) {
+	model := testModel("")
+	chat := cacheControlContext()
+	chat.Tools = []ai.Tool{
+		{Name: "first", Description: "First tool.", Parameters: json.RawMessage(`{"type":"object","properties":{}}`)},
+		{Name: "second", Description: "Second tool.", Parameters: json.RawMessage(`{"type":"object","properties":{}}`)},
+	}
+	payload := capturePayload(t, model, chat, &ai.StreamOptions{APIKey: "fake-key"})
+
+	tools := payload["tools"].([]any)
+	if len(tools) != 2 {
+		t.Fatalf("tools = %#v, want 2", tools)
+	}
+	first := tools[0].(map[string]any)
+	if _, has := first["cache_control"]; has {
+		t.Errorf("tools[0] = %#v, want no cache_control", first)
+	}
+	second := tools[1].(map[string]any)
+	cc, _ := second["cache_control"].(map[string]any)
+	want := map[string]any{"type": "ephemeral"}
+	if !mapsEqual(cc, want) {
+		t.Errorf("tools[1] cache_control = %#v, want %#v", cc, want)
+	}
+}
+
+func TestBuildParams_CacheControlOnToolsOmittedWhenCompatDisallows(t *testing.T) {
+	model := testModel("")
+	no := false
+	model.Compat = &ai.Compat{SupportsCacheControlOnTools: &no}
+	chat := cacheControlContext()
+	chat.Tools = []ai.Tool{{Name: "search", Description: "Search.", Parameters: json.RawMessage(`{"type":"object","properties":{}}`)}}
+	payload := capturePayload(t, model, chat, &ai.StreamOptions{APIKey: "fake-key"})
+
+	tools := payload["tools"].([]any)
+	tool := tools[0].(map[string]any)
+	if _, has := tool["cache_control"]; has {
+		t.Errorf("tools[0] = %#v, want no cache_control", tool)
+	}
+}
+
+func mapsEqual(a, b map[string]any) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k, v := range b {
+		if a[k] != v {
+			return false
+		}
+	}
+	return true
+}
+
+// --- adaptive thinking -------------------------------------------------------
+//
+// Ports: packages/ai/test/anthropic-force-adaptive-thinking.test.ts and
+// anthropic-thinking-disable.test.ts, adapted to hand-built models (this
+// package has no catalog yet — epic 11 — so tests that upstream drives via
+// getModel("anthropic", "claude-...") use an equivalent custom Model here).
+
+func thinkingModel(compat *ai.Compat) *ai.Model {
+	return &ai.Model{
+		ID:            "vendor--claude-opus-latest",
+		Name:          "Vendor Proxy Opus Latest",
+		Api:           ai.ApiAnthropicMessages,
+		Provider:      "vendor-proxy",
+		Input:         []ai.Modality{ai.ModalityText},
+		ContextWindow: 200000,
+		MaxTokens:     32000,
+		Reasoning:     true,
+		Compat:        compat,
+	}
+}
+
+func thinkingContext() ai.Context {
+	return ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
+}
+
+func TestStreamSimple_SendsLegacyThinkingPayloadByDefaultForCustomModel(t *testing.T) {
+	model := thinkingModel(nil)
+	payload := captureSimplePayload(t, model, thinkingContext(), &ai.SimpleStreamOptions{
+		StreamOptions: ai.StreamOptions{APIKey: "fake-key"},
+		Reasoning:     ai.ThinkingMedium,
+	})
+	thinking, ok := payload["thinking"].(map[string]any)
+	if !ok || thinking["type"] != "enabled" {
+		t.Errorf("thinking = %#v, want type=enabled", payload["thinking"])
+	}
+	if _, has := payload["output_config"]; has {
+		t.Errorf("output_config = %#v, want absent", payload["output_config"])
+	}
+}
+
+func TestStreamSimple_SendsAdaptiveThinkingPayloadWhenForceAdaptiveThinkingCompatTrue(t *testing.T) {
+	yes := true
+	model := thinkingModel(&ai.Compat{ForceAdaptiveThinking: &yes})
+	payload := captureSimplePayload(t, model, thinkingContext(), &ai.SimpleStreamOptions{
+		StreamOptions: ai.StreamOptions{APIKey: "fake-key"},
+		Reasoning:     ai.ThinkingMedium,
+	})
+	want := map[string]any{"type": "adaptive", "display": "summarized"}
+	if got, _ := payload["thinking"].(map[string]any); !mapsEqual(got, want) {
+		t.Errorf("thinking = %#v, want %#v", payload["thinking"], want)
+	}
+	wantOutputConfig := map[string]any{"effort": "medium"}
+	if got, _ := payload["output_config"].(map[string]any); !mapsEqual(got, wantOutputConfig) {
+		t.Errorf("output_config = %#v, want %#v", payload["output_config"], wantOutputConfig)
+	}
+}
+
+func TestStreamSimple_UsesExplicitThinkingLevelMapOverrideForEffort(t *testing.T) {
+	yes := true
+	xhigh := "xhigh"
+	model := thinkingModel(&ai.Compat{ForceAdaptiveThinking: &yes})
+	model.ThinkingLevelMap = ai.ThinkingLevelMap{ai.ThinkingXHigh: &xhigh}
+	payload := captureSimplePayload(t, model, thinkingContext(), &ai.SimpleStreamOptions{
+		StreamOptions: ai.StreamOptions{APIKey: "fake-key"},
+		Reasoning:     ai.ThinkingXHigh,
+	})
+	wantOutputConfig := map[string]any{"effort": "xhigh"}
+	if got, _ := payload["output_config"].(map[string]any); !mapsEqual(got, wantOutputConfig) {
+		t.Errorf("output_config = %#v, want %#v", payload["output_config"], wantOutputConfig)
+	}
+}
+
+func TestStreamSimple_XHighWithoutExplicitMapFallsBackToHighEffort(t *testing.T) {
+	yes := true
+	model := thinkingModel(&ai.Compat{ForceAdaptiveThinking: &yes})
+	payload := captureSimplePayload(t, model, thinkingContext(), &ai.SimpleStreamOptions{
+		StreamOptions: ai.StreamOptions{APIKey: "fake-key"},
+		Reasoning:     ai.ThinkingXHigh,
+	})
+	wantOutputConfig := map[string]any{"effort": "high"}
+	if got, _ := payload["output_config"].(map[string]any); !mapsEqual(got, wantOutputConfig) {
+		t.Errorf("output_config = %#v, want %#v", payload["output_config"], wantOutputConfig)
+	}
+}
+
+func TestStreamSimple_AllowsOptOutWithForceAdaptiveThinkingFalse(t *testing.T) {
+	no := false
+	model := thinkingModel(&ai.Compat{ForceAdaptiveThinking: &no})
+	payload := captureSimplePayload(t, model, thinkingContext(), &ai.SimpleStreamOptions{
+		StreamOptions: ai.StreamOptions{APIKey: "fake-key"},
+		Reasoning:     ai.ThinkingMedium,
+	})
+	thinking, ok := payload["thinking"].(map[string]any)
+	if !ok || thinking["type"] != "enabled" {
+		t.Errorf("thinking = %#v, want type=enabled", payload["thinking"])
+	}
+	if _, has := payload["output_config"]; has {
+		t.Errorf("output_config = %#v, want absent", payload["output_config"])
+	}
+}
+
+func TestStreamSimple_PreservesDisabledThinkingWhenReasoningOffRegardlessOfOverride(t *testing.T) {
+	yes := true
+	model := thinkingModel(&ai.Compat{ForceAdaptiveThinking: &yes})
+	payload := captureSimplePayload(t, model, thinkingContext(), &ai.SimpleStreamOptions{
+		StreamOptions: ai.StreamOptions{APIKey: "fake-key"},
+	})
+	want := map[string]any{"type": "disabled"}
+	if got, _ := payload["thinking"].(map[string]any); !mapsEqual(got, want) {
+		t.Errorf("thinking = %#v, want %#v", payload["thinking"], want)
+	}
+	if _, has := payload["output_config"]; has {
+		t.Errorf("output_config = %#v, want absent", payload["output_config"])
+	}
+}
+
+func TestStreamSimple_ThinkingDisabledForBudgetBasedModelWhenReasoningOff(t *testing.T) {
+	model := thinkingModel(nil)
+	payload := captureSimplePayload(t, model, thinkingContext(), &ai.SimpleStreamOptions{
+		StreamOptions: ai.StreamOptions{APIKey: "fake-key"},
+	})
+	want := map[string]any{"type": "disabled"}
+	if got, _ := payload["thinking"].(map[string]any); !mapsEqual(got, want) {
+		t.Errorf("thinking = %#v, want %#v", payload["thinking"], want)
+	}
+}
+
+func TestStreamSimple_OmitsDisabledThinkingWhenModelMarksOffUnsupported(t *testing.T) {
+	yes := true
+	model := thinkingModel(&ai.Compat{ForceAdaptiveThinking: &yes})
+	model.ThinkingLevelMap = ai.ThinkingLevelMap{ai.ThinkingOff: nil}
+	payload := captureSimplePayload(t, model, thinkingContext(), &ai.SimpleStreamOptions{
+		StreamOptions: ai.StreamOptions{APIKey: "fake-key"},
+	})
+	if _, has := payload["thinking"]; has {
+		t.Errorf("thinking = %#v, want absent", payload["thinking"])
+	}
+	if _, has := payload["output_config"]; has {
+		t.Errorf("output_config = %#v, want absent", payload["output_config"])
+	}
+}
+
+func TestStreamSimple_AdaptiveThinkingForHighReasoning(t *testing.T) {
+	yes := true
+	model := thinkingModel(&ai.Compat{ForceAdaptiveThinking: &yes})
+	payload := captureSimplePayload(t, model, thinkingContext(), &ai.SimpleStreamOptions{
+		StreamOptions: ai.StreamOptions{APIKey: "fake-key"},
+		Reasoning:     ai.ThinkingHigh,
+	})
+	want := map[string]any{"type": "adaptive", "display": "summarized"}
+	if got, _ := payload["thinking"].(map[string]any); !mapsEqual(got, want) {
+		t.Errorf("thinking = %#v, want %#v", payload["thinking"], want)
+	}
+	wantOutputConfig := map[string]any{"effort": "high"}
+	if got, _ := payload["output_config"].(map[string]any); !mapsEqual(got, wantOutputConfig) {
+		t.Errorf("output_config = %#v, want %#v", payload["output_config"], wantOutputConfig)
+	}
+}
+
+// TestStreamSimple_TemperatureOmittedWhenThinkingEnabled is a new (non-ported)
+// test: upstream's buildParams guards `!options?.thinkingEnabled` before
+// setting temperature, but no dedicated upstream test exercises it directly.
+func TestStreamSimple_TemperatureOmittedWhenThinkingEnabled(t *testing.T) {
+	yes := true
+	temp := 0.7
+	model := thinkingModel(&ai.Compat{ForceAdaptiveThinking: &yes})
+	payload := captureSimplePayload(t, model, thinkingContext(), &ai.SimpleStreamOptions{
+		StreamOptions: ai.StreamOptions{APIKey: "fake-key", Temperature: &temp},
+		Reasoning:     ai.ThinkingHigh,
+	})
+	if _, has := payload["temperature"]; has {
+		t.Errorf("temperature = %#v, want absent when thinking is enabled", payload["temperature"])
+	}
+}
+
+// --- empty thinking signature compat -----------------------------------------
+//
+// Ports: packages/ai/test/anthropic-empty-thinking-signature-compat.test.ts
+
+func TestConvertAssistantBlocks_EmptySignatureThinkingDowngradesToTextByDefault(t *testing.T) {
+	model := &ai.Model{ID: "mimo-v2.5-pro", Api: ai.ApiAnthropicMessages, Provider: "xiaomi-token-plan-ams", Reasoning: true}
+	blocks := convertAssistantBlocks([]ai.AssistantContentPart{
+		ai.ThinkingContent{Thinking: "internal reasoning", ThinkingSignature: ""},
+	}, model)
+	want := []map[string]any{{"type": "text", "text": "internal reasoning"}}
+	if len(blocks) != 1 || !mapsEqual(blocks[0], want[0]) {
+		t.Errorf("blocks = %#v, want %#v", blocks, want)
+	}
+}
+
+func TestConvertAssistantBlocks_PreservesEmptySignatureThinkingWhenAllowEmptySignatureCompatEnabled(t *testing.T) {
+	yes := true
+	model := &ai.Model{
+		ID: "mimo-v2.5-pro", Api: ai.ApiAnthropicMessages, Provider: "xiaomi-token-plan-ams", Reasoning: true,
+		Compat: &ai.Compat{AllowEmptySignature: &yes},
+	}
+	// Upstream's fixture uses a whitespace-only signature (" ") to prove the
+	// check trims before deciding "empty", not just a strict "" comparison.
+	blocks := convertAssistantBlocks([]ai.AssistantContentPart{
+		ai.ThinkingContent{Thinking: "internal reasoning", ThinkingSignature: " "},
+	}, model)
+	want := []map[string]any{{"type": "thinking", "thinking": "internal reasoning", "signature": ""}}
+	if len(blocks) != 1 || !mapsEqual(blocks[0], want[0]) {
+		t.Errorf("blocks = %#v, want %#v", blocks, want)
+	}
+}
+
+// --- 1h cache-write cost ------------------------------------------------------
+//
+// Ports: packages/ai/test/anthropic-cache-write-1h-cost.test.ts
+
+// costTestModel mirrors the comment in the upstream fixture: "claude-opus-4-8:
+// input 5, cacheWrite (5m) 6.25 per Mtok. 1h write = 2x input = 10." This
+// package has no catalog (epic 11) so the price sheet is hand-built here
+// rather than fetched via getModel.
+func costTestModel(baseURL string) *ai.Model {
+	return &ai.Model{
+		ID:            "claude-opus-4-8",
+		Api:           ai.ApiAnthropicMessages,
+		Provider:      "anthropic",
+		BaseURL:       baseURL,
+		Input:         []ai.Modality{ai.ModalityText},
+		ContextWindow: 200000,
+		MaxTokens:     32000,
+		Cost:          ai.ModelCost{Input: 5, Output: 25, CacheRead: 0.5, CacheWrite: 6.25},
+	}
+}
+
+func eventsWithCacheCreation(cacheCreationJSON string) []sseEvent {
+	startUsage := `"input_tokens":100,"output_tokens":0,"cache_read_input_tokens":0,"cache_creation_input_tokens":1000000`
+	if cacheCreationJSON != "" {
+		startUsage += `,"cache_creation":` + cacheCreationJSON
+	}
+	return []sseEvent{
+		{event: "message_start", data: `{"type":"message_start","message":{"id":"msg_test","usage":{` + startUsage + `}}}`},
+		{event: "content_block_start", data: `{"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}`},
+		{event: "content_block_delta", data: `{"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Hi"}}`},
+		{event: "content_block_stop", data: `{"type":"content_block_stop","index":0}`},
+		{event: "message_delta", data: `{"type":"message_delta","delta":{"stop_reason":"end_turn"},"usage":{"input_tokens":100,"output_tokens":5,"cache_read_input_tokens":0,"cache_creation_input_tokens":1000000}}`},
+		{event: "message_stop", data: `{"type":"message_stop"}`},
+	}
+}
+
+func TestStream_PricesOneHourCacheWriteAtTwiceInputRate(t *testing.T) {
+	events := eventsWithCacheCreation(`{"ephemeral_5m_input_tokens":600000,"ephemeral_1h_input_tokens":400000}`)
+	srv := sseServer(t, events)
+	model := costTestModel(srv.URL)
+	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+
+	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
+	result, err := stream.Result(context.Background())
+	if err != nil {
+		t.Fatalf("Result: %v", err)
+	}
+
+	if result.Usage.CacheWrite != 1_000_000 {
+		t.Errorf("cacheWrite = %d, want 1000000", result.Usage.CacheWrite)
+	}
+	if result.Usage.CacheWrite1h == nil || *result.Usage.CacheWrite1h != 400_000 {
+		t.Errorf("cacheWrite1h = %v, want 400000", result.Usage.CacheWrite1h)
+	}
+	// 600k * 6.25/Mtok + 400k * (2*5)/Mtok = 3.75 + 4.0 = 7.75
+	want := 7.75
+	if diff := result.Usage.Cost.CacheWrite - want; diff > 1e-9 || diff < -1e-9 {
+		t.Errorf("cost.cacheWrite = %v, want %v", result.Usage.Cost.CacheWrite, want)
+	}
+}
+
+func TestStream_CacheWriteFallsBackToFiveMinuteRateWhenNoBreakdownReported(t *testing.T) {
+	events := eventsWithCacheCreation("")
+	srv := sseServer(t, events)
+	model := costTestModel(srv.URL)
+	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+
+	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
+	result, err := stream.Result(context.Background())
+	if err != nil {
+		t.Fatalf("Result: %v", err)
+	}
+
+	if result.Usage.CacheWrite != 1_000_000 {
+		t.Errorf("cacheWrite = %d, want 1000000", result.Usage.CacheWrite)
+	}
+	if result.Usage.CacheWrite1h == nil || *result.Usage.CacheWrite1h != 0 {
+		t.Errorf("cacheWrite1h = %v, want 0", result.Usage.CacheWrite1h)
+	}
+	// 1M * 6.25/Mtok = 6.25
+	want := 6.25
+	if diff := result.Usage.Cost.CacheWrite - want; diff > 1e-9 || diff < -1e-9 {
+		t.Errorf("cost.cacheWrite = %v, want %v", result.Usage.Cost.CacheWrite, want)
+	}
+}
+
+// --- thinking-block SSE decode ------------------------------------------------
+//
+// New Go-native tests: no upstream unit-test file exercises the raw SSE
+// decode path for thinking content blocks in isolation (the upstream tests
+// above all assert request-building via onPayload against a fake client that
+// never streams thinking content back). These fill that gap directly against
+// ai/internal/sse, mirroring the fidelity bar of anthropic-sse-parsing.test.ts
+// for the non-thinking blocks issue 01 already ported.
+
+func TestStream_DecodesThinkingBlockWithSignatureDeltas(t *testing.T) {
+	events := []sseEvent{
+		{event: "message_start", data: `{"type":"message_start","message":{"id":"msg_test","usage":{"input_tokens":12,"output_tokens":0,"cache_read_input_tokens":0,"cache_creation_input_tokens":0}}}`},
+		{event: "content_block_start", data: `{"type":"content_block_start","index":0,"content_block":{"type":"thinking","thinking":""}}`},
+		{event: "content_block_delta", data: `{"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":"Let me "}}`},
+		{event: "content_block_delta", data: `{"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":"think."}}`},
+		{event: "content_block_delta", data: `{"type":"content_block_delta","index":0,"delta":{"type":"signature_delta","signature":"sig-part-1"}}`},
+		{event: "content_block_delta", data: `{"type":"content_block_delta","index":0,"delta":{"type":"signature_delta","signature":"sig-part-2"}}`},
+		{event: "content_block_stop", data: `{"type":"content_block_stop","index":0}`},
+		{event: "content_block_start", data: `{"type":"content_block_start","index":1,"content_block":{"type":"text","text":""}}`},
+		{event: "content_block_delta", data: `{"type":"content_block_delta","index":1,"delta":{"type":"text_delta","text":"Answer."}}`},
+		{event: "content_block_stop", data: `{"type":"content_block_stop","index":1}`},
+		{event: "message_delta", data: `{"type":"message_delta","delta":{"stop_reason":"end_turn"},"usage":{"input_tokens":12,"output_tokens":5,"cache_read_input_tokens":0,"cache_creation_input_tokens":0}}`},
+		{event: "message_stop", data: `{"type":"message_stop"}`},
+	}
+	srv := sseServer(t, events)
+	model := testModel(srv.URL)
+	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+
+	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
+
+	var thinkingDeltaCount, thinkingStartCount, thinkingEndCount int
+	for ev := range stream.Events() {
+		switch ev.EventKind() {
+		case ai.EventThinkingStart:
+			thinkingStartCount++
+		case ai.EventThinkingDelta:
+			thinkingDeltaCount++
+		case ai.EventThinkingEnd:
+			thinkingEndCount++
+		}
+	}
+	result, err := stream.Result(context.Background())
+	if err != nil {
+		t.Fatalf("Result: %v", err)
+	}
+
+	if thinkingStartCount != 1 || thinkingEndCount != 1 {
+		t.Errorf("thinkingStart/End counts = %d/%d, want 1/1", thinkingStartCount, thinkingEndCount)
+	}
+	if thinkingDeltaCount != 2 {
+		t.Errorf("thinkingDelta count = %d, want 2 (no event for signature_delta)", thinkingDeltaCount)
+	}
+	if len(result.Content) != 2 {
+		t.Fatalf("content = %#v, want 2 blocks", result.Content)
+	}
+	thinking, ok := result.Content[0].(ai.ThinkingContent)
+	if !ok {
+		t.Fatalf("content[0] = %#v, want ThinkingContent", result.Content[0])
+	}
+	if thinking.Thinking != "Let me think." {
+		t.Errorf("thinking.Thinking = %q, want %q", thinking.Thinking, "Let me think.")
+	}
+	if thinking.ThinkingSignature != "sig-part-1sig-part-2" {
+		t.Errorf("thinking.ThinkingSignature = %q, want %q", thinking.ThinkingSignature, "sig-part-1sig-part-2")
+	}
+	if thinking.Redacted {
+		t.Errorf("thinking.Redacted = true, want false")
+	}
+}
+
+func TestStream_DecodesRedactedThinkingBlock(t *testing.T) {
+	events := []sseEvent{
+		{event: "message_start", data: `{"type":"message_start","message":{"id":"msg_test","usage":{"input_tokens":12,"output_tokens":0,"cache_read_input_tokens":0,"cache_creation_input_tokens":0}}}`},
+		{event: "content_block_start", data: `{"type":"content_block_start","index":0,"content_block":{"type":"redacted_thinking","data":"opaque-payload"}}`},
+		{event: "content_block_stop", data: `{"type":"content_block_stop","index":0}`},
+		{event: "message_delta", data: `{"type":"message_delta","delta":{"stop_reason":"end_turn"},"usage":{"input_tokens":12,"output_tokens":5,"cache_read_input_tokens":0,"cache_creation_input_tokens":0}}`},
+		{event: "message_stop", data: `{"type":"message_stop"}`},
+	}
+	srv := sseServer(t, events)
+	model := testModel(srv.URL)
+	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+
+	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
+	result, err := stream.Result(context.Background())
+	if err != nil {
+		t.Fatalf("Result: %v", err)
+	}
+
+	if len(result.Content) != 1 {
+		t.Fatalf("content = %#v, want 1 block", result.Content)
+	}
+	thinking, ok := result.Content[0].(ai.ThinkingContent)
+	if !ok {
+		t.Fatalf("content[0] = %#v, want ThinkingContent", result.Content[0])
+	}
+	if !thinking.Redacted {
+		t.Errorf("thinking.Redacted = false, want true")
+	}
+	if thinking.ThinkingSignature != "opaque-payload" {
+		t.Errorf("thinking.ThinkingSignature = %q, want %q", thinking.ThinkingSignature, "opaque-payload")
+	}
+	if thinking.Thinking != "[Reasoning redacted]" {
+		t.Errorf("thinking.Thinking = %q, want %q", thinking.Thinking, "[Reasoning redacted]")
 	}
 }

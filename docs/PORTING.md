@@ -34,7 +34,7 @@ naming its upstream source.
 | `src/utils/oauth/*`, `src/oauth.ts` | `ai/auth/oauth` | phase 12 |
 | `src/api/transform-messages.ts` | `ai/apis/transform.go` | ported |
 | `src/utils/validation.ts`, `src/utils/typebox-helpers.ts` | `ai/internal/jsonschema` | ported (typebox-helpers' StringEnum is a TypeBox schema-authoring convenience; plain JSON Schema documents need no equivalent) |
-| `src/api/anthropic-messages.ts` | `ai/apis/anthropic` | phase 5: core ported (request building, SSE decode, API-key auth); adaptive thinking/cache_control, OAuth impersonation, and retry/overflow integration are epic 5 issues 02–04 |
+| `src/api/anthropic-messages.ts` | `ai/apis/anthropic` | phase 5: core, adaptive thinking, and cache_control ported (issues 01–02); OAuth impersonation and retry/overflow integration are epic 5 issues 03–04 |
 | `src/api/openai-completions.ts`, `openai-prompt-cache.ts` | `ai/apis/openaicompletions` | phase 6 |
 | `src/api/openai-responses*.ts`, `azure-*`, `openai-codex-*` | `ai/apis/openairesponses` (+`azure`,`codex`) | phase 7 |
 | `src/api/google-*.ts` | `ai/apis/google` (+`vertex`) | phase 8 |
@@ -63,6 +63,13 @@ naming its upstream source.
 - **Compat struct**: the three per-api TS compat interfaces are merged into one
   flat Go `ai.Compat` struct (the wire JSON is a flat object in both ports);
   adapters read only their own fields.
+- **Per-adapter options struct**: TS's `AnthropicOptions extends StreamOptions`
+  (and sibling per-api options interfaces) rely on function overloading that
+  Go's single `StreamFunc` signature can't express. Anthropic-specific request
+  knobs (`ThinkingEnabled`, `ThinkingBudgetTokens`, `Effort`,
+  `ThinkingDisplay`) are merged directly into `ai.StreamOptions` instead,
+  mirroring the Compat merge above; other adapters ignore fields they don't
+  read.
 - **Vendor SDKs**: the TS package delegates transport to @anthropic-ai/sdk,
   openai, @google/genai, @mistralai/mistralai. The Go port uses raw `net/http`
   plus `ai/internal/sse` for those protocols, and `aws-sdk-go-v2` for Bedrock
