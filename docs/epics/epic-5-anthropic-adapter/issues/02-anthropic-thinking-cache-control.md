@@ -3,12 +3,12 @@ type: Issue
 title: "Add adaptive thinking, cache_control, and 1h cache-write cost to the Anthropic adapter"
 description: "Thinking-budget handling, cache_control placement, and the 1h cache-write 2x-input billing rule in calculateCost."
 tags: [epic-5]
-timestamp: 2026-07-08T05:00:00Z
+timestamp: 2026-07-08T00:00:00Z
 epic: 5
 issue: 02
 slug: anthropic-thinking-cache-control
 size: M
-status: pr-open
+status: done
 gh_issue: 21
 gh_pr: 51
 resource: https://github.com/julienlegoux/kern-proxy/issues/21
