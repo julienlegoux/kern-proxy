@@ -3,3 +3,4 @@ upstream/.upstream-clone/
 coverage.out
 dist/
 node_modules/
+.obsidian/
