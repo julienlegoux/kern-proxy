@@ -3,10 +3,10 @@ type: Epic
 title: "Transform & validation"
 description: "Cross-provider message normalizer, JSON-schema validation with the ported coercion pass, and unicode scrubbing."
 tags: [epic]
-timestamp: 2026-07-07T05:34:54Z
+timestamp: 2026-07-07T22:50:06Z
 epic: 4
 slug: transform-validation
-status: open
+status: done
 gh_issue: 5
 milestone: 4
 resource: https://github.com/julienlegoux/kern-proxy/issues/5

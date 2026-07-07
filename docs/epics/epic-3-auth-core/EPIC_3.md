@@ -3,10 +3,10 @@ type: Epic
 title: "Auth core"
 description: "Credential types, in-memory and flock-locked file stores, resolve precedence, and env-key mapping with ambient sentinels."
 tags: [epic]
-timestamp: 2026-07-07T06:19:34Z
+timestamp: 2026-07-07T22:50:06Z
 epic: 3
 slug: auth-core
-status: open
+status: done
 gh_issue: 4
 milestone: 3
 resource: https://github.com/julienlegoux/kern-proxy/issues/4
