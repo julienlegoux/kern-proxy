@@ -1,11 +1,10 @@
 // Package anthropic implements the core of the anthropic-messages wire
 // adapter: request building (messages, system, tools, sampling params,
-// adaptive/budget-based thinking, cache_control) and SSE stream decoding into
-// the unified event protocol, over raw net/http and the hand-rolled SSE
-// parser from ai/internal/sse.
+// adaptive/budget-based thinking, cache_control), OAuth Claude Code
+// impersonation, and SSE stream decoding into the unified event protocol,
+// over raw net/http and the hand-rolled SSE parser from ai/internal/sse.
 //
-// Out of scope (follow-up issues in epic 5, layered on top of this core):
-//   - OAuth Claude Code impersonation — epic 5 issue 03.
+// Out of scope (follow-up issue in epic 5, layered on top of this core):
 //   - Retry/overflow classifier integration and the live smoke — epic 5
 //     issue 04.
 //
@@ -34,7 +33,86 @@ const (
 	anthropicVersion             = "2023-06-01"
 	messagesPath                 = "/v1/messages"
 	fineGrainedToolStreamingBeta = "fine-grained-tool-streaming-2025-05-14"
+
+	// claudeCodeBeta and oauthBeta are unconditionally required on every OAuth
+	// (Claude Pro/Max) request, in this order, ahead of any other beta
+	// features. Ports the hardcoded prefix of createClient's OAuth
+	// betaFeatures list in anthropic-messages.ts.
+	claudeCodeBeta = "claude-code-20250219"
+	oauthBeta      = "oauth-2025-04-20"
+
+	// claudeCodeVersion is the user-agent version string OAuth requests
+	// impersonate. Ports the claudeCodeVersion stealth-mode constant.
+	claudeCodeVersion = "2.1.75"
+
+	// claudeCodeIdentitySystemBlock is injected as the first system block on
+	// every OAuth request; Anthropic requires it to authorize Claude Code
+	// impersonation. Ports the inline string from buildParams' isOAuthToken
+	// branch.
+	claudeCodeIdentitySystemBlock = "You are Claude Code, Anthropic's official CLI for Claude."
 )
+
+// claudeCodeTools is Claude Code 2.x's canonical tool-name casing, used to
+// impersonate CC's tool vocabulary on the wire when running on an OAuth
+// credential. Source: https://cchistory.mariozechner.at/data/prompts-2.1.11.md
+// (see upstream's own comment). Ports the claudeCodeTools table from
+// anthropic-messages.ts.
+var claudeCodeTools = []string{
+	"Read", "Write", "Edit", "Bash", "Grep", "Glob",
+	"AskUserQuestion", "EnterPlanMode", "ExitPlanMode", "KillShell",
+	"NotebookEdit", "Skill", "Task", "TaskOutput", "TodoWrite",
+	"WebFetch", "WebSearch",
+}
+
+// ccToolLookup maps a lowercased tool name to its Claude Code canonical
+// casing, built once from claudeCodeTools. Ports the ccToolLookup Map.
+var ccToolLookup = buildCCToolLookup()
+
+func buildCCToolLookup() map[string]string {
+	m := make(map[string]string, len(claudeCodeTools))
+	for _, name := range claudeCodeTools {
+		m[strings.ToLower(name)] = name
+	}
+	return m
+}
+
+// isOAuthToken reports whether apiKey is a Claude Pro/Max OAuth access token
+// (as opposed to a plain API key), which triggers Claude Code impersonation
+// mode: Bearer auth, the identity system block, impersonation beta headers,
+// the claude-cli user-agent, and tool-name remapping. Ports isOAuthToken from
+// anthropic-messages.ts.
+func isOAuthToken(apiKey string) bool {
+	return strings.Contains(apiKey, "sk-ant-oat")
+}
+
+// toClaudeCodeName maps name to Claude Code's canonical casing when it
+// matches one of CC's tools case-insensitively; other names pass through
+// unchanged. Ports toClaudeCodeName from anthropic-messages.ts.
+func toClaudeCodeName(name string) string {
+	if cc, ok := ccToolLookup[strings.ToLower(name)]; ok {
+		return cc
+	}
+	return name
+}
+
+// fromClaudeCodeName reverses toClaudeCodeName using the caller's own tool
+// list: a case-insensitive match against tools returns that tool's original
+// casing; no match returns name unchanged. This is a case-insensitive lookup,
+// not a name-to-name mapping table, so it round-trips correctly regardless of
+// what casing the caller originally used. Ports fromClaudeCodeName from
+// anthropic-messages.ts.
+func fromClaudeCodeName(name string, tools []ai.Tool) string {
+	if len(tools) == 0 {
+		return name
+	}
+	lower := strings.ToLower(name)
+	for _, t := range tools {
+		if strings.ToLower(t.Name) == lower {
+			return t.Name
+		}
+	}
+	return name
+}
 
 // messageEvents is the set of SSE event names carrying Anthropic message
 // protocol payloads. Everything else (vendor/proxy events such as "done" or
@@ -48,8 +126,10 @@ var messageEvents = map[string]bool{
 	"content_block_stop":  true,
 }
 
-// Stream implements ai.StreamFunc for the anthropic-messages wire protocol
-// using API-key auth only (OAuth impersonation is epic 5 issue 03).
+// Stream implements ai.StreamFunc for the anthropic-messages wire protocol.
+// It supports both API-key auth and OAuth (Claude Pro/Max) Claude Code
+// impersonation mode, selected automatically from the shape of opts.APIKey
+// (see isOAuthToken).
 func Stream(ctx context.Context, model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *ai.Stream {
 	out := ai.NewStream()
 	go run(ctx, out, model, chat, opts)
@@ -157,8 +237,9 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 		fail(err)
 		return
 	}
+	isOAuth := isOAuthToken(apiKey)
 
-	params := buildParams(model, chat, opts)
+	params := buildParams(model, chat, opts, isOAuth)
 	var payload any = params
 	if opts != nil && opts.OnPayload != nil {
 		next, err := opts.OnPayload(ctx, payload, model)
@@ -208,7 +289,7 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 
 	out.Push(ai.StartEvent{Partial: output.Clone()})
 
-	if err := decodeEvents(out, output, model, resp.Body); err != nil {
+	if err := decodeEvents(out, output, model, resp.Body, isOAuth, chat.Tools); err != nil {
 		fail(err)
 		return
 	}
@@ -265,7 +346,7 @@ type blockState struct {
 	partialJSON strings.Builder
 }
 
-func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, body io.Reader) error {
+func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, body io.Reader, isOAuth bool, tools []ai.Tool) error {
 	reader := sse.NewReader(body)
 	var blocks []*blockState
 	sawStart := false
@@ -348,9 +429,13 @@ func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, 
 				if input == nil {
 					input = map[string]any{}
 				}
+				name := blk.ContentBlock.Name
+				if isOAuth {
+					name = fromClaudeCodeName(name, tools)
+				}
 				output.Content = append(output.Content, ai.ToolCall{
 					ID:        blk.ContentBlock.ID,
-					Name:      blk.ContentBlock.Name,
+					Name:      name,
 					Arguments: input,
 				})
 				blocks = append(blocks, &blockState{kind: "toolCall", eventIndex: blk.Index})
@@ -604,9 +689,9 @@ func mapStopReason(reason string, details *rawStopDetails) (ai.StopReason, strin
 
 // --- request building ---------------------------------------------------------
 
-// wireRequest is the Anthropic Messages API streaming request body (the core
-// subset plus adaptive thinking/cache_control; OAuth identity fields are
-// epic 5 issue 03).
+// wireRequest is the Anthropic Messages API streaming request body: the core
+// subset plus adaptive thinking/cache_control and the OAuth identity system
+// block (carried in System like any other block).
 type wireRequest struct {
 	Model        string            `json:"model"`
 	Messages     []wireMessage     `json:"messages"`
@@ -666,7 +751,7 @@ type wireOutputConfig struct {
 	Effort string `json:"effort,omitempty"`
 }
 
-func buildParams(model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *wireRequest {
+func buildParams(model *ai.Model, chat ai.Context, opts *ai.StreamOptions, isOAuth bool) *wireRequest {
 	maxTokens := model.MaxTokens
 	if opts != nil && opts.MaxTokens != nil {
 		maxTokens = *opts.MaxTokens
@@ -682,11 +767,20 @@ func buildParams(model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *wire
 
 	req := &wireRequest{
 		Model:     model.ID,
-		Messages:  convertMessages(chat.Messages, model, cacheControl),
+		Messages:  convertMessages(chat.Messages, model, cacheControl, isOAuth),
 		MaxTokens: maxTokens,
 		Stream:    true,
 	}
-	if chat.SystemPrompt != "" {
+	// For OAuth tokens, Anthropic requires the Claude Code identity block as
+	// the first system block; the caller's own system prompt (if any) follows
+	// as a second block. Both share the same cache_control breakpoint. Ports
+	// the isOAuthToken branch of buildParams in anthropic-messages.ts.
+	if isOAuth {
+		req.System = []wireTextBlock{{Type: "text", Text: claudeCodeIdentitySystemBlock, CacheControl: cacheControl}}
+		if chat.SystemPrompt != "" {
+			req.System = append(req.System, wireTextBlock{Type: "text", Text: ai.SanitizeSurrogates(chat.SystemPrompt), CacheControl: cacheControl})
+		}
+	} else if chat.SystemPrompt != "" {
 		req.System = []wireTextBlock{{Type: "text", Text: ai.SanitizeSurrogates(chat.SystemPrompt), CacheControl: cacheControl}}
 	}
 
@@ -696,7 +790,7 @@ func buildParams(model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *wire
 		req.Temperature = &t
 	}
 	if len(chat.Tools) > 0 {
-		req.Tools = convertTools(chat.Tools, model, cacheControl)
+		req.Tools = convertTools(chat.Tools, model, cacheControl, isOAuth)
 	}
 
 	// Configure thinking mode: adaptive, budget-based, or explicitly disabled.
@@ -821,7 +915,7 @@ func supportsEagerToolInputStreaming(model *ai.Model) bool {
 	return *model.Compat.SupportsEagerToolInputStreaming
 }
 
-func convertTools(tools []ai.Tool, model *ai.Model, cacheControl *wireCacheControl) []wireTool {
+func convertTools(tools []ai.Tool, model *ai.Model, cacheControl *wireCacheControl, isOAuth bool) []wireTool {
 	eager := supportsEagerToolInputStreaming(model)
 	applyCacheControl := cacheControl != nil && supportsCacheControlOnTools(model)
 	out := make([]wireTool, 0, len(tools))
@@ -837,8 +931,12 @@ func convertTools(tools []ai.Tool, model *ai.Model, cacheControl *wireCacheContr
 		if props == nil {
 			props = map[string]any{}
 		}
+		name := t.Name
+		if isOAuth {
+			name = toClaudeCodeName(name)
+		}
 		tool := wireTool{
-			Name:                t.Name,
+			Name:                name,
 			Description:         t.Description,
 			EagerInputStreaming: eager,
 			InputSchema:         wireInputSchema{Type: "object", Properties: props, Required: schema.Required},
@@ -869,7 +967,7 @@ func normalizeToolCallID(id string, _ *ai.Model, _ *ai.AssistantMessage) string 
 	return out
 }
 
-func convertMessages(messages []ai.Message, model *ai.Model, cacheControl *wireCacheControl) []wireMessage {
+func convertMessages(messages []ai.Message, model *ai.Model, cacheControl *wireCacheControl, isOAuth bool) []wireMessage {
 	transformed := apis.TransformMessages(messages, model, normalizeToolCallID)
 	out := make([]wireMessage, 0, len(transformed))
 	for i := 0; i < len(transformed); i++ {
@@ -890,7 +988,7 @@ func convertMessages(messages []ai.Message, model *ai.Model, cacheControl *wireC
 			out = append(out, wireMessage{Role: "user", Content: blocks})
 
 		case *ai.AssistantMessage:
-			blocks := convertAssistantBlocks(m.Content, model)
+			blocks := convertAssistantBlocks(m.Content, model, isOAuth)
 			if len(blocks) == 0 {
 				continue
 			}
@@ -960,7 +1058,7 @@ func convertUserBlocks(blocks []ai.UserContentPart) []map[string]any {
 	return out
 }
 
-func convertAssistantBlocks(content []ai.AssistantContentPart, model *ai.Model) []map[string]any {
+func convertAssistantBlocks(content []ai.AssistantContentPart, model *ai.Model, isOAuth bool) []map[string]any {
 	var out []map[string]any
 	for _, block := range content {
 		switch b := block.(type) {
@@ -1006,7 +1104,11 @@ func convertAssistantBlocks(content []ai.AssistantContentPart, model *ai.Model) 
 			if args == nil {
 				args = map[string]any{}
 			}
-			out = append(out, map[string]any{"type": "tool_use", "id": b.ID, "name": b.Name, "input": args})
+			name := b.Name
+			if isOAuth {
+				name = toClaudeCodeName(name)
+			}
+			out = append(out, map[string]any{"type": "tool_use", "id": b.ID, "name": name, "input": args})
 		}
 	}
 	return out
@@ -1080,12 +1182,29 @@ func buildHeaders(model *ai.Model, chat ai.Context, opts *ai.StreamOptions, apiK
 		"accept":            "text/event-stream",
 		"anthropic-version": anthropicVersion,
 	}
-	if apiKey != "" {
+
+	var betas []string
+	if needsFineGrainedToolStreamingBeta(model, chat) {
+		betas = append(betas, fineGrainedToolStreamingBeta)
+	}
+
+	if isOAuthToken(apiKey) {
+		// OAuth (Claude Pro/Max): Bearer auth plus the Claude Code identity
+		// headers Anthropic requires to authorize impersonation. Ports the
+		// OAuth branch of createClient in anthropic-messages.ts.
+		defaults["authorization"] = "Bearer " + apiKey
+		defaults["anthropic-dangerous-direct-browser-access"] = "true"
+		defaults["user-agent"] = "claude-cli/" + claudeCodeVersion
+		defaults["x-app"] = "cli"
+		betas = append([]string{claudeCodeBeta, oauthBeta}, betas...)
+	} else if apiKey != "" {
 		defaults["x-api-key"] = apiKey
 	}
-	if needsFineGrainedToolStreamingBeta(model, chat) {
-		defaults["anthropic-beta"] = fineGrainedToolStreamingBeta
+
+	if len(betas) > 0 {
+		defaults["anthropic-beta"] = strings.Join(betas, ",")
 	}
+
 	for k, v := range model.Headers {
 		defaults[k] = v
 	}
