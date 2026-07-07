@@ -29,7 +29,8 @@ naming its upstream source.
 | `src/api/lazy.ts` | `ai/lazy.go` | ported (module lazy-loading is a TS concern; only lazyStream semantics carry over) |
 | `src/api/simple-options.ts` | `ai/apis/simpleopts.go` | ported |
 | `src/auth/types.ts`, `src/auth/resolve.ts`, `src/auth/credential-store.ts`, `src/auth/context.ts` | `ai/auth.go`, `ai/resolve.go`, `ai/credentialstore.go`, `ai/authcontext.go` (in package `ai`: the Provider interface references ProviderAuth, so a separate package would cycle) | ported |
-| `src/auth/helpers.ts`, persistent auth.json store | `ai/auth` | phase 3 |
+| persistent auth.json store (from `packages/coding-agent/src/core/auth-storage.ts`) | `ai/auth/filestore.go` | ported |
+| `src/auth/helpers.ts` | `ai/auth` | phase 11 (envApiKeyAuth backs the provider bindings; lazyOAuth is a TS bundler concern) |
 | `src/utils/oauth/*`, `src/oauth.ts` | `ai/auth/oauth` | phase 12 |
 | `src/api/transform-messages.ts` | `ai/apis/transform.go` | phase 4 |
 | `src/utils/validation.ts`, `src/utils/typebox-helpers.ts` | `ai/internal/jsonschema` | phase 4 |
