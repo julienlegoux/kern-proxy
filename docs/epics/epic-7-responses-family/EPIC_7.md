@@ -3,10 +3,10 @@ type: Epic
 title: "Responses family (OpenAI responses, Azure, Codex)"
 description: "openai-responses adapter plus Azure variant and the Codex adapter with WebSocket transport, zstd SSE fallback, and JWT accountId."
 tags: [epic]
-timestamp: 2026-07-07T05:34:54Z
+timestamp: 2026-07-08T07:28:37Z
 epic: 7
 slug: responses-family
-status: open
+status: done
 gh_issue: 8
 milestone: 7
 resource: https://github.com/julienlegoux/kern-proxy/issues/8
