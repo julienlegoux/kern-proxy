@@ -1,5 +1,6 @@
 upstream/.upstream-clone/
 *.test
+*.exe
 coverage.out
 dist/
 node_modules/
