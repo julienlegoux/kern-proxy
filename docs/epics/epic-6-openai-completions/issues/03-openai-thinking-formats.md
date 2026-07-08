@@ -3,12 +3,12 @@ type: Issue
 title: "Add the thinking-format encodings"
 description: "The 10-value thinkingFormat enum and its per-format request/response encodings for reasoning-capable completions vendors."
 tags: [epic-6]
-timestamp: 2026-07-07T08:23:01Z
+timestamp: 2026-07-08T05:45:00Z
 epic: 6
 issue: 03
 slug: openai-thinking-formats
 size: M
-status: open
+status: in-progress
 gh_issue: 26
 resource: https://github.com/julienlegoux/kern-proxy/issues/26
 depends_on: [01]
