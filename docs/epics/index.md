@@ -41,7 +41,7 @@ there, or use an OKF-aware reader.
 * [Epic 5: Anthropic adapter](/epic-5-anthropic-adapter/EPIC_5.md) - done, [#6](https://github.com/julienlegoux/kern-proxy/issues/6) (closed)
 * [Epic 6: OpenAI completions adapter](/epic-6-openai-completions/EPIC_6.md) - done, [#7](https://github.com/julienlegoux/kern-proxy/issues/7) (closed)
 * [Epic 7: Responses family (OpenAI responses, Azure, Codex)](/epic-7-responses-family/EPIC_7.md) - done, [#8](https://github.com/julienlegoux/kern-proxy/issues/8) (closed)
-* [Epic 8: Google & Vertex adapters](/epic-8-google-vertex/EPIC_8.md) - open, [#9](https://github.com/julienlegoux/kern-proxy/issues/9)
+* [Epic 8: Google & Vertex adapters](/epic-8-google-vertex/EPIC_8.md) - done, [#9](https://github.com/julienlegoux/kern-proxy/issues/9) (closed)
 * [Epic 9: Mistral adapter](/epic-9-mistral/EPIC_9.md) - open, [#10](https://github.com/julienlegoux/kern-proxy/issues/10)
 * [Epic 10: Bedrock adapter](/epic-10-bedrock/EPIC_10.md) - open, [#11](https://github.com/julienlegoux/kern-proxy/issues/11)
 * [Epic 11: Catalog & all provider bindings](/epic-11-catalog-all-providers/EPIC_11.md) - open, [#12](https://github.com/julienlegoux/kern-proxy/issues/12)

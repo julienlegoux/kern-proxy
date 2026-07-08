@@ -3,10 +3,10 @@ type: Epic
 title: "Google & Vertex adapters"
 description: "google-shared converters, thinking signatures, raw HTTP transport, and Vertex ADC auth via golang.org/x/oauth2/google."
 tags: [epic]
-timestamp: 2026-07-07T05:34:54Z
+timestamp: 2026-07-08T08:30:00Z
 epic: 8
 slug: google-vertex
-status: open
+status: done
 gh_issue: 9
 milestone: 8
 resource: https://github.com/julienlegoux/kern-proxy/issues/9
