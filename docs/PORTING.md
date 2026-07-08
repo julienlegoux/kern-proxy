@@ -34,7 +34,7 @@ naming its upstream source.
 | `src/utils/oauth/*`, `src/oauth.ts` | `ai/auth/oauth` | phase 12 |
 | `src/api/transform-messages.ts` | `ai/apis/transform.go` | ported |
 | `src/utils/validation.ts`, `src/utils/typebox-helpers.ts` | `ai/internal/jsonschema` | ported (typebox-helpers' StringEnum is a TypeBox schema-authoring convenience; plain JSON Schema documents need no equivalent) |
-| `src/api/anthropic-messages.ts` | `ai/apis/anthropic` | phase 5: core, adaptive thinking, and cache_control ported (issues 01–02); OAuth impersonation and retry/overflow integration are epic 5 issues 03–04 |
+| `src/api/anthropic-messages.ts` | `ai/apis/anthropic` | phase 5: core, adaptive thinking, cache_control, and OAuth Claude Code impersonation ported (issues 01–03); retry/overflow integration is epic 5 issue 04 |
 | `src/api/openai-completions.ts`, `openai-prompt-cache.ts` | `ai/apis/openaicompletions` | phase 6 |
 | `src/api/openai-responses*.ts`, `azure-*`, `openai-codex-*` | `ai/apis/openairesponses` (+`azure`,`codex`) | phase 7 |
 | `src/api/google-*.ts` | `ai/apis/google` (+`vertex`) | phase 8 |

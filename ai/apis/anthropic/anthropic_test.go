@@ -897,7 +897,7 @@ func TestConvertAssistantBlocks_EmptySignatureThinkingDowngradesToTextByDefault(
 	model := &ai.Model{ID: "mimo-v2.5-pro", Api: ai.ApiAnthropicMessages, Provider: "xiaomi-token-plan-ams", Reasoning: true}
 	blocks := convertAssistantBlocks([]ai.AssistantContentPart{
 		ai.ThinkingContent{Thinking: "internal reasoning", ThinkingSignature: ""},
-	}, model)
+	}, model, false)
 	want := []map[string]any{{"type": "text", "text": "internal reasoning"}}
 	if len(blocks) != 1 || !mapsEqual(blocks[0], want[0]) {
 		t.Errorf("blocks = %#v, want %#v", blocks, want)
@@ -914,7 +914,7 @@ func TestConvertAssistantBlocks_PreservesEmptySignatureThinkingWhenAllowEmptySig
 	// check trims before deciding "empty", not just a strict "" comparison.
 	blocks := convertAssistantBlocks([]ai.AssistantContentPart{
 		ai.ThinkingContent{Thinking: "internal reasoning", ThinkingSignature: " "},
-	}, model)
+	}, model, false)
 	want := []map[string]any{{"type": "thinking", "thinking": "internal reasoning", "signature": ""}}
 	if len(blocks) != 1 || !mapsEqual(blocks[0], want[0]) {
 		t.Errorf("blocks = %#v, want %#v", blocks, want)
