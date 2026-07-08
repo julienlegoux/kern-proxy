@@ -3,12 +3,12 @@ type: Issue
 title: "Wire retry/overflow classification and the live smoke into the Anthropic adapter"
 description: "Retryable stream-truncation handling (ended before message_stop), overflow classification, and the env-gated live smoke test."
 tags: [epic-5]
-timestamp: 2026-07-07T08:21:58Z
+timestamp: 2026-07-08T05:00:00Z
 epic: 5
 issue: 04
 slug: anthropic-retry-overflow-smoke
 size: S
-status: open
+status: in-progress
 gh_issue: 23
 resource: https://github.com/julienlegoux/kern-proxy/issues/23
 depends_on: [01]
