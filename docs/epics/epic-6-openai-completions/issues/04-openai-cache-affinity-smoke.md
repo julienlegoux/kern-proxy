@@ -3,13 +3,14 @@ type: Issue
 title: "Add prompt-cache replication, session-affinity headers, and the live smoke"
 description: "Anthropic-style cache_control replication for completions vendors, session-affinity headers, and the env-gated OPENAI_API_KEY smoke test."
 tags: [epic-6]
-timestamp: 2026-07-07T08:23:04Z
+timestamp: 2026-07-08T07:40:00Z
 epic: 6
 issue: 04
 slug: openai-cache-affinity-smoke
 size: S
-status: open
+status: pr-open
 gh_issue: 27
+gh_pr: 57
 resource: https://github.com/julienlegoux/kern-proxy/issues/27
 depends_on: [01]
 ---
