@@ -3,10 +3,10 @@ type: Epic
 title: "Bedrock adapter"
 description: "AWS Bedrock ConverseStream adapter via aws-sdk-go-v2, with the full AWS auth matrix including bearer-token mode and thinking payloads."
 tags: [epic]
-timestamp: 2026-07-07T05:34:54Z
+timestamp: 2026-07-08T13:22:55Z
 epic: 10
 slug: bedrock
-status: open
+status: done
 gh_issue: 11
 milestone: 10
 resource: https://github.com/julienlegoux/kern-proxy/issues/11

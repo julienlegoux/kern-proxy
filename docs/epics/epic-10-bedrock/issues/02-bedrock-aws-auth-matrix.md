@@ -3,12 +3,12 @@ type: Issue
 title: "Add the full AWS auth matrix including bearer-token mode"
 description: "All Bedrock auth modes — profiles, explicit keys, ambient sentinels, and bearer-token auth (plan risk #3: verify it's expressible in aws-sdk-go-v2)."
 tags: [epic-10]
-timestamp: 2026-07-08T13:20:00Z
+timestamp: 2026-07-08T13:22:55Z
 epic: 10
 issue: 02
 slug: bedrock-aws-auth-matrix
 size: M
-status: pr-open
+status: done
 gh_issue: 36
 gh_pr: 66
 resource: https://github.com/julienlegoux/kern-proxy/issues/36
