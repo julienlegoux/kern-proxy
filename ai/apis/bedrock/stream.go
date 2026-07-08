@@ -1,5 +1,7 @@
 package bedrock
 
+// Ports: packages/ai/src/api/bedrock-converse-stream.ts
+
 // Ports the streaming half of bedrock-converse-stream.ts: handleContentBlockStart,
 // handleContentBlockDelta, handleContentBlockStop, handleMetadata, and
 // mapStopReason, decoding the AWS SDK's ConverseStream event union into the

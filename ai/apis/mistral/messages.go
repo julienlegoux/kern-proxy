@@ -1,5 +1,7 @@
 package mistral
 
+// Ports: packages/ai/src/api/mistral-conversations.ts
+
 // Ports the message/tool conversion and tool-choice/stop-reason mapping
 // halves of mistral-conversations.ts's buildChatPayload, toChatMessages,
 // toFunctionTools, mapToolChoice, and mapChatStopReason.

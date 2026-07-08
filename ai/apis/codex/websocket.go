@@ -1,5 +1,7 @@
 package codex
 
+// Ports: packages/ai/src/api/openai-codex-responses.ts
+
 // Ports the WebSocket transport half of
 // packages/ai/src/api/openai-codex-responses.ts -- acquireWebSocket/
 // connectWebSocket/parseWebSocket/processWebSocketStream, the

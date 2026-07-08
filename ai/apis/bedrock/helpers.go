@@ -1,5 +1,7 @@
 package bedrock
 
+// Ports: packages/ai/src/api/bedrock-converse-stream.ts
+
 import (
 	"encoding/base64"
 	"encoding/json"

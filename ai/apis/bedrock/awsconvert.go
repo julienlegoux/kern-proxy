@@ -1,5 +1,7 @@
 package bedrock
 
+// Ports: packages/ai/src/api/bedrock-converse-stream.ts
+
 // Converts the logical wireRequest (the shape exposed to OnPayload) into the
 // AWS SDK's typed *bedrockruntime.ConverseStreamInput for the actual client
 // call. This indirection exists so OnPayload sees/replaces a plain,

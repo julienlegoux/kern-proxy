@@ -1,5 +1,7 @@
 package partialjson
 
+// Ports: packages/ai/src/utils/json-parse.ts (+ npm partial-json)
+
 import (
 	"errors"
 	"strconv"

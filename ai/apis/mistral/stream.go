@@ -1,5 +1,7 @@
 package mistral
 
+// Ports: packages/ai/src/api/mistral-conversations.ts
+
 // Ports the streaming half of mistral-conversations.ts's consumeChatStream:
 // upstream iterates the @mistralai/mistralai SDK's AsyncIterable<CompletionEvent>;
 // this Go port has no such SDK, so it frames the same JSON chunks itself off

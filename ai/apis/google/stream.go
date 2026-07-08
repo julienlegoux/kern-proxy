@@ -1,5 +1,7 @@
 package google
 
+// Ports: packages/ai/src/api/google-generative-ai.ts
+
 // Ports the streaming half of google-generative-ai.ts's `stream` function:
 // upstream iterates the @google/genai SDK's AsyncIterable<GenerateContentResponse>;
 // this Go port has no such SDK, so it frames the same JSON chunks itself off

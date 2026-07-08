@@ -1,5 +1,7 @@
 package bedrock
 
+// Ports: packages/ai/src/api/bedrock-converse-stream.ts
+
 // wireRequest is the logical shape of a ConverseStream request, exposed to
 // StreamOptions.OnPayload exactly like the plain commandInput object upstream
 // hands to its onPayload hook -- before it is converted into the AWS SDK's

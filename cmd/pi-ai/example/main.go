@@ -9,6 +9,9 @@
 // smoke test); this program is a thin runnable wrapper over that package.
 package main
 
+// Ports: none — original: runnable wrapper demoing a tool-call round trip
+// over cmd/pi-ai/toolcallexample.
+
 import (
 	"context"
 	"fmt"
