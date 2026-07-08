@@ -11,12 +11,16 @@
 // ai.Model.Compat entries) and wired it into the flags this adapter already
 // reads: store, developer role, strict mode, usage-in-streaming, the
 // max_tokens/max_completion_tokens field choice, tool-result name, and the
-// synthetic post-tool-result assistant bridge. Thinking-format encodings and
-// cache_control/session-affinity/live-smoke wiring are follow-up issues (see
-// docs/epics/epic-6-openai-completions/issues/03-04); their compat fields
-// resolve correctly already (so overrides work) but are not yet read here.
+// synthetic post-tool-result assistant bridge. Issue 03 added the 10-value
+// thinkingFormat enum's per-format request encoding and same-model thinking
+// replay. Issue 04 (final issue of epic 6) added OpenAI's own
+// prompt_cache_key/prompt_cache_retention fields (promptcache.go), Anthropic-
+// style cache_control replication for vendors whose compat.cacheControlFormat
+// is "anthropic" (applyCaching/applyAnthropicCacheControl in this file), and
+// session-affinity headers (buildHeaders) — closing out this package's
+// upstream fidelity bar.
 //
-// Ports: packages/ai/src/api/openai-completions.ts
+// Ports: packages/ai/src/api/openai-completions.ts, openai-prompt-cache.ts
 package openaicompletions
 
 import (
@@ -27,6 +31,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -222,10 +227,10 @@ func httpStatusError(resp *http.Response) error {
 // --- request building ---------------------------------------------------------
 
 // wireRequest is the OpenAI chat-completions streaming request body: the base
-// subset (no cache_control fields yet; those land in issue 04) plus the
-// thinking-format fields this issue wires (reasoning_effort/thinking/
+// subset, the thinking-format fields from issue 03 (reasoning_effort/thinking/
 // enable_thinking/chat_template_kwargs/reasoning/tool_stream, whose shape
-// varies per Model.Compat.ThinkingFormat — see applyThinkingFormat).
+// varies per Model.Compat.ThinkingFormat — see applyThinkingFormat), and
+// (issue 04) the OpenAI prompt-cache fields.
 type wireRequest struct {
 	Model               string             `json:"model"`
 	Messages            []wireMessage      `json:"messages"`
@@ -246,6 +251,10 @@ type wireRequest struct {
 	EnableThinking     *bool          `json:"enable_thinking,omitempty"`
 	ChatTemplateKwargs map[string]any `json:"chat_template_kwargs,omitempty"`
 	Reasoning          any            `json:"reasoning,omitempty"`
+
+	// --- OpenAI prompt cache fields (issue 04) ---
+	PromptCacheKey       string `json:"prompt_cache_key,omitempty"`
+	PromptCacheRetention string `json:"prompt_cache_retention,omitempty"`
 }
 
 // wireThinkingObj is the `thinking` object shape used by the "zai" and
@@ -274,6 +283,19 @@ type wireStreamOptions struct {
 type wireTool struct {
 	Type     string       `json:"type"`
 	Function wireFunction `json:"function"`
+	// CacheControl marks this tool as an Anthropic-style cache breakpoint
+	// (issue 04, cacheControlFormat: "anthropic"); only ever set on the last
+	// tool in the list.
+	CacheControl *wireCacheControl `json:"cache_control,omitempty"`
+}
+
+// wireCacheControl is the Anthropic-style ephemeral cache_control breakpoint
+// some completions-compatible vendors (notably OpenRouter's Anthropic models)
+// accept when compat.cacheControlFormat is "anthropic". Ports
+// OpenAICompatCacheControl from openai-completions.ts.
+type wireCacheControl struct {
+	Type string `json:"type"`
+	TTL  string `json:"ttl,omitempty"`
 }
 
 type wireFunction struct {
@@ -311,6 +333,9 @@ type wireContentPart struct {
 	Type     string        `json:"type"`
 	Text     string        `json:"text,omitempty"`
 	ImageURL *wireImageURL `json:"image_url,omitempty"`
+	// CacheControl marks this text part as an Anthropic-style cache
+	// breakpoint (issue 04); only ever set by applyAnthropicCacheControl.
+	CacheControl *wireCacheControl `json:"cache_control,omitempty"`
 }
 
 type wireImageURL struct {
@@ -375,8 +400,143 @@ func buildParams(model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *wire
 	}
 
 	applyThinkingFormat(req, model, compat, opts)
+	applyCaching(req, model, compat, opts)
 
 	return req
+}
+
+// --- prompt caching and cache_control (issue 04) ----------------------------
+
+// applyCaching resolves the effective cache retention and wires OpenAI's own
+// prompt_cache_key/prompt_cache_retention fields plus (for vendors whose
+// compat.cacheControlFormat is "anthropic") Anthropic-style cache_control
+// breakpoints. Ports the caching-related portion of buildParams from
+// openai-completions.ts.
+func applyCaching(req *wireRequest, model *ai.Model, compat resolvedCompat, opts *ai.StreamOptions) {
+	var sessionID string
+	var env ai.ProviderEnv
+	var rawRetention ai.CacheRetention
+	if opts != nil {
+		sessionID = opts.SessionID
+		env = opts.Env
+		rawRetention = opts.CacheRetention
+	}
+	retention := resolveCacheRetention(rawRetention, env)
+
+	isOpenAI := strings.Contains(model.BaseURL, "api.openai.com")
+	longRetentionOK := retention == ai.CacheRetentionLong && compat.supportsLongCacheRetention
+	if (isOpenAI && retention != ai.CacheRetentionNone) || longRetentionOK {
+		req.PromptCacheKey = clampOpenAIPromptCacheKey(sessionID)
+	}
+	if longRetentionOK {
+		req.PromptCacheRetention = "24h"
+	}
+
+	if cacheControl := getCompatCacheControl(compat, retention); cacheControl != nil {
+		applyAnthropicCacheControl(req.Messages, req.Tools, cacheControl)
+	}
+}
+
+// resolveCacheRetention resolves the caller's preference against
+// PI_CACHE_RETENTION (checked in env first, then the process environment),
+// defaulting to "short". Ports resolveCacheRetention from
+// openai-completions.ts.
+func resolveCacheRetention(retention ai.CacheRetention, env ai.ProviderEnv) ai.CacheRetention {
+	if retention != "" {
+		return retention
+	}
+	if providerEnvValue("PI_CACHE_RETENTION", env) == "long" {
+		return ai.CacheRetentionLong
+	}
+	return ai.CacheRetentionShort
+}
+
+// providerEnvValue reads name from the request-scoped env override first,
+// falling back to the process environment. Mirrors the anthropic package's
+// helper of the same name/behavior (see its doc comment for the
+// provider-env.ts Bun-sandbox deviation this intentionally omits).
+func providerEnvValue(name string, env ai.ProviderEnv) string {
+	if v, ok := env[name]; ok && v != "" {
+		return v
+	}
+	return os.Getenv(name)
+}
+
+// getCompatCacheControl builds the cache_control breakpoint to replicate
+// across the request (system prompt, last tool, last conversation message),
+// or nil when the vendor doesn't use the Anthropic cache_control format or
+// caching is disabled for this request. Ports getCompatCacheControl.
+func getCompatCacheControl(compat resolvedCompat, retention ai.CacheRetention) *wireCacheControl {
+	if compat.cacheControlFormat != "anthropic" || retention == ai.CacheRetentionNone {
+		return nil
+	}
+	cc := &wireCacheControl{Type: "ephemeral"}
+	if retention == ai.CacheRetentionLong && compat.supportsLongCacheRetention {
+		cc.TTL = "1h"
+	}
+	return cc
+}
+
+// applyAnthropicCacheControl replicates cacheControl across the system/
+// developer instruction message, the last tool, and the last user/assistant
+// message with text content — the same three breakpoints Anthropic's own
+// adapter marks. Ports applyAnthropicCacheControl.
+func applyAnthropicCacheControl(messages []wireMessage, tools *[]wireTool, cacheControl *wireCacheControl) {
+	addCacheControlToSystemPrompt(messages, cacheControl)
+	addCacheControlToLastTool(tools, cacheControl)
+	addCacheControlToLastConversationMessage(messages, cacheControl)
+}
+
+func addCacheControlToSystemPrompt(messages []wireMessage, cacheControl *wireCacheControl) {
+	for i := range messages {
+		if messages[i].Role == "system" || messages[i].Role == "developer" {
+			addCacheControlToTextContent(&messages[i], cacheControl)
+			return
+		}
+	}
+}
+
+func addCacheControlToLastTool(tools *[]wireTool, cacheControl *wireCacheControl) {
+	if tools == nil || len(*tools) == 0 {
+		return
+	}
+	(*tools)[len(*tools)-1].CacheControl = cacheControl
+}
+
+func addCacheControlToLastConversationMessage(messages []wireMessage, cacheControl *wireCacheControl) {
+	for i := len(messages) - 1; i >= 0; i-- {
+		if messages[i].Role != "user" && messages[i].Role != "assistant" {
+			continue
+		}
+		if addCacheControlToTextContent(&messages[i], cacheControl) {
+			return
+		}
+	}
+}
+
+// addCacheControlToTextContent marks msg's text content with cacheControl:
+// a plain non-empty string becomes a single-part array (matching upstream's
+// string -> [{type:"text",...}] promotion), and an existing part array gets
+// its last text part marked. Reports whether a breakpoint was placed.
+func addCacheControlToTextContent(msg *wireMessage, cacheControl *wireCacheControl) bool {
+	switch content := msg.Content.(type) {
+	case string:
+		if content == "" {
+			return false
+		}
+		msg.Content = []wireContentPart{{Type: "text", Text: content, CacheControl: cacheControl}}
+		return true
+	case []wireContentPart:
+		for i := len(content) - 1; i >= 0; i-- {
+			if content[i].Type == "text" {
+				content[i].CacheControl = cacheControl
+				return true
+			}
+		}
+		return false
+	default:
+		return false
+	}
 }
 
 // --- thinking-format encoding (issue 03) -----------------------------------
@@ -839,6 +999,12 @@ func convertToolResultMessage(m ai.ToolResultMessage, compat resolvedCompat) wir
 
 // --- headers -------------------------------------------------------------
 
+// buildHeaders builds the request headers, including (issue 04) the
+// session-affinity headers used by proxies/gateways that route by session:
+// session_id, x-client-request-id, and x-session-affinity, all set to the
+// session id when compat.sendSessionAffinityHeaders is enabled and caching
+// isn't disabled for this request. Ports the header-building half of
+// createClient from openai-completions.ts.
 func buildHeaders(model *ai.Model, opts *ai.StreamOptions, apiKey string) map[string]string {
 	defaults := map[string]string{
 		"content-type": "application/json",
@@ -850,6 +1016,23 @@ func buildHeaders(model *ai.Model, opts *ai.StreamOptions, apiKey string) map[st
 	for k, v := range model.Headers {
 		defaults[k] = v
 	}
+
+	compat := getCompat(model)
+	var sessionID string
+	var env ai.ProviderEnv
+	var rawRetention ai.CacheRetention
+	if opts != nil {
+		sessionID = opts.SessionID
+		env = opts.Env
+		rawRetention = opts.CacheRetention
+	}
+	retention := resolveCacheRetention(rawRetention, env)
+	if sessionID != "" && retention != ai.CacheRetentionNone && compat.sendSessionAffinityHeaders {
+		defaults["session_id"] = sessionID
+		defaults["x-client-request-id"] = sessionID
+		defaults["x-session-affinity"] = sessionID
+	}
+
 	var optHeaders ai.ProviderHeaders
 	if opts != nil {
 		optHeaders = opts.Headers
