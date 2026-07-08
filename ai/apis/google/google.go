@@ -440,6 +440,10 @@ func requestURL(model *ai.Model) string {
 	if base == "" {
 		base = "https://generativelanguage.googleapis.com"
 	}
+	// The embedded catalog / provider base URL already carries the "/v1beta"
+	// segment that this function appends below; strip a trailing one so the
+	// path is not doubled into ".../v1beta/v1beta/models/..." (which 404s).
+	base = strings.TrimSuffix(base, "/v1beta")
 	return fmt.Sprintf("%s/v1beta/models/%s:streamGenerateContent?alt=sse", base, model.ID)
 }
 
