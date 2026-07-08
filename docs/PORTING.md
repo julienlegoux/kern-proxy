@@ -42,7 +42,7 @@ naming its upstream source.
 | `src/api/google-generative-ai.ts`, `google-shared.ts` | `ai/apis/google` | ported (phase 8, issue 01: google-shared converters (contents, tools, generation config) and thinking-signature handling, exported as `ConvertMessages`/`ConvertTools`/`DecodeStream` for the Vertex variant (issue 02) to reuse; streaming decode into unified events and API-key auth, over raw `net/http` + `ai/internal/sse` against the Generative Language REST API directly (no Go equivalent of the `@google/genai` SDK -- see "Vendor SDKs" below)) |
 | `src/api/google-vertex.ts` | `ai/apis/google/vertex` | ported (phase 8, issue 02: Vertex endpoint shaping (project/location-scoped REST path for ADC, a project-less publisher path for an explicit API key) over `ai/apis/google`'s shared `ConvertMessages`/`ConvertTools`/`DecodeStream`, plus the thinking-level/budget helpers and `wireRequest` shape duplicated from that package -- matching upstream's own duplication between `google-generative-ai.ts` and `google-vertex.ts`, since only `google-shared.ts` is actually shared upstream. Application Default Credentials via `golang.org/x/oauth2/google` (`google.DefaultTokenSource`), reached through an injectable package-level `adcTokenFunc` (mirroring `ai/resolve.go`'s `authClock` stubbing pattern) so tests cover ADC resolution with a fake token source, no live GCP credentials needed. The `gcp-vertex-credentials` sentinel and `<placeholder>`-shaped API keys both fall back to ADC, matching `resolveApiKey`/`isPlaceholderApiKey`. **Deviation**: the exact REST path the `@google/genai` SDK builds when a custom `httpOptions.baseUrl` is combined with project/location is an internal SDK detail with no vendored source to introspect; this port instead defines and tests its own contract -- a genuine `baseUrl` override replaces the default host outright, and a catalog `baseUrl` template still containing `{location}` is ignored in favor of the default host) |
 | `src/api/mistral-conversations.ts` | `ai/apis/mistral` | ported (phase 9: request building — messages, tools, tool choice, prompt_mode/reasoning_effort reasoning controls, prompt_cache_key/x-affinity session caching — and SSE stream decode into unified events over raw `net/http` + `ai/internal/sse`, since there is no Go equivalent of the `@mistralai/mistralai` SDK (see "Vendor SDKs" below); the provider binding/catalog entry is deferred to epic 11) |
-| `src/api/bedrock-converse-stream.ts`, `src/bedrock-provider.ts` | `ai/apis/bedrock` | phase 10 |
+| `src/api/bedrock-converse-stream.ts`, `src/bedrock-provider.ts` | `ai/apis/bedrock` | ported (phase 10, issue 01: Converse request building — messages, tools, inference config, system-prompt/last-user-message prompt-cache points — and `ConverseStream` event decode into unified events, plus Claude thinking-payload encode/decode (adaptive and budget-based, GovCloud display omission, interleaved-thinking beta), over `aws-sdk-go-v2`'s `bedrockruntime` client with default-credential-chain auth only; the full AWS auth matrix — explicit keys, profiles, region resolution, bearer-token auth — is issue 02) |
 | `src/providers/*.ts` (bindings), `src/providers/all.ts` | `ai/providers` | phase 11 |
 | `src/providers/*.models.ts`, `src/models.generated.ts` | `ai/catalog/data/*.json` (via `tools/export-catalog`) | phase 11 |
 | `src/env-api-keys.ts`, `src/utils/provider-env.ts` | `ai/auth/env.go` | phase 3 |
@@ -103,6 +103,34 @@ naming its upstream source.
   caller-supplied auth header in lieu of `apiKey`), `ai/apis/mistral` requires
   a non-empty `apiKey` unconditionally, matching upstream's own unconditional
   `if (!apiKey) throw ...` in `mistral-conversations.ts`'s `stream` function.
+- **Bedrock "unknown content type" tests have no Go equivalent input**:
+  upstream's `bedrock-convert-messages.test.ts` includes cases feeding a
+  message an `{ type: "unknown", ... }` content block to verify it's skipped
+  rather than throwing. `ai.UserContentPart`/`ai.AssistantContentPart` are
+  closed Go interfaces that structurally cannot hold an unrecognized block
+  type, so those specific cases aren't portable; the surrounding
+  blank/placeholder-handling behavior they were bundled with is ported and
+  tested in `ai/apis/bedrock/messages_test.go`.
+- **Bedrock unrecognized image MIME type**: upstream's `createImageBlock`
+  throws synchronously on an unrecognized `mimeType`. `ai/apis/bedrock`
+  passes an unrecognized value through unchanged instead, letting Bedrock's
+  own request validation reject it (surfacing as a normal error event via
+  `formatBedrockError`), rather than threading an error return through every
+  message-conversion function for a case no upstream or ported test
+  exercises.
+- **Bedrock error formatting reads `smithy.APIError` directly**: upstream's
+  `formatBedrockError` uses `normalizeProviderError` to defensively probe an
+  arbitrary thrown value's shape, because JS has no static error typing. The
+  AWS Go SDK returns errors implementing `smithy.APIError`
+  (`ErrorCode`/`ErrorMessage`/`ErrorFault`) uniformly for both request-level
+  failures and stream-level exceptions, so `ai/apis/bedrock` reads those
+  directly instead of re-implementing upstream's shape-probing.
+- **Bedrock custom-headers middleware and full endpoint/region resolution
+  are deferred to issue 02** alongside the rest of the AWS auth matrix: both
+  `bedrock-custom-headers.test.ts` and `bedrock-endpoint-resolution.test.ts`
+  exercise client-construction concerns (SigV4-covered header injection,
+  region/profile/ARN-driven endpoint pinning) that issue 01's scope
+  explicitly excludes ("default credential-chain auth only in this issue").
 
 ## Upstream sync procedure
 

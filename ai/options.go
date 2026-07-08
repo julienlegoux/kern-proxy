@@ -230,6 +230,47 @@ type StreamOptions struct {
 	// MistralReasoningEffort selects the reasoning-effort-style models'
 	// binary thinking knob ("none"|"high"). Empty means unset.
 	MistralReasoningEffort string
+
+	// --- bedrock-converse-stream only (same flat-merge deviation as above;
+	// upstream's BedrockOptions extends StreamOptions with region, profile,
+	// toolChoice, reasoning, thinkingBudgets, interleavedThinking,
+	// thinkingDisplay, requestMetadata, and bearerToken) ---
+
+	// BedrockRegion is consumed only for the GovCloud thinking-display check
+	// in this issue (matching a region prefix of "us-gov-"); full
+	// region-resolution semantics (client config, inference-profile ARN
+	// extraction, endpoint pinning) land with the AWS auth-matrix issue.
+	BedrockRegion string
+	// BedrockToolChoice selects Bedrock's tool-choice mode ("auto"|"any");
+	// empty behaves like "auto" when tools are offered. Ignored when
+	// BedrockToolChoiceFunction is set. "none" (any non-empty, non-auto,
+	// non-any value) suppresses ToolConfig entirely, matching upstream's
+	// `toolChoice === "none"` guard.
+	BedrockToolChoice string
+	// BedrockToolChoiceFunction pins tool choice to one named function,
+	// overriding BedrockToolChoice; empty means unset (same escape-valve
+	// pattern as MistralToolChoiceFunction).
+	BedrockToolChoiceFunction string
+	// BedrockReasoning selects Bedrock's thinking level directly: unlike
+	// Anthropic's Effort or OpenAI-completions' per-format encoding,
+	// upstream's own BedrockOptions.reasoning field already speaks the
+	// abstract ThinkingLevel currency, so no separate vendor-specific enum is
+	// needed here. Empty means thinking is off/unrequested.
+	BedrockReasoning ThinkingLevel
+	// BedrockThinkingBudgets customizes token budgets per thinking level for
+	// non-adaptive-thinking Claude models on Bedrock.
+	BedrockThinkingBudgets *ThinkingBudgets
+	// BedrockInterleavedThinking toggles Claude 4.x's interleaved-thinking
+	// beta on non-adaptive-thinking models; nil defaults to true (matches
+	// upstream's `options.interleavedThinking ?? true`).
+	BedrockInterleavedThinking *bool
+	// BedrockThinkingDisplay controls thinking-content verbosity
+	// ("summarized"|"omitted"); empty uses the adapter default
+	// ("summarized").
+	BedrockThinkingDisplay string
+	// BedrockRequestMetadata attaches key-value pairs to the request for
+	// Bedrock cost-allocation tagging (max 50 pairs; see AWS docs).
+	BedrockRequestMetadata map[string]string
 }
 
 // GoogleThinkingLevel mirrors Google's Gemini 3 ThinkingLevel enum values.
