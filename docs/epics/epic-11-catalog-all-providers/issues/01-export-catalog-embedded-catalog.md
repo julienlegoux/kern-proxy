@@ -3,13 +3,14 @@ type: Issue
 title: "Add the export-catalog tool and embedded model catalog"
 description: "tools/export-catalog tsx script serializing upstream generated models to JSON, plus ai/catalog with go:embed loaders and catalog validation tests."
 tags: [epic-11]
-timestamp: 2026-07-08T13:30:00Z
+timestamp: 2026-07-08T13:40:00Z
 epic: 11
 issue: 01
 slug: export-catalog-embedded-catalog
 size: M
-status: in-progress
+status: pr-open
 gh_issue: 37
+gh_pr: 67
 resource: https://github.com/julienlegoux/kern-proxy/issues/37
 depends_on: []
 ---
