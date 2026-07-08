@@ -133,16 +133,31 @@ type StreamOptions struct {
 	// adapter default (AnthropicThinkingSummarized).
 	ThinkingDisplay AnthropicThinkingDisplay
 
-	// --- openai-completions only (same flat-merge deviation as above;
-	// upstream's OpenAICompletionsOptions extends StreamOptions with
-	// reasoningEffort) ---
+	// --- openai-completions / openai-responses (same flat-merge deviation
+	// as above; upstream's OpenAICompletionsOptions and
+	// OpenAIResponsesOptions each extend StreamOptions with reasoningEffort)
+	// ---
 
-	// ReasoningEffort is the (already-clamped) abstract thinking level,
-	// translated into the vendor-specific reasoning/thinking request shape
-	// selected by Model.Compat.ThinkingFormat. Empty means reasoning is off
+	// ReasoningEffort is the (already-clamped) abstract thinking level. For
+	// openai-completions it's translated into the vendor-specific
+	// reasoning/thinking request shape selected by Model.Compat.ThinkingFormat;
+	// for openai-responses it maps directly to the `reasoning.effort` field
+	// (via Model.ThinkingLevelMap when present). Empty means reasoning is off
 	// or unrequested; StreamSimple resolves this from
 	// SimpleStreamOptions.Reasoning via ai.ClampThinkingLevel.
 	ReasoningEffort ThinkingLevel
+
+	// --- openai-responses only ---
+
+	// ReasoningSummary selects the reasoning summary verbosity
+	// ("auto"|"detailed"|"concise"); empty defaults to "auto" whenever a
+	// reasoning field is sent. A explicit "null" sentinel is not
+	// representable in Go's string type, so upstream's `| null` is not
+	// distinguished from "unset" here (both fall back to "auto").
+	ReasoningSummary string
+	// ServiceTier selects OpenAI's service tier ("auto"|"default"|"flex"|
+	// "priority"); empty leaves the provider default.
+	ServiceTier string
 }
 
 // EffectiveCacheRetention resolves the zero value to the "short" default.
