@@ -11,7 +11,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-proxy/ai/auth/oauth"
 	"github.com/julienlegoux/kern-proxy/ai/catalog"
 )
 
@@ -22,23 +22,17 @@ func TestGitHubCopilotProviderIsDynamic(t *testing.T) {
 	}
 }
 
-func TestGitHubCopilotProviderAdvertisesOAuthPendingEpic12(t *testing.T) {
+func TestGitHubCopilotProviderWiresRealCopilotOAuth(t *testing.T) {
 	provider := GitHubCopilotProvider()
-	oauth := provider.Auth().OAuth
-	if oauth == nil {
-		t.Fatal("Auth().OAuth is nil, want a pending-epic-12 stub")
+	if got := provider.Auth().OAuth; got != oauth.CopilotOAuth {
+		t.Fatalf("Auth().OAuth = %p, want the real oauth.CopilotOAuth strategy %p", got, oauth.CopilotOAuth)
 	}
-	if oauth.Name != "GitHub Copilot" {
-		t.Errorf("oauth.Name = %q", oauth.Name)
+	if got := provider.Auth().OAuth.Name; got != "GitHub Copilot" {
+		t.Errorf("OAuth.Name = %q, want %q", got, "GitHub Copilot")
 	}
-	if _, err := oauth.Login(context.Background(), ai.AuthLoginCallbacks{}); err == nil {
-		t.Error("Login() = nil error, want a not-implemented error")
-	}
-	if _, err := oauth.Refresh(context.Background(), &ai.OAuthCredential{}); err == nil {
-		t.Error("Refresh() = nil error, want a not-implemented error")
-	}
-	if _, err := oauth.ToAuth(context.Background(), &ai.OAuthCredential{}); err == nil {
-		t.Error("ToAuth() = nil error, want a not-implemented error")
+	// The COPILOT_GITHUB_TOKEN api-key fallback must survive alongside OAuth.
+	if provider.Auth().APIKey == nil {
+		t.Error("Auth().APIKey = nil, want the COPILOT_GITHUB_TOKEN fallback kept")
 	}
 }
 
