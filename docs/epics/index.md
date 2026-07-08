@@ -38,7 +38,7 @@ there, or use an OKF-aware reader.
 * [Epic 2: Faux provider & registry](/epic-2-faux-provider-registry/EPIC_2.md) - done, [#3](https://github.com/julienlegoux/kern-proxy/issues/3) (closed)
 * [Epic 3: Auth core](/epic-3-auth-core/EPIC_3.md) - done, [#4](https://github.com/julienlegoux/kern-proxy/issues/4) (closed)
 * [Epic 4: Transform & validation](/epic-4-transform-validation/EPIC_4.md) - done, [#5](https://github.com/julienlegoux/kern-proxy/issues/5) (closed)
-* [Epic 5: Anthropic adapter](/epic-5-anthropic-adapter/EPIC_5.md) - open, [#6](https://github.com/julienlegoux/kern-proxy/issues/6)
+* [Epic 5: Anthropic adapter](/epic-5-anthropic-adapter/EPIC_5.md) - done, [#6](https://github.com/julienlegoux/kern-proxy/issues/6) (closed)
 * [Epic 6: OpenAI completions adapter](/epic-6-openai-completions/EPIC_6.md) - open, [#7](https://github.com/julienlegoux/kern-proxy/issues/7)
 * [Epic 7: Responses family (OpenAI responses, Azure, Codex)](/epic-7-responses-family/EPIC_7.md) - open, [#8](https://github.com/julienlegoux/kern-proxy/issues/8)
 * [Epic 8: Google & Vertex adapters](/epic-8-google-vertex/EPIC_8.md) - open, [#9](https://github.com/julienlegoux/kern-proxy/issues/9)

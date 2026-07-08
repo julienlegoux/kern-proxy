@@ -3,10 +3,10 @@ type: Epic
 title: "Anthropic adapter"
 description: "Full anthropic-messages adapter including OAuth Claude Code impersonation, adaptive thinking, cache_control, and retry/overflow integration."
 tags: [epic]
-timestamp: 2026-07-07T05:34:54Z
+timestamp: 2026-07-08T06:00:00Z
 epic: 5
 slug: anthropic-adapter
-status: open
+status: done
 gh_issue: 6
 milestone: 5
 resource: https://github.com/julienlegoux/kern-proxy/issues/6
