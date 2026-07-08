@@ -49,13 +49,13 @@ func (f *fakeClient) ConverseStream(_ context.Context, params *bedrockruntime.Co
 // alwaysErrorsClient mirrors the TS mock's `send(): Promise<never>` --
 // used by tests that only care about the payload captured via OnPayload
 // before the (fake) send.
-func alwaysErrorsClient(err error) func(ctx context.Context) (converseStreamAPI, error) {
-	return func(ctx context.Context) (converseStreamAPI, error) {
+func alwaysErrorsClient(err error) func(ctx context.Context, model *ai.Model, opts *ai.StreamOptions) (converseStreamAPI, error) {
+	return func(ctx context.Context, model *ai.Model, opts *ai.StreamOptions) (converseStreamAPI, error) {
 		return &fakeClient{err: err}, nil
 	}
 }
 
-func withFakeClient(t *testing.T, factory func(ctx context.Context) (converseStreamAPI, error)) {
+func withFakeClient(t *testing.T, factory func(ctx context.Context, model *ai.Model, opts *ai.StreamOptions) (converseStreamAPI, error)) {
 	t.Helper()
 	prev := newConverseStreamClient
 	newConverseStreamClient = factory
@@ -132,7 +132,7 @@ func TestStream_DecodesFakeEventStreamToDone(t *testing.T) {
 	fakeStream := bedrockruntime.NewConverseStreamEventStream(func(s *bedrockruntime.ConverseStreamEventStream) {
 		s.Reader = &fakeReader{events: events}
 	})
-	withFakeClient(t, func(ctx context.Context) (converseStreamAPI, error) {
+	withFakeClient(t, func(ctx context.Context, model *ai.Model, opts *ai.StreamOptions) (converseStreamAPI, error) {
 		return &fakeClient{stream: fakeStream}, nil
 	})
 
