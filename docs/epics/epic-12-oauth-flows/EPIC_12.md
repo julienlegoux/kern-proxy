@@ -3,10 +3,10 @@ type: Epic
 title: "OAuth flows"
 description: "Interactive OAuth login flows: Anthropic PKCE with callback/manual-code race, Copilot device code + token exchange, Codex dual-flow."
 tags: [epic]
-timestamp: 2026-07-07T05:34:54Z
+timestamp: 2026-07-08T20:00:00Z
 epic: 12
 slug: oauth-flows
-status: open
+status: done
 gh_issue: 13
 milestone: 12
 resource: https://github.com/julienlegoux/kern-proxy/issues/13
