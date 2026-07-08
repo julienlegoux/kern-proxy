@@ -3,12 +3,12 @@ type: Issue
 title: "Add the Bedrock ConverseStream adapter"
 description: "Bedrock adapter on aws-sdk-go-v2 bedrockruntime ConverseStream with thinking payloads — the one transport that deliberately uses an SDK."
 tags: [epic-10]
-timestamp: 2026-07-08T12:56:51Z
+timestamp: 2026-07-08T13:05:00Z
 epic: 10
 issue: 01
 slug: bedrock-adapter
 size: L
-status: pr-open
+status: done
 gh_issue: 35
 gh_pr: 65
 resource: https://github.com/julienlegoux/kern-proxy/issues/35
