@@ -3,10 +3,10 @@ type: Epic
 title: "Mistral adapter"
 description: "mistral-conversations adapter over raw HTTP."
 tags: [epic]
-timestamp: 2026-07-07T05:34:54Z
+timestamp: 2026-07-08T12:23:06Z
 epic: 9
 slug: mistral
-status: open
+status: done
 gh_issue: 10
 milestone: 9
 resource: https://github.com/julienlegoux/kern-proxy/issues/10

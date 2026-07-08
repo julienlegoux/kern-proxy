@@ -3,12 +3,12 @@ type: Issue
 title: "Add the mistral-conversations adapter"
 description: "The mistral-conversations protocol over raw HTTP + SSE — the simplest wire protocol, one issue for the whole epic."
 tags: [epic-9]
-timestamp: 2026-07-08T09:00:00Z
+timestamp: 2026-07-08T12:23:06Z
 epic: 9
 issue: 01
 slug: mistral-adapter
 size: M
-status: pr-open
+status: done
 gh_issue: 34
 gh_pr: 64
 resource: https://github.com/julienlegoux/kern-proxy/issues/34
