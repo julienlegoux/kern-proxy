@@ -3,10 +3,10 @@ type: Epic
 title: "Fix IMPLEMENTATION_REVIEW findings"
 description: "Fix the two functional bugs (provider OAuth wiring, Google /v1beta path doubling) and close the // Ports: header traceability gap found in docs/IMPLEMENTATION_REVIEW.md."
 tags: [epic]
-timestamp: 2026-07-08T19:42:30Z
+timestamp: 2026-07-08T22:00:00Z
 epic: 1
 slug: fix-implementation-review-findings
-status: open
+status: done
 gh_issue: 76
 milestone: 15
 resource: https://github.com/julienlegoux/kern-proxy/issues/76
