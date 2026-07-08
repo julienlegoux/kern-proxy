@@ -6,8 +6,10 @@ and cost tracking, and simple context persistence and hand-off to other models
 mid-session.
 
 The port targets full functional parity with the upstream TypeScript package
-and tracks it over time — see `PORTING.md` for the file mapping and
-`upstream/UPSTREAM.lock` for the pinned upstream revision.
+and tracks it over time — see [`docs/PORTING.md`](docs/PORTING.md) for the
+file mapping and `upstream/UPSTREAM.lock` for the pinned upstream revision.
+Run `upstream/sync.sh` to diff upstream since the pinned revision (also runs
+weekly in CI — see `.github/workflows/upstream-sync.yml`).
 
 ## Layout
 
