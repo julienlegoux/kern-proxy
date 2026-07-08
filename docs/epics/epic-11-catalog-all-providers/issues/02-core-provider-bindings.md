@@ -3,13 +3,14 @@ type: Issue
 title: "Add all.go and the core provider bindings"
 description: "ai/providers scaffolding plus the bindings for the first-party adapters: anthropic, openai (completions + responses), azure, codex, google, vertex, mistral, bedrock."
 tags: [epic-11]
-timestamp: 2026-07-08T14:00:00Z
+timestamp: 2026-07-08T14:30:00Z
 epic: 11
 issue: 02
 slug: core-provider-bindings
 size: M
-status: in-progress
+status: pr-open
 gh_issue: 38
+gh_pr: 68
 resource: https://github.com/julienlegoux/kern-proxy/issues/38
 depends_on: [01]
 blocked_by: ["#6", "#7", "#8", "#9", "#10", "#11"]
