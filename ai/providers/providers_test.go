@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-proxy/ai/auth/oauth"
 )
 
 type fakeAuthContext struct {
@@ -303,22 +304,55 @@ func TestGoogleVertexAuthResolvesADCThenExplicitKeyOverride(t *testing.T) {
 	}
 }
 
-func TestOpenAICodexProviderAdvertisesOAuthPendingEpic12(t *testing.T) {
+func TestOpenAICodexProviderWiresRealCodexOAuth(t *testing.T) {
 	provider := OpenAICodexProvider()
-	oauth := provider.Auth().OAuth
-	if oauth == nil {
-		t.Fatal("Auth().OAuth is nil, want a pending-epic-12 stub")
+	if got := provider.Auth().OAuth; got != oauth.CodexOAuth {
+		t.Fatalf("Auth().OAuth = %p, want the real oauth.CodexOAuth strategy %p", got, oauth.CodexOAuth)
 	}
-	if oauth.Name != "OpenAI (ChatGPT Plus/Pro)" {
-		t.Errorf("oauth.Name = %q", oauth.Name)
+	if got := provider.Auth().OAuth.Name; got != "OpenAI (ChatGPT Plus/Pro)" {
+		t.Errorf("OAuth.Name = %q, want %q", got, "OpenAI (ChatGPT Plus/Pro)")
 	}
-	if _, err := oauth.Login(context.Background(), ai.AuthLoginCallbacks{}); err == nil {
-		t.Error("Login() = nil error, want a not-implemented error")
+}
+
+func TestAnthropicProviderWiresRealAnthropicOAuth(t *testing.T) {
+	provider := AnthropicProvider()
+	if got := provider.Auth().OAuth; got != oauth.AnthropicOAuth {
+		t.Fatalf("Auth().OAuth = %p, want the real oauth.AnthropicOAuth strategy %p", got, oauth.AnthropicOAuth)
 	}
-	if _, err := oauth.Refresh(context.Background(), &ai.OAuthCredential{}); err == nil {
-		t.Error("Refresh() = nil error, want a not-implemented error")
+	// The api-key env strategy (and its ANTHROPIC_OAUTH_TOKEN precedence) must
+	// survive alongside the new OAuth binding.
+	if provider.Auth().APIKey == nil {
+		t.Error("Auth().APIKey = nil, want the env api-key strategy kept")
 	}
-	if _, err := oauth.ToAuth(context.Background(), &ai.OAuthCredential{}); err == nil {
-		t.Error("ToAuth() = nil error, want a not-implemented error")
+}
+
+// TestAnthropicStoredOAuthResolvesWithoutBlockingFallback is the regression
+// test for the CRITICAL bug: before this fix Anthropic had no OAuth binding, so
+// a stored *OAuthCredential fell through ResolveProviderAuth to nil, nil —
+// resolving to no auth and (worse) blocking the ambient API-key fallback.
+func TestAnthropicStoredOAuthResolvesWithoutBlockingFallback(t *testing.T) {
+	ctx := context.Background()
+	store := ai.NewInMemoryCredentialStore()
+	// Expires far in the future so resolution derives auth via ToAuth without
+	// attempting a (network) refresh.
+	if _, err := store.Modify(ctx, "anthropic", func(ai.Credential) (ai.Credential, error) {
+		return &ai.OAuthCredential{Access: "anthropic-access-token", Refresh: "r", Expires: 9e15}, nil
+	}); err != nil {
+		t.Fatalf("seed credential: %v", err)
+	}
+
+	result, err := ai.ResolveProviderAuth(ctx, "anthropic",
+		AnthropicProvider().Auth(), nil, store, fakeAuthContext{}, nil)
+	if err != nil {
+		t.Fatalf("ResolveProviderAuth: %v", err)
+	}
+	if result == nil {
+		t.Fatal("result = nil; a stored Anthropic OAuth credential must resolve, not fall through to nil")
+	}
+	if result.Source != "OAuth" {
+		t.Errorf("Source = %q, want \"OAuth\"", result.Source)
+	}
+	if result.Auth.APIKey != "anthropic-access-token" {
+		t.Errorf("Auth.APIKey = %q, want the OAuth access token", result.Auth.APIKey)
 	}
 }

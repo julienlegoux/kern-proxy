@@ -2,11 +2,10 @@ package providers
 
 // Ports: packages/ai/src/providers/github-copilot.ts (binding). Upstream's
 // only auth strategy is `lazyOAuth({ name: "GitHub Copilot", load:
-// loadGitHubCopilotOAuth })`; ai/auth/oauth (Epic 12) has not landed yet, so
-// (mirroring OpenAICodexProvider) this binding advertises the same OAuth
-// strategy shape with Login/Refresh/ToAuth stubs reporting the flow as not
-// yet implemented, alongside the COPILOT_GITHUB_TOKEN api-key fallback
-// upstream also wires. RefreshModels is native: no upstream provider file
+// loadGitHubCopilotOAuth })`, now bound to the real ai/auth/oauth strategy
+// (oauth.CopilotOAuth: device-code login, refresh, and token derivation),
+// alongside the COPILOT_GITHUB_TOKEN api-key fallback upstream also wires.
+// RefreshModels is native: no upstream provider file
 // wires a `refreshModels` hook, but src/utils/oauth/github-copilot.ts's
 // fetchAvailableGitHubCopilotModelIds/isSelectableCopilotModel document the
 // same authenticated GET {baseUrl}/models response shape and
@@ -18,7 +17,6 @@ package providers
 
 import (
 	"context"
-	"errors"
 	"os"
 
 	"github.com/julienlegoux/kern-proxy/ai"
@@ -26,14 +24,13 @@ import (
 	"github.com/julienlegoux/kern-proxy/ai/apis/openaicompletions"
 	"github.com/julienlegoux/kern-proxy/ai/apis/openairesponses"
 	"github.com/julienlegoux/kern-proxy/ai/auth"
+	"github.com/julienlegoux/kern-proxy/ai/auth/oauth"
 	"github.com/julienlegoux/kern-proxy/ai/catalog"
 )
 
 // githubCopilotModelsBaseURL is a var so tests can point RefreshModels at an
 // httptest server.
 var githubCopilotModelsBaseURL = "https://api.individual.githubcopilot.com"
-
-var errCopilotOAuthPending = errors.New("providers: GitHub Copilot OAuth login is not implemented yet (Epic 12)")
 
 type githubCopilotModelsResponse struct {
 	Data []githubCopilotModelPolicy `json:"data"`
@@ -125,18 +122,7 @@ func GitHubCopilotProvider() ai.Provider {
 		BaseURL: "https://api.individual.githubcopilot.com",
 		Auth: ai.ProviderAuth{
 			APIKey: auth.EnvAPIKeyAuth("GitHub Copilot token", []string{"COPILOT_GITHUB_TOKEN"}),
-			OAuth: &ai.OAuthAuth{
-				Name: "GitHub Copilot",
-				Login: func(context.Context, ai.AuthLoginCallbacks) (*ai.OAuthCredential, error) {
-					return nil, errCopilotOAuthPending
-				},
-				Refresh: func(context.Context, *ai.OAuthCredential) (*ai.OAuthCredential, error) {
-					return nil, errCopilotOAuthPending
-				},
-				ToAuth: func(context.Context, *ai.OAuthCredential) (ai.ModelAuth, error) {
-					return ai.ModelAuth{}, errCopilotOAuthPending
-				},
-			},
+			OAuth:  oauth.CopilotOAuth,
 		},
 		Models:        catalog.BuiltinModels("github-copilot"),
 		RefreshModels: refreshGitHubCopilotModels,
