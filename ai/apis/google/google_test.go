@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -148,6 +149,22 @@ func TestRequestURL_UsesStreamGenerateContentSSEEndpoint(t *testing.T) {
 	want := "https://example.invalid/v1beta/models/gemini-2.5-pro:streamGenerateContent?alt=sse"
 	if url != want {
 		t.Errorf("url = %q, want %q", url, want)
+	}
+}
+
+// TestRequestURL_DoesNotDoubleV1BetaFromCatalogBaseURL is the fix for the
+// doubled-path bug: the embedded catalog / provider base URL already carries a
+// trailing /v1beta, which requestURL appends again. requestURL must strip the
+// trailing segment so the path is not ".../v1beta/v1beta/models/..." (404).
+func TestRequestURL_DoesNotDoubleV1BetaFromCatalogBaseURL(t *testing.T) {
+	model := testModel("https://generativelanguage.googleapis.com/v1beta")
+	url := requestURL(model)
+	want := "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:streamGenerateContent?alt=sse"
+	if url != want {
+		t.Errorf("url = %q, want %q", url, want)
+	}
+	if strings.Contains(url, "/v1beta/v1beta") {
+		t.Errorf("url = %q doubles the /v1beta segment", url)
 	}
 }
 

@@ -31,19 +31,11 @@ func TestLiveSmoke_GeminiToolCallRoundTrip(t *testing.T) {
 	if catalogModel == nil {
 		t.Fatal("gemini-2.5-flash not found in the built-in catalog")
 	}
-	// The embedded catalog's baseUrl already includes "/v1beta"
-	// (ai/catalog/data/models/google.json), but ai/apis/google's requestURL
-	// appends "/v1beta/models/..." itself, doubling the path segment and
-	// 404ing. Pass a corrected copy for this request only — fixing the
-	// catalog/adapter mismatch itself is outside this CLI issue's scope; see
-	// the PR description for a follow-up note.
-	model := *catalogModel
-	model.BaseURL = "https://generativelanguage.googleapis.com"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	final, err := Run(ctx, models, &model,
+	final, err := Run(ctx, models, catalogModel,
 		"What is the weather in Paris? Use the get_weather tool to find out, then answer in one short sentence.",
 		nil, apiKey)
 	if err != nil {
