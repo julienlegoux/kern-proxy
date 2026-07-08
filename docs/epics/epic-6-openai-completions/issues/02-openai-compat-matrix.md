@@ -3,13 +3,14 @@ type: Issue
 title: "Add the vendor compat auto-detection matrix"
 description: "~18 tri-state compat flags auto-detected from provider/baseUrl serving ~15 vendors, plus max_tokens vs max_completion_tokens selection."
 tags: [epic-6]
-timestamp: 2026-07-08T05:05:00Z
+timestamp: 2026-07-08T05:30:00Z
 epic: 6
 issue: 02
 slug: openai-compat-matrix
 size: M
-status: in-progress
+status: pr-open
 gh_issue: 25
+gh_pr: 55
 resource: https://github.com/julienlegoux/kern-proxy/issues/25
 depends_on: [01]
 ---
