@@ -24,14 +24,22 @@ import (
 
 // ServiceTierOptions carries the per-request service-tier context DecodeStream
 // needs to apply OpenAI's tier pricing multiplier. Ports the
-// OpenAIResponsesStreamOptions fields this package's Stream reads (the
-// resolveServiceTier hook is never overridden by any caller today, so its
-// default -- prefer the server-reported tier over the requested one -- is
-// baked directly into finalizeResponse rather than exposed as a field).
+// OpenAIResponsesStreamOptions fields this package's Stream reads.
 type ServiceTierOptions struct {
 	// RequestServiceTier is the tier the request asked for; used only when
-	// the response itself doesn't report one.
+	// the response itself doesn't report one (or, with ResolveServiceTier
+	// overridden, whenever the resolver prefers it).
 	RequestServiceTier string
+	// ResolveServiceTier overrides which tier wins between the
+	// response-reported tier (empty when the response reports none) and
+	// RequestServiceTier. nil uses the default this package's own Stream and
+	// the Azure variant both rely on: prefer the server-reported tier over
+	// the requested one. The Codex variant (epic 7, issue 03) overrides this
+	// with its own resolveCodexServiceTier, since Codex's backend echoes
+	// "default" for a request-sent flex/priority tier under some
+	// conditions -- ports the resolveServiceTier hook from
+	// processResponsesStream's options.
+	ResolveServiceTier func(responseServiceTier, requestServiceTier string) string
 }
 
 // responsesSlotKind discriminates the in-flight output-item slot kinds
@@ -311,9 +319,18 @@ func finalizeResponse(output *ai.AssistantMessage, resp *rawResponse, model *ai.
 
 	ai.CalculateCost(model, &output.Usage)
 
-	serviceTier := opts.RequestServiceTier
-	if resp != nil && resp.ServiceTier != "" {
-		serviceTier = resp.ServiceTier
+	responseServiceTier := ""
+	if resp != nil {
+		responseServiceTier = resp.ServiceTier
+	}
+	var serviceTier string
+	if opts.ResolveServiceTier != nil {
+		serviceTier = opts.ResolveServiceTier(responseServiceTier, opts.RequestServiceTier)
+	} else {
+		serviceTier = opts.RequestServiceTier
+		if responseServiceTier != "" {
+			serviceTier = responseServiceTier
+		}
 	}
 	applyServiceTierPricing(&output.Usage, serviceTier, model)
 

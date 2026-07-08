@@ -177,6 +177,14 @@ type StreamOptions struct {
 	// model field; empty resolves AZURE_OPENAI_DEPLOYMENT_NAME_MAP (keyed by
 	// model ID), then falls back to the model ID itself.
 	AzureDeploymentName string
+
+	// --- openai-codex-responses only (same flat-merge deviation as above;
+	// upstream's OpenAICodexResponsesOptions extends StreamOptions with this
+	// field) ---
+
+	// TextVerbosity selects the response text verbosity
+	// ("low"|"medium"|"high"); empty defaults to "low".
+	TextVerbosity string
 }
 
 // EffectiveCacheRetention resolves the zero value to the "short" default.
