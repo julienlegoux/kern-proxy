@@ -3,12 +3,12 @@ type: Issue
 title: "Add the openai-completions adapter core"
 description: "Chat-completions request/stream core with dual-map tool-call correlation, partial tool-arg JSON re-parsing, and the cached/cache-write usage math."
 tags: [epic-6]
-timestamp: 2026-07-08T06:45:00Z
+timestamp: 2026-07-08T05:00:00Z
 epic: 6
 issue: 01
 slug: openai-completions-adapter-core
 size: L
-status: pr-open
+status: done
 gh_issue: 24
 gh_pr: 54
 resource: https://github.com/julienlegoux/kern-proxy/issues/24
