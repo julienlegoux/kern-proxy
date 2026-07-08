@@ -3,12 +3,12 @@ type: Issue
 title: "Add the Vertex variant with ADC auth"
 description: "Vertex endpoints over the shared Google converters, with Application Default Credentials via golang.org/x/oauth2/google and the ambient ADC sentinel."
 tags: [epic-8]
-timestamp: 2026-07-07T08:25:30Z
+timestamp: 2026-07-08T07:56:00Z
 epic: 8
 issue: 02
 slug: vertex-variant-adc
 size: M
-status: open
+status: in-progress
 gh_issue: 33
 resource: https://github.com/julienlegoux/kern-proxy/issues/33
 depends_on: [01]
