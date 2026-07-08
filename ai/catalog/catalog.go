@@ -1,9 +1,11 @@
 // Package catalog embeds kern-proxy's built-in model catalog: the JSON data
 // under data/, exported from upstream's models.generated.ts and
 // image-models.generated.ts by tools/export-catalog (see that script's doc
-// comment and docs/PORTING.md's upstream-sync procedure). data/images is
-// embedded for byte-parity with upstream's catalog export but has no loader
-// yet — ai/images (phase 13) adds one when it needs ImagesModel.
+// comment and docs/PORTING.md's upstream-sync procedure). data/models has
+// the chat-model loaders below; data/images has a raw-bytes loader
+// (images.go's ImagesProviders/ImagesData) — ai/images decodes those bytes
+// into its own ImagesModel-equivalent type, keeping this package free of an
+// ai/images import (which would cycle back through ai/images/builtin.go).
 package catalog
 
 // Ports: packages/ai/src/providers/all.ts (getBuiltinModel, getBuiltinModels,
