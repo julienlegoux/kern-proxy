@@ -10,6 +10,7 @@ package codex
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +18,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/klauspost/compress/zstd"
 
 	"github.com/julienlegoux/kern-proxy/ai"
 )
@@ -73,14 +76,43 @@ type capturedCodexRequest struct {
 	body    map[string]any
 }
 
+// decodeCodexRequestBody undoes whatever the client sent: the SSE send path
+// now always zstd-compresses its body (ports compressRequestBodyZstd), so
+// every captured request body must be zstd-decoded before it's valid JSON --
+// mirrors the upstream test helper decodeCodexRequestBody, which does the
+// same dance for its own captured fetch() bodies.
+func decodeCodexRequestBody(t *testing.T, r *http.Request) map[string]any {
+	t.Helper()
+	raw, err := io.ReadAll(r.Body)
+	if err != nil {
+		t.Fatalf("read request body: %v", err)
+	}
+	if r.Header.Get("content-encoding") == "zstd" {
+		dec, err := zstd.NewReader(nil)
+		if err != nil {
+			t.Fatalf("zstd.NewReader: %v", err)
+		}
+		defer dec.Close()
+		raw, err = dec.DecodeAll(raw, nil)
+		if err != nil {
+			t.Fatalf("zstd decode request body: %v", err)
+		}
+	}
+	var body map[string]any
+	if len(raw) > 0 {
+		if err := json.Unmarshal(raw, &body); err != nil {
+			t.Fatalf("unmarshal request body: %v (raw=%q)", err, raw)
+		}
+	}
+	return body
+}
+
 func codexSSEServer(t *testing.T, status string) (*httptest.Server, *capturedCodexRequest) {
 	t.Helper()
 	captured := &capturedCodexRequest{}
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		captured.headers = r.Header.Clone()
-		var body map[string]any
-		_ = json.NewDecoder(r.Body).Decode(&body)
-		captured.body = body
+		captured.body = decodeCodexRequestBody(t, r)
 
 		w.Header().Set("content-type", "text/event-stream")
 		w.WriteHeader(http.StatusOK)
@@ -96,7 +128,7 @@ func TestStream_BasicSSERoundTripAndHeaders(t *testing.T) {
 	token := mockCodexToken(t, "acc_test")
 	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
-	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token})
+	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE})
 	result, err := stream.Result(context.Background())
 	if err != nil {
 		t.Fatalf("Result: %v", err)
@@ -138,7 +170,7 @@ func TestStream_IncompleteMapsToStopReasonLength(t *testing.T) {
 	token := mockCodexToken(t, "")
 	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
-	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token})
+	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE})
 	result, err := stream.Result(context.Background())
 	if err != nil {
 		t.Fatalf("Result: %v", err)
@@ -158,7 +190,7 @@ func TestStream_SetsSessionHeadersAndPromptCacheKeyWhenSessionIDProvided(t *test
 	token := mockCodexToken(t, "")
 	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
-	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, SessionID: "test-session-123"})
+	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, SessionID: "test-session-123", Transport: ai.TransportSSE})
 	if _, err := stream.Result(context.Background()); err != nil {
 		t.Fatalf("Result: %v", err)
 	}
@@ -183,7 +215,7 @@ func TestStream_NoSessionHeadersWhenSessionIDAbsent(t *testing.T) {
 	token := mockCodexToken(t, "")
 	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
-	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token})
+	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE})
 	if _, err := stream.Result(context.Background()); err != nil {
 		t.Fatalf("Result: %v", err)
 	}
@@ -206,6 +238,7 @@ func TestStream_ClampsPromptCacheKeyTo64Characters(t *testing.T) {
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{
 		APIKey:    token,
 		SessionID: sessionID,
+		Transport: ai.TransportSSE,
 		OnPayload: func(_ context.Context, payload any, _ *ai.Model) (any, error) {
 			raw, _ := json.Marshal(payload)
 			_ = json.Unmarshal(raw, &captured)
@@ -230,7 +263,7 @@ func TestStream_PreservesXHighReasoningEffortFromSimpleOptions(t *testing.T) {
 	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := StreamSimple(context.Background(), model, chat, &ai.SimpleStreamOptions{
-		StreamOptions: ai.StreamOptions{APIKey: token},
+		StreamOptions: ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE},
 		Reasoning:     ai.ThinkingXHigh,
 	})
 	if _, err := stream.Result(context.Background()); err != nil {
@@ -255,7 +288,7 @@ func TestStream_ClampsMinimalReasoningEffortToLow(t *testing.T) {
 			token := mockCodexToken(t, "")
 			chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
-			stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, ReasoningEffort: ai.ThinkingMinimal})
+			stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, ReasoningEffort: ai.ThinkingMinimal, Transport: ai.TransportSSE})
 			if _, err := stream.Result(context.Background()); err != nil {
 				t.Fatalf("Result: %v", err)
 			}
@@ -302,7 +335,7 @@ data: {"type":"response.completed","response":{"status":"completed","service_tie
 			token := mockCodexToken(t, "")
 			chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
-			stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, ServiceTier: tc.serviceTier})
+			stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, ServiceTier: tc.serviceTier, Transport: ai.TransportSSE})
 			result, err := stream.Result(context.Background())
 			if err != nil {
 				t.Fatalf("Result: %v", err)
@@ -370,7 +403,7 @@ func TestStream_HeaderTimeoutWhenResponseHeadersDoNotArrive(t *testing.T) {
 	token := mockCodexToken(t, "")
 	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
-	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Timeout: 30 * time.Millisecond})
+	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Timeout: 30 * time.Millisecond, Transport: ai.TransportSSE})
 	result, err := stream.Result(context.Background())
 	if err != nil {
 		t.Fatalf("Result: %v", err)
@@ -407,7 +440,7 @@ func TestStream_AbortsBodyReadAfterHeadersArrive(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	stream := Stream(ctx, model, chat, &ai.StreamOptions{APIKey: token})
+	stream := Stream(ctx, model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE})
 
 	sawFirstDelta := false
 	for ev := range stream.Events() {
@@ -474,7 +507,7 @@ func TestStream_RetriesOnRetryAfterHeaderVariants(t *testing.T) {
 
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
-			stream := Stream(ctx, model, chat, &ai.StreamOptions{APIKey: token, MaxRetries: &maxRetries})
+			stream := Stream(ctx, model, chat, &ai.StreamOptions{APIKey: token, MaxRetries: &maxRetries, Transport: ai.TransportSSE})
 			result, err := stream.Result(ctx)
 			if err != nil {
 				t.Fatalf("Result: %v", err)
@@ -521,7 +554,7 @@ func TestStream_ExponentialBackoffAcrossRepeatedRetries(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	stream := Stream(ctx, model, chat, &ai.StreamOptions{APIKey: token, MaxRetries: &maxRetries})
+	stream := Stream(ctx, model, chat, &ai.StreamOptions{APIKey: token, MaxRetries: &maxRetries, Transport: ai.TransportSSE})
 	result, err := stream.Result(ctx)
 	if err != nil {
 		t.Fatalf("Result: %v", err)
@@ -572,5 +605,70 @@ func TestStream_LiveSmoke(t *testing.T) {
 	}
 	if len(result.Content) == 0 {
 		t.Fatalf("live smoke returned no content")
+	}
+}
+
+// TestStream_ZstdCompressesSSERequestBody ports "zstd-compresses SSE request
+// bodies": the plain SSE send path (epic 7 issue 04's scope) always
+// zstd-compresses the outgoing request body and sets Content-Encoding: zstd,
+// for both a large message (where compression obviously helps) and a small
+// one (upstream compresses unconditionally, with no size threshold).
+func TestStream_ZstdCompressesSSERequestBody(t *testing.T) {
+	var capturedEncoding string
+	var capturedBody []byte
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedEncoding = r.Header.Get("content-encoding")
+		capturedBody, _ = io.ReadAll(r.Body)
+		w.Header().Set("content-type", "text/event-stream")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(codexSSEPayload("completed")))
+	}))
+	t.Cleanup(srv.Close)
+
+	model := codexModel(srv.URL)
+	token := mockCodexToken(t, "")
+
+	largeText := strings.Repeat("compress me ", 400)
+	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText(largeText), Timestamp: 1}}}
+	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE})
+	if _, err := stream.Result(context.Background()); err != nil {
+		t.Fatalf("Result: %v", err)
+	}
+
+	if capturedEncoding != "zstd" {
+		t.Fatalf("content-encoding = %q, want zstd", capturedEncoding)
+	}
+	dec, err := zstd.NewReader(nil)
+	if err != nil {
+		t.Fatalf("zstd.NewReader: %v", err)
+	}
+	defer dec.Close()
+	decoded, err := dec.DecodeAll(capturedBody, nil)
+	if err != nil {
+		t.Fatalf("zstd decode: %v", err)
+	}
+	var payload struct {
+		Input []struct {
+			Content []struct {
+				Text string `json:"text"`
+			} `json:"content"`
+		} `json:"input"`
+	}
+	if err := json.Unmarshal(decoded, &payload); err != nil {
+		t.Fatalf("unmarshal decoded body: %v", err)
+	}
+	if len(payload.Input) == 0 || len(payload.Input[0].Content) == 0 || payload.Input[0].Content[0].Text != largeText {
+		t.Errorf("decoded input text mismatch: %#v", payload.Input)
+	}
+
+	capturedEncoding = ""
+	capturedBody = nil
+	chat = ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: 1}}}
+	stream = Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE})
+	if _, err := stream.Result(context.Background()); err != nil {
+		t.Fatalf("Result: %v", err)
+	}
+	if capturedEncoding != "zstd" {
+		t.Errorf("content-encoding (small body) = %q, want zstd", capturedEncoding)
 	}
 }

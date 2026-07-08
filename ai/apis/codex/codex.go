@@ -3,16 +3,18 @@
 // consumption (via the caller-resolved ai.StreamOptions.APIKey, same as every
 // sibling adapter -- ai/resolve.go's OAuth refresh applies no special-cased
 // margin for Codex, so no adapter-side handling is needed here), JWT
-// accountId extraction, and Codex-specific request shaping, on the plain
-// HTTP/SSE transport only.
+// accountId extraction, and Codex-specific request shaping.
 //
-// The WebSocket transport, its zstd Content-Encoding SSE fallback,
-// per-session fallback memory, and connection-limit retry are epic 7 issue
-// 04's scope (ai/apis/codex, a later PR) and are not implemented here: this
-// package always uses the HTTP/SSE path, matching upstream's `transport:
-// "sse"` behavior.
+// Two transports are implemented: a WebSocket transport (websocket.go, epic 7
+// issue 04) tried first for any Transport other than "sse", and the plain
+// HTTP/SSE transport (this file, epic 7 issue 03) used directly when
+// Transport is "sse" and as the fallback when the WebSocket attempt fails
+// before producing any output. The SSE path always zstd-compresses its
+// request body (zstd.go, issue 04), matching the Codex backend's own
+// zstd-compressed traffic. See websocket.go's package doc for what its
+// connection-cache scope cut deliberately leaves unported.
 //
-// Ports: packages/ai/src/api/openai-codex-responses.ts (HTTP/SSE path only)
+// Ports: packages/ai/src/api/openai-codex-responses.ts
 package codex
 
 import (
@@ -133,10 +135,39 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 		return
 	}
 
+	transport := ai.TransportAuto
+	if opts != nil && opts.Transport != "" {
+		transport = opts.Transport
+	}
+	var sessionID string
+	if opts != nil {
+		sessionID = opts.SessionID
+	}
+
+	// WebSocket transport attempt (epic 7 issue 04): tried first unless the
+	// caller explicitly asked for "sse", or this session has already fallen
+	// back to SSE once before (per-session fallback memory -- ports
+	// isWebSocketSseFallbackActive/recordWebSocketSseFallback).
+	if transport != ai.TransportSSE {
+		if codexWebSocketFallbackActive(sessionID) {
+			codexRecordWebSocketSSEFallback(sessionID)
+		} else if handled := attemptCodexWebSocketOrFallback(ctx, out, output, model, opts, bodyBytes, accountID, apiKey, transport, fail); handled {
+			return
+		}
+	}
+
+	// Plain HTTP/SSE transport (epic 7 issue 03), reached directly when
+	// Transport is "sse", or as the WebSocket attempt's fallback.
 	url := resolveCodexURL(model.BaseURL)
 	headers := buildHeaders(model, opts, accountID, apiKey)
 
-	resp, err := doRequestWithRetry(ctx, url, bodyBytes, headers, model, opts)
+	sseBody := bodyBytes
+	if compressed, cerr := compressRequestBodyZstd(bodyBytes); cerr == nil {
+		sseBody = compressed
+		headers["content-encoding"] = "zstd"
+	}
+
+	resp, err := doRequestWithRetry(ctx, url, sseBody, headers, model, opts)
 	if err != nil {
 		fail(err)
 		return
@@ -158,6 +189,64 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 		return
 	}
 
+	finishCodexStream(ctx, out, output, fail)
+}
+
+// attemptCodexWebSocketOrFallback runs the WebSocket connection-limit-retry
+// loop (attemptCodexWebSocket) and applies the same fallback-vs-propagate
+// decision as upstream's stream() catch block: an aborted request or a
+// non-transport error (an in-band Codex error/protocol error, unless it's the
+// connection-limit case already retried) is final; anything else is a
+// transport failure that falls back to SSE unless output had already started,
+// in which case it's final too. Returns handled=true when the request is
+// already fully resolved (succeeded, or failed terminally via fail) and no
+// SSE fallback should be attempted; handled=false means "fall through to
+// SSE".
+func attemptCodexWebSocketOrFallback(
+	ctx context.Context,
+	out *ai.Stream,
+	output *ai.AssistantMessage,
+	model *ai.Model,
+	opts *ai.StreamOptions,
+	bodyBytes []byte,
+	accountID, apiKey string,
+	transport ai.Transport,
+	fail func(error),
+) (handled bool) {
+	var sessionID string
+	if opts != nil {
+		sessionID = opts.SessionID
+	}
+
+	started, wsErr := attemptCodexWebSocket(ctx, out, output, model, opts, bodyBytes, accountID, apiKey)
+	if wsErr == nil {
+		finishCodexStream(ctx, out, output, fail)
+		return true
+	}
+
+	if ctx.Err() != nil || isCodexNonTransportError(wsErr) {
+		fail(wsErr)
+		return true
+	}
+
+	ai.AppendDiagnostic(output, ai.NewAssistantMessageDiagnostic("provider_transport_failure", wsErr, map[string]any{
+		"configuredTransport": string(transport),
+		"eventsEmitted":       started,
+		"requestBytes":        len(bodyBytes),
+	}))
+	codexRecordWebSocketFailure(sessionID, wsErr)
+	if started {
+		fail(wsErr)
+		return true
+	}
+	codexRecordWebSocketSSEFallback(sessionID)
+	return false
+}
+
+// finishCodexStream applies the shared terminal-state checks both transports
+// finish through: an aborted context or an in-flight-marked abort/error
+// StopReason becomes the final ErrorEvent, otherwise the DoneEvent is pushed.
+func finishCodexStream(ctx context.Context, out *ai.Stream, output *ai.AssistantMessage, fail func(error)) {
 	if ctx.Err() != nil {
 		fail(errors.New("Request was aborted"))
 		return
@@ -181,8 +270,9 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 // doRequestWithRetry sends the Codex SSE POST, retrying transient failures up
 // to opts.MaxRetries times with exponential backoff (or the server's
 // retry-after delay when present). Ports the fetch-with-retry loop in
-// stream() (the SSE branch only -- WebSocket and its zstd-compressed request
-// body are epic 7 issue 04's scope; this always sends the plain JSON body).
+// stream() (the SSE branch only). bodyBytes is whatever run() decided to
+// send -- the zstd-compressed body in the normal case (see run()'s call
+// site), or the raw JSON if compression somehow failed.
 func doRequestWithRetry(
 	ctx context.Context,
 	url string,
