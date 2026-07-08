@@ -198,6 +198,18 @@ type StreamOptions struct {
 	// ("MINIMAL"|"LOW"|"MEDIUM"|"HIGH"), taking priority over
 	// ThinkingBudgetTokens when set. Empty means unset.
 	GoogleThinkingLevel GoogleThinkingLevel
+
+	// --- google-vertex only (same flat-merge deviation as above; upstream's
+	// GoogleVertexOptions extends StreamOptions with project and location) ---
+
+	// GoogleVertexProject overrides the Vertex AI project id used for the
+	// ADC-authenticated request path; empty resolves GOOGLE_CLOUD_PROJECT
+	// then GCLOUD_PROJECT. Unused on the explicit-API-key path.
+	GoogleVertexProject string
+	// GoogleVertexLocation overrides the Vertex AI region used for the
+	// ADC-authenticated request path; empty resolves GOOGLE_CLOUD_LOCATION.
+	// Unused on the explicit-API-key path.
+	GoogleVertexLocation string
 }
 
 // GoogleThinkingLevel mirrors Google's Gemini 3 ThinkingLevel enum values.
