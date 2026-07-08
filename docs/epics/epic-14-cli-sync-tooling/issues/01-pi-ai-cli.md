@@ -3,12 +3,12 @@ type: Issue
 title: "Add the pi-ai CLI (login, list, help)"
 description: "cmd/pi-ai with login/list/help plus the end-to-end example streaming a tool-call round-trip through faux."
 tags: [epic-14]
-timestamp: 2026-07-07T08:28:06Z
+timestamp: 2026-07-08T17:20:00Z
 epic: 14
 issue: 01
 slug: pi-ai-cli
 size: M
-status: open
+status: in-progress
 gh_issue: 44
 resource: https://github.com/julienlegoux/kern-proxy/issues/44
 depends_on: []
