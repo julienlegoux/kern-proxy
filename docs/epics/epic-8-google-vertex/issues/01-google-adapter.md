@@ -3,13 +3,14 @@ type: Issue
 title: "Add the Google (Gemini) adapter"
 description: "google-shared converters, thinking signatures, and the raw HTTP + SSE transport for the Gemini API."
 tags: [epic-8]
-timestamp: 2026-07-08T07:30:00Z
+timestamp: 2026-07-08T09:45:00Z
 epic: 8
 issue: 01
 slug: google-adapter
 size: L
-status: in-progress
+status: pr-open
 gh_issue: 32
+gh_pr: 62
 resource: https://github.com/julienlegoux/kern-proxy/issues/32
 depends_on: []
 blocked_by: ["#18", "#19"]
