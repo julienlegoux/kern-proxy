@@ -47,4 +47,4 @@ there, or use an OKF-aware reader.
 * [Epic 11: Catalog & all provider bindings](/epic-11-catalog-all-providers/EPIC_11.md) - done, [#12](https://github.com/julienlegoux/kern-proxy/issues/12) (closed)
 * [Epic 12: OAuth flows](/epic-12-oauth-flows/EPIC_12.md) - done, [#13](https://github.com/julienlegoux/kern-proxy/issues/13) (closed)
 * [Epic 13: Images](/epic-13-images/EPIC_13.md) - done, [#14](https://github.com/julienlegoux/kern-proxy/issues/14) (closed)
-* [Epic 14: CLI & upstream-sync tooling](/epic-14-cli-sync-tooling/EPIC_14.md) - open, [#15](https://github.com/julienlegoux/kern-proxy/issues/15)
+* [Epic 14: CLI & upstream-sync tooling](/epic-14-cli-sync-tooling/EPIC_14.md) - done, [#15](https://github.com/julienlegoux/kern-proxy/issues/15) (closed)

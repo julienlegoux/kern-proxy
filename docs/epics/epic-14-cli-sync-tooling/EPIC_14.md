@@ -3,10 +3,10 @@ type: Epic
 title: "CLI & upstream-sync tooling"
 description: "cmd/pi-ai CLI (login/list/help), completed PORTING.md, upstream sync script + CI job, and full end-to-end verification."
 tags: [epic]
-timestamp: 2026-07-07T05:34:54Z
+timestamp: 2026-07-08T17:30:00Z
 epic: 14
 slug: cli-sync-tooling
-status: open
+status: done
 gh_issue: 15
 milestone: 14
 resource: https://github.com/julienlegoux/kern-proxy/issues/15
