@@ -3,10 +3,10 @@ type: Epic
 title: "Images"
 description: "Parallel image-generation stack with the openrouter-images adapter."
 tags: [epic]
-timestamp: 2026-07-07T05:34:54Z
+timestamp: 2026-07-08T17:13:16Z
 epic: 13
 slug: images
-status: open
+status: done
 gh_issue: 14
 milestone: 13
 resource: https://github.com/julienlegoux/kern-proxy/issues/14
