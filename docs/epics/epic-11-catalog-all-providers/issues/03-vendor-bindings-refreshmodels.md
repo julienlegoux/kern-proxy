@@ -3,13 +3,14 @@ type: Issue
 title: "Add the remaining vendor bindings and RefreshModels implementations"
 description: "The ~25 compat-vendor bindings over the completions adapter, plus native RefreshModels for OpenRouter, Vercel gateway, NVIDIA, and Copilot policy."
 tags: [epic-11]
-timestamp: 2026-07-07T08:27:51Z
+timestamp: 2026-07-08T16:30:00Z
 epic: 11
 issue: 03
 slug: vendor-bindings-refreshmodels
 size: M
-status: open
+status: pr-open
 gh_issue: 39
+gh_pr: 69
 resource: https://github.com/julienlegoux/kern-proxy/issues/39
 depends_on: [02]
 ---

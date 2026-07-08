@@ -1,12 +1,16 @@
 package providers
 
 // Ports: packages/ai/test/providers.test.ts (the `describe("builtin
-// providers", ...)` cases covering the core, first-party-adapter bindings
-// this issue wires: anthropic OAuth-token env precedence, bedrock ambient
-// AWS credentials, and vertex ADC resolution / explicit-key override. The
-// ~25 remaining compat-vendor cases (Cloudflare, etc.) land with Issue 03's
-// bindings. The `describe("createProvider", ...)` mechanics are already
-// ported onto ai.CreateProvider directly, see ai/provider_test.go.
+// providers", ...)` cases). Issue 02 ported the core, first-party-adapter
+// cases: anthropic OAuth-token env precedence, bedrock ambient AWS
+// credentials, and vertex ADC resolution/explicit-key override. Issue 03
+// (this) ports the remaining compat-vendor cases — Cloudflare Workers
+// AI/AI Gateway account+gateway env resolution — and extends the
+// "builtinModels registers every builtin provider with models" case to the
+// full ~35-provider set (upstream asserts `all.length > 500`; the embedded
+// catalog here totals 1042). The `describe("createProvider", ...)`
+// mechanics are already ported onto ai.CreateProvider directly, see
+// ai/provider_test.go.
 
 import (
 	"context"
@@ -37,12 +41,13 @@ func newModels(env map[string]string, files ...string) ai.MutableModels {
 	})
 }
 
+// TestProvidersRegistersEveryCoreBindingWithModels checks the 8 core,
+// first-party-adapter bindings from Issue 02 specifically: each declares the
+// expected single api on every model it owns. Total provider/model counts
+// across the full ~35-provider set are TestBuiltinModelsRegistersEveryProviderWithModels's
+// job below, now that Issue 03 has appended the remaining compat-vendor
+// bindings to Providers().
 func TestProvidersRegistersEveryCoreBindingWithModels(t *testing.T) {
-	all := Providers()
-	if len(all) != 8 {
-		t.Fatalf("Providers() returned %d providers, want 8", len(all))
-	}
-
 	wantAPI := map[string]ai.Api{
 		"anthropic":              ai.ApiAnthropicMessages,
 		"openai":                 ai.ApiOpenAIResponses,
@@ -54,36 +59,157 @@ func TestProvidersRegistersEveryCoreBindingWithModels(t *testing.T) {
 		"amazon-bedrock":         ai.ApiBedrockConverseStream,
 	}
 
-	models := Models(nil)
-	if got := len(models.GetProviders()); got != 8 {
-		t.Fatalf("Models(nil).GetProviders() = %d, want 8", got)
+	byID := map[string]ai.Provider{}
+	for _, provider := range Providers() {
+		byID[provider.ID()] = provider
 	}
 
-	seen := map[string]bool{}
-	for _, provider := range all {
-		seen[provider.ID()] = true
-
-		wantAPI, ok := wantAPI[provider.ID()]
+	for id, api := range wantAPI {
+		provider, ok := byID[id]
 		if !ok {
-			t.Fatalf("unexpected provider id %q", provider.ID())
+			t.Errorf("missing core provider binding %q", id)
+			continue
 		}
 		list := provider.GetModels()
 		if len(list) == 0 {
-			t.Fatalf("provider %q has no models", provider.ID())
+			t.Errorf("provider %q has no models", id)
+		}
+		for _, m := range list {
+			if m.Provider != id {
+				t.Errorf("provider %q lists model %q owned by %q", id, m.ID, m.Provider)
+			}
+			if m.Api != api {
+				t.Errorf("provider %q model %q api = %q, want %q", id, m.ID, m.Api, api)
+			}
+		}
+	}
+}
+
+// TestBuiltinModelsRegistersEveryProviderWithModels ports providers.test.ts's
+// "builtinModels registers every builtin provider with models": the full
+// ~35-provider set (this repo's embedded catalog totals 1042 models across
+// 35 providers, comfortably above upstream's `toBeGreaterThan(500)`), every
+// provider owns only its own models, and none is empty.
+func TestBuiltinModelsRegistersEveryProviderWithModels(t *testing.T) {
+	const wantProviderCount = 35
+
+	all := Providers()
+	if len(all) != wantProviderCount {
+		t.Fatalf("Providers() returned %d providers, want %d", len(all), wantProviderCount)
+	}
+
+	models := Models(nil)
+	providers := models.GetProviders()
+	if len(providers) != wantProviderCount {
+		t.Fatalf("Models(nil).GetProviders() = %d, want %d", len(providers), wantProviderCount)
+	}
+
+	total := 0
+	for _, provider := range providers {
+		list := models.GetModels(provider.ID())
+		if len(list) == 0 {
+			t.Errorf("provider %q has no models", provider.ID())
 		}
 		for _, m := range list {
 			if m.Provider != provider.ID() {
 				t.Errorf("provider %q lists model %q owned by %q", provider.ID(), m.ID, m.Provider)
 			}
-			if m.Api != wantAPI {
-				t.Errorf("provider %q model %q api = %q, want %q", provider.ID(), m.ID, m.Api, wantAPI)
-			}
 		}
+		total += len(list)
 	}
-	for id := range wantAPI {
-		if !seen[id] {
-			t.Errorf("missing core provider binding %q", id)
-		}
+	if total <= 500 {
+		t.Errorf("total models across all providers = %d, want > 500", total)
+	}
+
+	anthropicModel := models.GetModel("anthropic", "claude-haiku-4-5")
+	if anthropicModel == nil || anthropicModel.Api != ai.ApiAnthropicMessages {
+		t.Errorf("anthropic claude-haiku-4-5 = %+v, want api %q", anthropicModel, ai.ApiAnthropicMessages)
+	}
+}
+
+// TestCloudflareWorkersAIAuthRequiresAccountConfigAndScopesEnv ports
+// providers.test.ts's "requires Cloudflare Workers AI account config and
+// returns scoped env".
+func TestCloudflareWorkersAIAuthRequiresAccountConfigAndScopesEnv(t *testing.T) {
+	missingAccount := newModels(map[string]string{"CLOUDFLARE_API_KEY": "cf-key"})
+	missingAccount.SetProvider(CloudflareWorkersAIProvider())
+	model := missingAccount.GetModels("cloudflare-workers-ai")[0]
+	result, err := missingAccount.GetAuth(context.Background(), model)
+	if err != nil {
+		t.Fatalf("GetAuth: %v", err)
+	}
+	if result != nil {
+		t.Fatalf("GetAuth (missing account) = %+v, want nil", result)
+	}
+
+	configured := newModels(map[string]string{
+		"CLOUDFLARE_API_KEY":    "cf-key",
+		"CLOUDFLARE_ACCOUNT_ID": "account-id",
+	})
+	configured.SetProvider(CloudflareWorkersAIProvider())
+	result, err = configured.GetAuth(context.Background(), model)
+	if err != nil {
+		t.Fatalf("GetAuth: %v", err)
+	}
+	if result == nil {
+		t.Fatal("GetAuth (configured) = nil")
+	}
+	if result.Auth.APIKey != "cf-key" {
+		t.Errorf("Auth.APIKey = %q, want cf-key", result.Auth.APIKey)
+	}
+	if result.Auth.BaseURL != "https://api.cloudflare.com/client/v4/accounts/account-id/ai/v1" {
+		t.Errorf("Auth.BaseURL = %q", result.Auth.BaseURL)
+	}
+	if result.Env["CLOUDFLARE_ACCOUNT_ID"] != "account-id" {
+		t.Errorf("Env = %+v", result.Env)
+	}
+}
+
+// TestCloudflareAIGatewayAuthRequiresGatewayConfigAndScopesEnvHeaders ports
+// providers.test.ts's "requires Cloudflare AI Gateway account and gateway
+// config and returns scoped env headers".
+func TestCloudflareAIGatewayAuthRequiresGatewayConfigAndScopesEnvHeaders(t *testing.T) {
+	missingGateway := newModels(map[string]string{
+		"CLOUDFLARE_API_KEY":    "cf-key",
+		"CLOUDFLARE_ACCOUNT_ID": "account-id",
+	})
+	missingGateway.SetProvider(CloudflareAIGatewayProvider())
+	model := missingGateway.GetModels("cloudflare-ai-gateway")[0]
+	result, err := missingGateway.GetAuth(context.Background(), model)
+	if err != nil {
+		t.Fatalf("GetAuth: %v", err)
+	}
+	if result != nil {
+		t.Fatalf("GetAuth (missing gateway) = %+v, want nil", result)
+	}
+
+	configured := newModels(map[string]string{
+		"CLOUDFLARE_API_KEY":    "cf-key",
+		"CLOUDFLARE_ACCOUNT_ID": "account-id",
+		"CLOUDFLARE_GATEWAY_ID": "gateway-id",
+	})
+	configured.SetProvider(CloudflareAIGatewayProvider())
+	result, err = configured.GetAuth(context.Background(), model)
+	if err != nil {
+		t.Fatalf("GetAuth: %v", err)
+	}
+	if result == nil {
+		t.Fatal("GetAuth (configured) = nil")
+	}
+	if got := result.Auth.Headers["cf-aig-authorization"]; got == nil || *got != "Bearer cf-key" {
+		t.Errorf(`Auth.Headers["cf-aig-authorization"] = %v, want "Bearer cf-key"`, got)
+	}
+	if got, ok := result.Auth.Headers["Authorization"]; !ok || got != nil {
+		t.Errorf(`Auth.Headers["Authorization"] = %v, want present nil`, got)
+	}
+	if got, ok := result.Auth.Headers["x-api-key"]; !ok || got != nil {
+		t.Errorf(`Auth.Headers["x-api-key"] = %v, want present nil`, got)
+	}
+	if result.Auth.BaseURL != "https://gateway.ai.cloudflare.com/v1/account-id/gateway-id/anthropic" {
+		t.Errorf("Auth.BaseURL = %q", result.Auth.BaseURL)
+	}
+	if result.Env["CLOUDFLARE_ACCOUNT_ID"] != "account-id" || result.Env["CLOUDFLARE_GATEWAY_ID"] != "gateway-id" {
+		t.Errorf("Env = %+v", result.Env)
 	}
 }
 
