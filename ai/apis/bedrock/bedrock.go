@@ -5,10 +5,10 @@
 // this port) uses an SDK for deliberately, since SigV4 request signing and
 // event-stream framing would be impractical to hand-roll faithfully.
 //
-// This issue wires only the SDK's default credential chain (config.
-// LoadDefaultConfig); the full AWS auth matrix (explicit keys, profiles,
-// region resolution, and bearer-token auth) lands in a follow-up issue -- see
-// docs/epics/epic-10-bedrock/issues/02-bedrock-aws-auth-matrix.md.
+// The full AWS auth matrix -- explicit keys, profiles, region resolution
+// (including inference-profile ARN extraction and built-in endpoint
+// derivation), and bearer-token auth -- is resolved by clientauth.go's
+// resolveClientConfig and applied by client.go's newBedrockRuntimeClient.
 //
 // Ports: packages/ai/src/api/bedrock-converse-stream.ts
 package bedrock
@@ -18,7 +18,6 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
 
 	"github.com/julienlegoux/kern-proxy/ai"
@@ -52,17 +51,20 @@ func (c sdkConverseStreamClient) ConverseStream(ctx context.Context, params *bed
 }
 
 // newConverseStreamClient constructs the client used for ConverseStream
-// calls, using the SDK's default credential chain (env vars, shared
-// config/credentials files, IMDS, ECS container credentials, SSO, ...) with
-// no region/profile/bearer-token overrides. Overridable in tests (mirrors
-// ai/apis/google/vertex's adcTokenFunc stubbing pattern) so tests can inject
-// a fake without a live AWS config or network.
-var newConverseStreamClient = func(ctx context.Context) (converseStreamAPI, error) {
-	cfg, err := config.LoadDefaultConfig(ctx)
+// calls: resolveClientConfig computes the full auth matrix (region,
+// profile, explicit credentials, endpoint, bearer token, custom headers) for
+// this model/options pair, and newBedrockRuntimeClient applies it over the
+// SDK's default credential chain (env vars, shared config/credentials
+// files, IMDS, ECS container credentials, SSO, ...) for whatever it leaves
+// unset. Overridable in tests (mirrors ai/apis/google/vertex's adcTokenFunc
+// stubbing pattern) so tests can inject a fake without a live AWS config or
+// network.
+var newConverseStreamClient = func(ctx context.Context, model *ai.Model, opts *ai.StreamOptions) (converseStreamAPI, error) {
+	client, err := newBedrockRuntimeClient(ctx, resolveClientConfig(model, opts))
 	if err != nil {
 		return nil, err
 	}
-	return sdkConverseStreamClient{bedrockruntime.NewFromConfig(cfg)}, nil
+	return sdkConverseStreamClient{client}, nil
 }
 
 // Stream implements ai.StreamFunc for the bedrock-converse-stream wire
@@ -197,7 +199,7 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 
 	input := toConverseStreamInput(req)
 
-	client, err := newConverseStreamClient(ctx)
+	client, err := newConverseStreamClient(ctx, model, opts)
 	if err != nil {
 		fail(formatErr(err))
 		return

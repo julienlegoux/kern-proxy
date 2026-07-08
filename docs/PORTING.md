@@ -42,7 +42,7 @@ naming its upstream source.
 | `src/api/google-generative-ai.ts`, `google-shared.ts` | `ai/apis/google` | ported (phase 8, issue 01: google-shared converters (contents, tools, generation config) and thinking-signature handling, exported as `ConvertMessages`/`ConvertTools`/`DecodeStream` for the Vertex variant (issue 02) to reuse; streaming decode into unified events and API-key auth, over raw `net/http` + `ai/internal/sse` against the Generative Language REST API directly (no Go equivalent of the `@google/genai` SDK -- see "Vendor SDKs" below)) |
 | `src/api/google-vertex.ts` | `ai/apis/google/vertex` | ported (phase 8, issue 02: Vertex endpoint shaping (project/location-scoped REST path for ADC, a project-less publisher path for an explicit API key) over `ai/apis/google`'s shared `ConvertMessages`/`ConvertTools`/`DecodeStream`, plus the thinking-level/budget helpers and `wireRequest` shape duplicated from that package -- matching upstream's own duplication between `google-generative-ai.ts` and `google-vertex.ts`, since only `google-shared.ts` is actually shared upstream. Application Default Credentials via `golang.org/x/oauth2/google` (`google.DefaultTokenSource`), reached through an injectable package-level `adcTokenFunc` (mirroring `ai/resolve.go`'s `authClock` stubbing pattern) so tests cover ADC resolution with a fake token source, no live GCP credentials needed. The `gcp-vertex-credentials` sentinel and `<placeholder>`-shaped API keys both fall back to ADC, matching `resolveApiKey`/`isPlaceholderApiKey`. **Deviation**: the exact REST path the `@google/genai` SDK builds when a custom `httpOptions.baseUrl` is combined with project/location is an internal SDK detail with no vendored source to introspect; this port instead defines and tests its own contract -- a genuine `baseUrl` override replaces the default host outright, and a catalog `baseUrl` template still containing `{location}` is ignored in favor of the default host) |
 | `src/api/mistral-conversations.ts` | `ai/apis/mistral` | ported (phase 9: request building — messages, tools, tool choice, prompt_mode/reasoning_effort reasoning controls, prompt_cache_key/x-affinity session caching — and SSE stream decode into unified events over raw `net/http` + `ai/internal/sse`, since there is no Go equivalent of the `@mistralai/mistralai` SDK (see "Vendor SDKs" below); the provider binding/catalog entry is deferred to epic 11) |
-| `src/api/bedrock-converse-stream.ts`, `src/bedrock-provider.ts` | `ai/apis/bedrock` | ported (phase 10, issue 01: Converse request building — messages, tools, inference config, system-prompt/last-user-message prompt-cache points — and `ConverseStream` event decode into unified events, plus Claude thinking-payload encode/decode (adaptive and budget-based, GovCloud display omission, interleaved-thinking beta), over `aws-sdk-go-v2`'s `bedrockruntime` client with default-credential-chain auth only; the full AWS auth matrix — explicit keys, profiles, region resolution, bearer-token auth — is issue 02) |
+| `src/api/bedrock-converse-stream.ts`, `src/bedrock-provider.ts` | `ai/apis/bedrock` | ported (phase 10, issue 01: Converse request building — messages, tools, inference config, system-prompt/last-user-message prompt-cache points — and `ConverseStream` event decode into unified events, plus Claude thinking-payload encode/decode (adaptive and budget-based, GovCloud display omission, interleaved-thinking beta), over `aws-sdk-go-v2`'s `bedrockruntime` client with default-credential-chain auth only. Issue 02 (epic close-out): the full AWS auth matrix — a pure `resolveClientConfig` (`ai/apis/bedrock/clientauth.go`) resolves explicit access-key/secret/session-token credentials, profile, region (inference-profile ARN extraction including GovCloud, built-in endpoint-derived region, ambient-profile precedence quirk), custom endpoint pinning, and bearer-token auth from `BedrockOptions`-equivalent fields plus the ambient `AWS_*` env vars, and `newBedrockRuntimeClient` (`ai/apis/bedrock/client.go`) applies it over `aws-sdk-go-v2`'s own default credential chain for whatever it leaves unset — plus the custom-headers Build-step middleware (`ai/apis/bedrock/headers_middleware.go`). **Risk #3 resolved SDK-native**: `bedrockruntime.Options` exposes both `BearerAuthTokenProvider` and `AuthSchemePreference`, and its generated `auth.go` already advertises `smithy.api#httpBearerAuth` alongside SigV4 for every operation, so bearer-token auth needed no hand-rolled HTTP signing) |
 | `src/providers/*.ts` (bindings), `src/providers/all.ts` | `ai/providers` | phase 11 |
 | `src/providers/*.models.ts`, `src/models.generated.ts` | `ai/catalog/data/*.json` (via `tools/export-catalog`) | phase 11 |
 | `src/env-api-keys.ts`, `src/utils/provider-env.ts` | `ai/auth/env.go` | phase 3 |
@@ -125,12 +125,30 @@ naming its upstream source.
   (`ErrorCode`/`ErrorMessage`/`ErrorFault`) uniformly for both request-level
   failures and stream-level exceptions, so `ai/apis/bedrock` reads those
   directly instead of re-implementing upstream's shape-probing.
-- **Bedrock custom-headers middleware and full endpoint/region resolution
-  are deferred to issue 02** alongside the rest of the AWS auth matrix: both
+- **Bedrock custom-headers middleware and full endpoint/region resolution**
+  (deferred from issue 01) are ported in issue 02: both
   `bedrock-custom-headers.test.ts` and `bedrock-endpoint-resolution.test.ts`
-  exercise client-construction concerns (SigV4-covered header injection,
-  region/profile/ARN-driven endpoint pinning) that issue 01's scope
-  explicitly excludes ("default credential-chain auth only in this issue").
+  are ported directly onto the new pure `resolveClientConfig` function and
+  the `customHeadersBuildMiddleware` smithy middleware, rather than onto a
+  mocked `BedrockRuntimeClient` constructor/`middlewareStack.add` the way
+  upstream's tests do — Go has no equivalent of `vi.mock`, but
+  `bedrockruntime.Client.Options()` exposes the same resolved
+  Region/BaseEndpoint/BearerAuthTokenProvider/AuthSchemePreference/APIOptions
+  fields upstream's tests assert on the mocked constructor's `config`
+  argument, without any live AWS credentials or network access.
+- **Bedrock explicit-credentials/bearer-token/skip-auth/custom-headers cells
+  have no upstream test**: `bedrock-endpoint-resolution.test.ts` only covers
+  profile/region/endpoint. `ai/apis/bedrock/clientauth_test.go` and
+  `client_test.go` add this port's own coverage for
+  `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`/`AWS_SESSION_TOKEN`,
+  `AWS_BEARER_TOKEN_BEDROCK`/`bearerToken`, and `AWS_BEDROCK_SKIP_AUTH`.
+- **Bedrock's Node-only HTTP-proxy-agent branch is not ported**: upstream
+  swaps in `NodeHttpHandler` with `HttpProxyAgent`/`HttpsProxyAgent` (and
+  forces HTTP/1.1 via `AWS_BEDROCK_FORCE_HTTP1`) to work around
+  `NodeHttp2Handler` having no HTTP-proxy-agent support. Go's `net/http`
+  already honors `HTTP_PROXY`/`HTTPS_PROXY` and negotiates HTTP/1.1 or
+  HTTP/2 per connection without a handler swap, so this Node-specific
+  workaround has no Go equivalent; no upstream or ported test exercises it.
 
 ## Upstream sync procedure
 

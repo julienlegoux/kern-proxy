@@ -236,11 +236,21 @@ type StreamOptions struct {
 	// toolChoice, reasoning, thinkingBudgets, interleavedThinking,
 	// thinkingDisplay, requestMetadata, and bearerToken) ---
 
-	// BedrockRegion is consumed only for the GovCloud thinking-display check
-	// in this issue (matching a region prefix of "us-gov-"); full
-	// region-resolution semantics (client config, inference-profile ARN
-	// extraction, endpoint pinning) land with the AWS auth-matrix issue.
+	// BedrockRegion selects the region for both the GovCloud
+	// thinking-display check (a region prefix of "us-gov-") and real client
+	// construction: ARN-embedded regions and built-in endpoint derivation
+	// still take precedence over this option, matching upstream's own
+	// region-resolution precedence in bedrock-converse-stream.ts.
 	BedrockRegion string
+	// BedrockProfile selects a named profile from the shared AWS
+	// config/credentials files; empty leaves profile resolution to
+	// AWS_PROFILE (or the SDK's own default chain).
+	BedrockProfile string
+	// BedrockBearerToken switches auth to Bedrock's HTTP bearer scheme
+	// instead of SigV4; empty falls back to AWS_BEARER_TOKEN_BEDROCK, and
+	// AWS_BEDROCK_SKIP_AUTH="1" suppresses bearer-token auth entirely (see
+	// ai/apis/bedrock/clientauth.go).
+	BedrockBearerToken string
 	// BedrockToolChoice selects Bedrock's tool-choice mode ("auto"|"any");
 	// empty behaves like "auto" when tools are offered. Ignored when
 	// BedrockToolChoiceFunction is set. "none" (any non-empty, non-auto,
