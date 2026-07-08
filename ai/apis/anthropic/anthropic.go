@@ -1,12 +1,9 @@
-// Package anthropic implements the core of the anthropic-messages wire
-// adapter: request building (messages, system, tools, sampling params,
+// Package anthropic implements the full anthropic-messages wire adapter:
+// request building (messages, system, tools, sampling params,
 // adaptive/budget-based thinking, cache_control), OAuth Claude Code
-// impersonation, and SSE stream decoding into the unified event protocol,
-// over raw net/http and the hand-rolled SSE parser from ai/internal/sse.
-//
-// Out of scope (follow-up issue in epic 5, layered on top of this core):
-//   - Retry/overflow classifier integration and the live smoke — epic 5
-//     issue 04.
+// impersonation, SSE stream decoding into the unified event protocol, and
+// retry/overflow-classifiable HTTP and stream error mapping, over raw
+// net/http and the hand-rolled SSE parser from ai/internal/sse.
 //
 // Ports: packages/ai/src/api/anthropic-messages.ts
 package anthropic
@@ -279,6 +276,11 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		fail(httpStatusError(resp))
+		return
+	}
+
 	if opts != nil && opts.OnResponse != nil {
 		respMeta := ai.ProviderResponse{Status: resp.StatusCode, Headers: ai.HeadersToRecord(resp.Header)}
 		if err := opts.OnResponse(ctx, respMeta, model); err != nil {
@@ -308,6 +310,32 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 	}
 
 	out.Push(ai.DoneEvent{Reason: output.StopReason, Message: output})
+}
+
+// httpStatusError composes an error for a non-2xx Anthropic HTTP response.
+// There is no upstream Go equivalent to port line-for-line: the TS adapter
+// relies on @anthropic-ai/sdk's `.asResponse()` to throw an APIError before
+// iterateAnthropicEvents ever runs, and that SDK error's `.message` already
+// contains the status code plus the JSON-stringified error body (or
+// "<status> status code (no body)" when the body is empty) — the exact
+// contract documented in error-body.ts's normalizeProviderError comment. This
+// reconstructs that same shape from the raw net/http response so
+// ai/retry.go's and ai/overflow.go's text-pattern classifiers, already
+// ported from Epic 1, can match real Anthropic error responses: the 413
+// request_too_large case in particular is only detectable through the
+// error envelope's `type` field, not its human-readable message, so the
+// full body (not just the message) must be preserved.
+func httpStatusError(resp *http.Response) error {
+	body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	trimmed := bytes.TrimSpace(body)
+	if len(trimmed) == 0 {
+		return fmt.Errorf("%d status code (no body)", resp.StatusCode)
+	}
+	var compact bytes.Buffer
+	if json.Compact(&compact, trimmed) == nil {
+		return fmt.Errorf("%d %s", resp.StatusCode, compact.String())
+	}
+	return fmt.Errorf("%d %s", resp.StatusCode, string(trimmed))
 }
 
 // assertRequestAuth mirrors upstream's assertRequestAuth: an empty apiKey is
