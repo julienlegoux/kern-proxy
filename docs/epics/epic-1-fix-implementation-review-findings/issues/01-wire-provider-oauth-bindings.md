@@ -3,12 +3,12 @@ type: Issue
 title: "Wire provider OAuth bindings to the real strategies"
 description: "Point the Anthropic/Codex/Copilot provider auth bindings at the real ai/auth/oauth strategies and fix the stored-Anthropic-OAuth-blocks-API-key-fallback bug."
 tags: [epic-1]
-timestamp: 2026-07-08T20:30:00Z
+timestamp: 2026-07-08T22:00:00Z
 epic: 1
 issue: 01
 slug: wire-provider-oauth-bindings
 size: M
-status: pr-open
+status: done
 gh_issue: 77
 gh_pr: 80
 resource: https://github.com/julienlegoux/kern-proxy/issues/77
