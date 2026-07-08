@@ -3,13 +3,14 @@ type: Issue
 title: "Add the Codex dual login flow"
 description: "Codex OAuth: PKCE on callback port :1455 plus the device-code alternative, with Codex's no-margin expires semantics."
 tags: [epic-12]
-timestamp: 2026-07-08T19:15:00Z
+timestamp: 2026-07-08T19:45:00Z
 epic: 12
 issue: 03
 slug: codex-dual-flow
 size: M
-status: in-progress
+status: pr-open
 gh_issue: 42
+gh_pr: 72
 resource: https://github.com/julienlegoux/kern-proxy/issues/42
 depends_on: [01]
 ---
