@@ -3,12 +3,12 @@ type: Issue
 title: "Add the Codex adapter over the responses protocol"
 description: "Codex request/auth layer: OAuth credential consumption, JWT accountId extraction, and Codex-specific request shaping over the shared responses core (HTTP/SSE path only)."
 tags: [epic-7]
-timestamp: 2026-07-08T07:30:00Z
+timestamp: 2026-07-08T06:48:40Z
 epic: 7
 issue: 03
 slug: codex-adapter
 size: M
-status: pr-open
+status: done
 gh_issue: 30
 gh_pr: 60
 resource: https://github.com/julienlegoux/kern-proxy/issues/30
