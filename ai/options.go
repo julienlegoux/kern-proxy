@@ -210,6 +210,26 @@ type StreamOptions struct {
 	// ADC-authenticated request path; empty resolves GOOGLE_CLOUD_LOCATION.
 	// Unused on the explicit-API-key path.
 	GoogleVertexLocation string
+
+	// --- mistral-conversations only (same flat-merge deviation as above;
+	// upstream's MistralOptions extends StreamOptions with toolChoice,
+	// promptMode, and reasoningEffort) ---
+
+	// MistralToolChoice selects Mistral's tool-choice mode
+	// ("auto"|"none"|"any"|"required"); empty behaves like "auto" when tools
+	// are offered. Ignored when MistralToolChoiceFunction is set.
+	MistralToolChoice string
+	// MistralToolChoiceFunction pins tool choice to one named function,
+	// overriding MistralToolChoice; empty means unset. Go has no equivalent
+	// to TS's union-typed toolChoice, so the named-function variant is its
+	// own field (the same flat-merge deviation already applied elsewhere).
+	MistralToolChoiceFunction string
+	// MistralPromptMode selects Magistral's reasoning prompt mode; the only
+	// wire value is "reasoning". Empty means unset.
+	MistralPromptMode string
+	// MistralReasoningEffort selects the reasoning-effort-style models'
+	// binary thinking knob ("none"|"high"). Empty means unset.
+	MistralReasoningEffort string
 }
 
 // GoogleThinkingLevel mirrors Google's Gemini 3 ThinkingLevel enum values.
