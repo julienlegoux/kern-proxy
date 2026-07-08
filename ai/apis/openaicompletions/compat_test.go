@@ -9,6 +9,7 @@ package openaicompletions
 // plus getCompat's override-wins-over-detection contract.
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/julienlegoux/kern-proxy/ai"
@@ -347,7 +348,7 @@ func TestGetCompat_NilModelCompatReturnsDetected(t *testing.T) {
 	model := compatModel("together", "https://api.together.xyz/v1", "meta-llama/Llama-3")
 	got := getCompat(model)
 	want := detectCompat(model)
-	if got != want {
+	if !reflect.DeepEqual(got, want) {
 		t.Errorf("getCompat() = %#v, want detectCompat() = %#v", got, want)
 	}
 }

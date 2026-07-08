@@ -24,14 +24,18 @@ type resolvedCompat struct {
 	maxTokensField                              string // "max_tokens" | "max_completion_tokens"
 	requiresToolResultName                      bool
 	requiresAssistantAfterToolResult            bool
-	requiresThinkingAsText                      bool              // wired in issue 03 (thinking formats)
-	requiresReasoningContentOnAssistantMessages bool              // wired in issue 03 (thinking formats)
-	thinkingFormat                              ai.ThinkingFormat // wired in issue 03 (thinking formats)
-	zaiToolStream                               bool              // wired in issue 03 (thinking formats)
-	supportsStrictMode                          bool
-	cacheControlFormat                          string // wired in issue 04 (cache/affinity)
-	sendSessionAffinityHeaders                  bool   // wired in issue 04 (cache/affinity)
-	supportsLongCacheRetention                  bool   // wired in issue 04 (cache/affinity)
+	requiresThinkingAsText                      bool
+	requiresReasoningContentOnAssistantMessages bool
+	thinkingFormat                              ai.ThinkingFormat
+	// chatTemplateKwargs configures the "chat-template" thinkingFormat's
+	// per-key chat_template_kwargs resolution. Always non-nil (detectCompat
+	// defaults to an empty map, mirroring upstream's `chatTemplateKwargs: {}`).
+	chatTemplateKwargs         map[string]ai.ChatTemplateKwargValue
+	zaiToolStream              bool
+	supportsStrictMode         bool
+	cacheControlFormat         string // wired in issue 04 (cache/affinity)
+	sendSessionAffinityHeaders bool   // wired in issue 04 (cache/affinity)
+	supportsLongCacheRetention bool   // wired in issue 04 (cache/affinity)
 }
 
 // detectCompat auto-detects compatibility settings from provider name and
@@ -111,6 +115,7 @@ func detectCompat(model *ai.Model) resolvedCompat {
 		requiresThinkingAsText:                      false,
 		requiresReasoningContentOnAssistantMessages: isDeepSeek,
 		thinkingFormat:                              thinkingFormat,
+		chatTemplateKwargs:                          map[string]ai.ChatTemplateKwargValue{},
 		zaiToolStream:                               false,
 		supportsStrictMode:                          !isMoonshot && !isTogether && !isCloudflareAiGateway && !isNvidia,
 		cacheControlFormat:                          cacheControlFormat,
@@ -161,6 +166,9 @@ func getCompat(model *ai.Model) resolvedCompat {
 	}
 	if c.ThinkingFormat != "" {
 		result.thinkingFormat = c.ThinkingFormat
+	}
+	if c.ChatTemplateKwargs != nil {
+		result.chatTemplateKwargs = c.ChatTemplateKwargs
 	}
 	if c.ZaiToolStream != nil {
 		result.zaiToolStream = *c.ZaiToolStream
