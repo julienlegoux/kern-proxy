@@ -1,5 +1,7 @@
 package bedrock
 
+// Ports: packages/ai/src/api/bedrock-converse-stream.ts
+
 // Ports the thinking-payload half of bedrock-converse-stream.ts:
 // supportsAdaptiveThinking, supportsNativeXhighEffort, mapThinkingLevelToEffort,
 // isGovCloudBedrockTarget, and buildAdditionalModelRequestFields.

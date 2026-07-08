@@ -1,5 +1,7 @@
 package bedrock
 
+// Ports: packages/ai/src/api/bedrock-converse-stream.ts
+
 // Ports formatBedrockError from bedrock-converse-stream.ts.
 //
 // Deviation: upstream's formatBedrockError uses normalizeProviderError to

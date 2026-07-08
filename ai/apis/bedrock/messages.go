@@ -1,5 +1,7 @@
 package bedrock
 
+// Ports: packages/ai/src/api/bedrock-converse-stream.ts
+
 // Ports the message-conversion half of bedrock-converse-stream.ts:
 // convertMessages, convertToolResultContent, createRequiredTextBlock,
 // createNonBlankTextBlock, buildSystemPrompt, supportsPromptCaching, and the

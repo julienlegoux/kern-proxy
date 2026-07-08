@@ -1,5 +1,8 @@
 package providers
 
+// Ports: none — original: shared fetchJSON plumbing for the dynamic-provider
+// RefreshModels hooks (no upstream provider file wires a `refreshModels` hook).
+
 // Native (not upstream-ported: no upstream provider file wires a
 // `refreshModels` hook — see docs/PLAN.md's phase-11 note and
 // docs/epics/epic-11-catalog-all-providers/issues/03-vendor-bindings-refreshmodels.md).

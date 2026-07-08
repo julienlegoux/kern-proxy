@@ -1,5 +1,9 @@
 package ai
 
+// Ports: packages/ai/src/types.ts (JSON codec for the ContentPart / Message
+// discriminated unions — Go needs explicit (un)marshalers where upstream
+// relies on structural typing)
+
 import (
 	"encoding/json"
 	"fmt"

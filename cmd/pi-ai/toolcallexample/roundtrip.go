@@ -6,6 +6,9 @@
 // test (live_smoke_test.go), and cmd/pi-ai/example's runnable main.
 package toolcallexample
 
+// Ports: none — original: end-to-end tool-call round-trip harness backing the
+// faux/live tests and cmd/pi-ai/example.
+
 import (
 	"context"
 	"fmt"

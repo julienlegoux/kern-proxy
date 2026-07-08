@@ -3,13 +3,14 @@ type: Issue
 title: "Add // Ports: headers to the 16 non-test source files"
 description: "Add top-of-file // Ports: upstream-source headers (no @ sha) to the 16 non-test .go files under ai/ and cmd/ that lack them, closing the traceability gap."
 tags: [epic-1]
-timestamp: 2026-07-08T19:44:00Z
+timestamp: 2026-07-08T21:40:00Z
 epic: 1
 issue: 03
 slug: add-ports-headers-source-files
 size: S
-status: open
+status: pr-open
 gh_issue: 79
+gh_pr: 82
 resource: https://github.com/julienlegoux/kern-proxy/issues/79
 depends_on: []
 ---
