@@ -34,7 +34,7 @@ naming its upstream source.
 | `src/utils/oauth/*`, `src/oauth.ts` | `ai/auth/oauth` | phase 12 |
 | `src/api/transform-messages.ts` | `ai/apis/transform.go` | ported |
 | `src/utils/validation.ts`, `src/utils/typebox-helpers.ts` | `ai/internal/jsonschema` | ported (typebox-helpers' StringEnum is a TypeBox schema-authoring convenience; plain JSON Schema documents need no equivalent) |
-| `src/api/anthropic-messages.ts` | `ai/apis/anthropic` | phase 5: core, adaptive thinking, cache_control, and OAuth Claude Code impersonation ported (issues 01–03); retry/overflow integration is epic 5 issue 04 |
+| `src/api/anthropic-messages.ts` | `ai/apis/anthropic` | ported (phase 5, issues 01–04: core, adaptive thinking, cache_control, OAuth Claude Code impersonation, and retry/overflow classifier + HTTP error-body wiring) |
 | `src/api/openai-completions.ts`, `openai-prompt-cache.ts` | `ai/apis/openaicompletions` | phase 6 |
 | `src/api/openai-responses*.ts`, `azure-*`, `openai-codex-*` | `ai/apis/openairesponses` (+`azure`,`codex`) | phase 7 |
 | `src/api/google-*.ts` | `ai/apis/google` (+`vertex`) | phase 8 |
@@ -45,7 +45,7 @@ naming its upstream source.
 | `src/env-api-keys.ts`, `src/utils/provider-env.ts` | `ai/auth/env.go` | phase 3 |
 | `src/images*.ts`, `src/api/openrouter-images.ts` | `ai/images` | phase 13 |
 | `src/cli.ts` | `cmd/pi-ai` | phase 14 |
-| `src/utils/error-body.ts` | `ai/internal/httpx` | phase 5 (shape depends on Go HTTP errors) |
+| `src/utils/error-body.ts` | `ai/internal/httpx` | phase 5 (partial: `ai/apis/anthropic` composes Anthropic's own status+body error text inline, matching the SDK contract this file documents, since Anthropic's error shape already "carries the body" and needs none of the other providers' SDK-field probing; the shared multi-SDK `normalizeProviderError`/`formatProviderError` moves to `ai/internal/httpx` whichever later phase (6+) first needs Mistral/openai/Bedrock-shaped probing) |
 | `src/utils/node-http-proxy.ts` | Go `net/http` ProxyFromEnvironment + adapter checks | phase 5 |
 | `src/session-resources.ts` | `ai/sessionresources.go` | ported |
 

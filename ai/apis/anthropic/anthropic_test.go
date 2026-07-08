@@ -202,6 +202,9 @@ func TestStream_StreamEndedBeforeMessageStopIsAnError(t *testing.T) {
 	if result.ErrorMessage != "Anthropic stream ended before message_stop" {
 		t.Errorf("errorMessage = %q", result.ErrorMessage)
 	}
+	if !ai.IsRetryableAssistantError(result) {
+		t.Errorf("IsRetryableAssistantError(result) = false, want true")
+	}
 }
 
 func TestStream_MissingAPIKeyProducesError(t *testing.T) {
