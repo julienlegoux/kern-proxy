@@ -3,13 +3,14 @@ type: Issue
 title: "Add the openai-responses adapter core"
 description: "Responses API request/stream core plus the shared code the Azure and Codex variants build on."
 tags: [epic-7]
-timestamp: 2026-07-08T09:10:00Z
+timestamp: 2026-07-08T10:00:00Z
 epic: 7
 issue: 01
 slug: openai-responses-adapter-core
 size: L
-status: in-progress
+status: pr-open
 gh_issue: 28
+gh_pr: 58
 resource: https://github.com/julienlegoux/kern-proxy/issues/28
 depends_on: []
 blocked_by: ["#18", "#19"]
