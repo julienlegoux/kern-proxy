@@ -3,10 +3,10 @@ type: Epic
 title: "OpenAI completions adapter"
 description: "Chat-completions adapter with the ~18-flag vendor compat matrix, 10 thinking-format encodings, prompt caching, and dual-map tool-call correlation."
 tags: [epic]
-timestamp: 2026-07-07T05:34:54Z
+timestamp: 2026-07-08T09:00:00Z
 epic: 6
 slug: openai-completions
-status: open
+status: done
 gh_issue: 7
 milestone: 6
 resource: https://github.com/julienlegoux/kern-proxy/issues/7
