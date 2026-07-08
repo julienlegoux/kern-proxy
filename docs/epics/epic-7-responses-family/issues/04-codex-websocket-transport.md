@@ -3,12 +3,12 @@ type: Issue
 title: "Add the Codex WebSocket transport with zstd SSE fallback"
 description: "WebSocket transport (coder/websocket), SSE fallback requiring zstd Content-Encoding decode, per-session fallback memory, and connection-limit retry."
 tags: [epic-7]
-timestamp: 2026-07-07T08:24:16Z
+timestamp: 2026-07-08T07:01:09Z
 epic: 7
 issue: 04
 slug: codex-websocket-transport
 size: L
-status: open
+status: in-progress
 gh_issue: 31
 resource: https://github.com/julienlegoux/kern-proxy/issues/31
 depends_on: [03]
