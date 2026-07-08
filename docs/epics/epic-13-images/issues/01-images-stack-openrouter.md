@@ -3,12 +3,12 @@ type: Issue
 title: "Add the image-generation stack and openrouter-images adapter"
 description: "ai/images parallel pipeline plus the openrouter-images adapter — the whole epic in one issue."
 tags: [epic-13]
-timestamp: 2026-07-07T08:28:03Z
+timestamp: 2026-07-08T20:15:00Z
 epic: 13
 issue: 01
 slug: images-stack-openrouter
 size: M
-status: open
+status: in-progress
 gh_issue: 43
 resource: https://github.com/julienlegoux/kern-proxy/issues/43
 depends_on: []
