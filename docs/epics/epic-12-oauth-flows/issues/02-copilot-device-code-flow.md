@@ -3,12 +3,12 @@ type: Issue
 title: "Add the Copilot device-code login flow"
 description: "GitHub Copilot device code + token exchange with per-credential baseUrl (enterpriseUrl) support."
 tags: [epic-12]
-timestamp: 2026-07-08T18:30:00Z
+timestamp: 2026-07-08T19:00:00Z
 epic: 12
 issue: 02
 slug: copilot-device-code-flow
 size: M
-status: pr-open
+status: done
 gh_issue: 41
 gh_pr: 71
 resource: https://github.com/julienlegoux/kern-proxy/issues/41
