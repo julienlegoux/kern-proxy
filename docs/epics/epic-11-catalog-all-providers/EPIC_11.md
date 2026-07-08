@@ -3,10 +3,10 @@ type: Epic
 title: "Catalog & all provider bindings"
 description: "export-catalog tool, go:embed model catalog, ~35 thin provider bindings, and native RefreshModels implementations."
 tags: [epic]
-timestamp: 2026-07-07T05:34:54Z
+timestamp: 2026-07-08T17:00:00Z
 epic: 11
 slug: catalog-all-providers
-status: open
+status: done
 gh_issue: 12
 milestone: 11
 resource: https://github.com/julienlegoux/kern-proxy/issues/12

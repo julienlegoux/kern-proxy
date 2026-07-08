@@ -2,4 +2,4 @@
 
 * [Add the export-catalog tool and embedded model catalog](./01-export-catalog-embedded-catalog.md) - M, done ([PR #67](https://github.com/julienlegoux/kern-proxy/pull/67)), [#37](https://github.com/julienlegoux/kern-proxy/issues/37)
 * [Add all.go and the core provider bindings](./02-core-provider-bindings.md) - M, done ([PR #68](https://github.com/julienlegoux/kern-proxy/pull/68)), [#38](https://github.com/julienlegoux/kern-proxy/issues/38)
-* [Add the remaining vendor bindings and RefreshModels implementations](./03-vendor-bindings-refreshmodels.md) - M, pr-open ([PR #69](https://github.com/julienlegoux/kern-proxy/pull/69)), [#39](https://github.com/julienlegoux/kern-proxy/issues/39)
+* [Add the remaining vendor bindings and RefreshModels implementations](./03-vendor-bindings-refreshmodels.md) - M, done ([PR #69](https://github.com/julienlegoux/kern-proxy/pull/69)), [#39](https://github.com/julienlegoux/kern-proxy/issues/39)

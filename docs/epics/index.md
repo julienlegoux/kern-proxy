@@ -44,7 +44,7 @@ there, or use an OKF-aware reader.
 * [Epic 8: Google & Vertex adapters](/epic-8-google-vertex/EPIC_8.md) - done, [#9](https://github.com/julienlegoux/kern-proxy/issues/9) (closed)
 * [Epic 9: Mistral adapter](/epic-9-mistral/EPIC_9.md) - done, [#10](https://github.com/julienlegoux/kern-proxy/issues/10) (closed)
 * [Epic 10: Bedrock adapter](/epic-10-bedrock/EPIC_10.md) - done, [#11](https://github.com/julienlegoux/kern-proxy/issues/11) (closed)
-* [Epic 11: Catalog & all provider bindings](/epic-11-catalog-all-providers/EPIC_11.md) - open, [#12](https://github.com/julienlegoux/kern-proxy/issues/12)
+* [Epic 11: Catalog & all provider bindings](/epic-11-catalog-all-providers/EPIC_11.md) - done, [#12](https://github.com/julienlegoux/kern-proxy/issues/12) (closed)
 * [Epic 12: OAuth flows](/epic-12-oauth-flows/EPIC_12.md) - open, [#13](https://github.com/julienlegoux/kern-proxy/issues/13)
 * [Epic 13: Images](/epic-13-images/EPIC_13.md) - open, [#14](https://github.com/julienlegoux/kern-proxy/issues/14)
 * [Epic 14: CLI & upstream-sync tooling](/epic-14-cli-sync-tooling/EPIC_14.md) - open, [#15](https://github.com/julienlegoux/kern-proxy/issues/15)
