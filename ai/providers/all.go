@@ -7,26 +7,55 @@ package providers
 
 // Ports: packages/ai/src/providers/all.ts (builtinProviders/builtinModels;
 // getBuiltinModel/getBuiltinModels/getBuiltinProviders's static-catalog-read
-// half is ai/catalog, Issue 01). This issue wires the 8 core bindings that
+// half is ai/catalog, Issue 01). Issue 02 wired the 8 core bindings that
 // front a first-party adapter package (anthropic, openai, azure, codex,
-// google, vertex, mistral, bedrock); the ~25 remaining compat-vendor
-// bindings and their RefreshModels implementations are
-// docs/epics/epic-11-catalog-all-providers/issues/03-vendor-bindings-refreshmodels.md,
-// appended to the Providers() list there.
+// google, vertex, mistral, bedrock). Issue 03 (this) appends the remaining
+// ~27 compat-vendor bindings (mostly thin declarations over the
+// openai-completions or anthropic-messages adapters) plus the native
+// RefreshModels implementations for OpenRouter, Vercel AI Gateway, NVIDIA,
+// and GitHub Copilot — see those bindings' own doc comments — bringing the
+// total to upstream's ~35 built-in providers.
 
 import "github.com/julienlegoux/kern-proxy/ai"
 
 // Providers returns every built-in provider binding, freshly constructed.
 func Providers() []ai.Provider {
 	return []ai.Provider{
+		AmazonBedrockProvider(),
+		AntLingProvider(),
 		AnthropicProvider(),
-		OpenAIProvider(),
 		AzureOpenAIResponsesProvider(),
-		OpenAICodexProvider(),
+		CerebrasProvider(),
+		CloudflareAIGatewayProvider(),
+		CloudflareWorkersAIProvider(),
+		DeepSeekProvider(),
+		FireworksProvider(),
+		GitHubCopilotProvider(),
 		GoogleProvider(),
 		GoogleVertexProvider(),
+		GroqProvider(),
+		HuggingFaceProvider(),
+		KimiCodingProvider(),
+		MiniMaxProvider(),
+		MiniMaxCNProvider(),
 		MistralProvider(),
-		AmazonBedrockProvider(),
+		MoonshotAIProvider(),
+		MoonshotAICNProvider(),
+		NvidiaProvider(),
+		OpenAIProvider(),
+		OpenAICodexProvider(),
+		OpenCodeProvider(),
+		OpenCodeGoProvider(),
+		OpenRouterProvider(),
+		TogetherProvider(),
+		VercelAIGatewayProvider(),
+		XAIProvider(),
+		XiaomiProvider(),
+		XiaomiTokenPlanAMSProvider(),
+		XiaomiTokenPlanCNProvider(),
+		XiaomiTokenPlanSGPProvider(),
+		ZaiProvider(),
+		ZaiCodingCNProvider(),
 	}
 }
 
