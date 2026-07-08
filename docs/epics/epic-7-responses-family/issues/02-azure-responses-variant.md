@@ -3,12 +3,12 @@ type: Issue
 title: "Add the Azure responses variant"
 description: "Azure OpenAI variant of the responses adapter: endpoint shape, auth headers, and version quirks over the shared core."
 tags: [epic-7]
-timestamp: 2026-07-07T08:24:11Z
+timestamp: 2026-07-08T00:00:00Z
 epic: 7
 issue: 02
 slug: azure-responses-variant
 size: S
-status: open
+status: in-progress
 gh_issue: 29
 resource: https://github.com/julienlegoux/kern-proxy/issues/29
 depends_on: [01]
