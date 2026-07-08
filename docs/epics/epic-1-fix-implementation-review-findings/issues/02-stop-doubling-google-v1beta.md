@@ -3,12 +3,12 @@ type: Issue
 title: "Stop doubling the Google /v1beta path segment"
 description: "Normalize requestURL in ai/apis/google/google.go to strip a trailing /v1beta so Google requests stop 404ing on a doubled path segment; drop the smoke-test workaround."
 tags: [epic-1]
-timestamp: 2026-07-08T19:44:00Z
+timestamp: 2026-07-08T20:45:00Z
 epic: 1
 issue: 02
 slug: stop-doubling-google-v1beta
 size: S
-status: open
+status: in-progress
 gh_issue: 78
 resource: https://github.com/julienlegoux/kern-proxy/issues/78
 depends_on: []
