@@ -185,7 +185,31 @@ type StreamOptions struct {
 	// TextVerbosity selects the response text verbosity
 	// ("low"|"medium"|"high"); empty defaults to "low".
 	TextVerbosity string
+
+	// --- google-generative-ai only (same flat-merge deviation as above;
+	// upstream's GoogleOptions extends StreamOptions with toolChoice and
+	// thinking; thinking.enabled/budgetTokens reuse the ThinkingEnabled/
+	// ThinkingBudgetTokens fields already defined above for anthropic-messages) ---
+
+	// GoogleToolChoice selects Gemini's function-calling mode
+	// ("auto"|"none"|"any"); empty behaves like "auto".
+	GoogleToolChoice string
+	// GoogleThinkingLevel selects Gemini 3's discrete thinking level
+	// ("MINIMAL"|"LOW"|"MEDIUM"|"HIGH"), taking priority over
+	// ThinkingBudgetTokens when set. Empty means unset.
+	GoogleThinkingLevel GoogleThinkingLevel
 }
+
+// GoogleThinkingLevel mirrors Google's Gemini 3 ThinkingLevel enum values.
+type GoogleThinkingLevel string
+
+const (
+	GoogleThinkingLevelUnspecified GoogleThinkingLevel = "THINKING_LEVEL_UNSPECIFIED"
+	GoogleThinkingLevelMinimal     GoogleThinkingLevel = "MINIMAL"
+	GoogleThinkingLevelLow         GoogleThinkingLevel = "LOW"
+	GoogleThinkingLevelMedium      GoogleThinkingLevel = "MEDIUM"
+	GoogleThinkingLevelHigh        GoogleThinkingLevel = "HIGH"
+)
 
 // EffectiveCacheRetention resolves the zero value to the "short" default.
 func (o *StreamOptions) EffectiveCacheRetention() CacheRetention {
