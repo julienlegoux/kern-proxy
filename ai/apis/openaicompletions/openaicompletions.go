@@ -3,16 +3,20 @@
 // into the unified event protocol, over raw net/http and the hand-rolled SSE
 // parser from ai/internal/sse.
 //
-// This issue (epic 6, issue 01) ports only the base adapter: request/message
-// building, dual-map (index and id) tool-call delta correlation, partial
-// tool-arg JSON re-parsing, and prompt/cache usage math. The vendor compat
-// auto-detection matrix, thinking-format encodings, and
+// Issue 01 (epic 6) ported the base adapter: request/message building,
+// dual-map (index and id) tool-call delta correlation, partial tool-arg JSON
+// re-parsing, and prompt/cache usage math. Issue 02 added the vendor compat
+// auto-detection matrix (compat.go: detectCompat/getCompat, ~18 tri-state
+// flags auto-detected from provider/baseUrl, overridden by explicit
+// ai.Model.Compat entries) and wired it into the flags this adapter already
+// reads: store, developer role, strict mode, usage-in-streaming, the
+// max_tokens/max_completion_tokens field choice, tool-result name, and the
+// synthetic post-tool-result assistant bridge. Thinking-format encodings and
 // cache_control/session-affinity/live-smoke wiring are follow-up issues (see
-// docs/epics/epic-6-openai-completions/issues/02-04); this adapter reads
-// explicit ai.Model.Compat overrides directly (no baseUrl/provider sniffing),
-// matching the same incremental pattern the anthropic adapter used.
+// docs/epics/epic-6-openai-completions/issues/03-04); their compat fields
+// resolve correctly already (so overrides work) but are not yet read here.
 //
-// Ports: packages/ai/src/api/openai-completions.ts (base subset)
+// Ports: packages/ai/src/api/openai-completions.ts
 package openaicompletions
 
 import (
@@ -271,52 +275,19 @@ type wireToolCallFunction struct {
 
 func boolPtr(b bool) *bool { return &b }
 
-func maxTokensField(model *ai.Model) string {
-	if model.Compat != nil && model.Compat.MaxTokensField != "" {
-		return model.Compat.MaxTokensField
-	}
-	return "max_completion_tokens"
-}
-
-func supportsUsageInStreaming(model *ai.Model) bool {
-	if model.Compat == nil || model.Compat.SupportsUsageInStreaming == nil {
-		return true
-	}
-	return *model.Compat.SupportsUsageInStreaming
-}
-
-func supportsStore(model *ai.Model) bool {
-	if model.Compat == nil || model.Compat.SupportsStore == nil {
-		return true
-	}
-	return *model.Compat.SupportsStore
-}
-
-func supportsStrictMode(model *ai.Model) bool {
-	if model.Compat == nil || model.Compat.SupportsStrictMode == nil {
-		return true
-	}
-	return *model.Compat.SupportsStrictMode
-}
-
-func supportsDeveloperRole(model *ai.Model) bool {
-	if model.Compat == nil || model.Compat.SupportsDeveloperRole == nil {
-		return true
-	}
-	return *model.Compat.SupportsDeveloperRole
-}
-
 func buildParams(model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *wireRequest {
+	compat := getCompat(model)
+
 	req := &wireRequest{
 		Model:    model.ID,
-		Messages: convertMessages(chat, model),
+		Messages: convertMessages(chat, model, compat),
 		Stream:   true,
 	}
 
-	if supportsUsageInStreaming(model) {
+	if compat.supportsUsageInStreaming {
 		req.StreamOptions = &wireStreamOptions{IncludeUsage: true}
 	}
-	if supportsStore(model) {
+	if compat.supportsStore {
 		req.Store = boolPtr(false)
 	}
 
@@ -325,7 +296,7 @@ func buildParams(model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *wire
 		maxTokens = *opts.MaxTokens
 	}
 	if maxTokens > 0 {
-		if maxTokensField(model) == "max_tokens" {
+		if compat.maxTokensField == "max_tokens" {
 			req.MaxTokens = &maxTokens
 		} else {
 			req.MaxCompletionTokens = &maxTokens
@@ -338,7 +309,7 @@ func buildParams(model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *wire
 	}
 
 	if len(chat.Tools) > 0 {
-		tools := convertTools(chat.Tools, model)
+		tools := convertTools(chat.Tools, compat)
 		req.Tools = &tools
 	} else if hasToolHistory(chat.Messages) {
 		empty := []wireTool{}
@@ -348,8 +319,8 @@ func buildParams(model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *wire
 	return req
 }
 
-func convertTools(tools []ai.Tool, model *ai.Model) []wireTool {
-	strict := supportsStrictMode(model)
+func convertTools(tools []ai.Tool, compat resolvedCompat) []wireTool {
+	strict := compat.supportsStrictMode
 	out := make([]wireTool, 0, len(tools))
 	for _, t := range tools {
 		var params map[string]any
@@ -413,29 +384,40 @@ func normalizeToolCallID(id string, model *ai.Model, _ *ai.AssistantMessage) str
 	return id
 }
 
-func convertMessages(chat ai.Context, model *ai.Model) []wireMessage {
+func convertMessages(chat ai.Context, model *ai.Model, compat resolvedCompat) []wireMessage {
 	transformed := apis.TransformMessages(chat.Messages, model, normalizeToolCallID)
 	out := make([]wireMessage, 0, len(transformed)+1)
 
 	if chat.SystemPrompt != "" {
 		role := "system"
-		if model.Reasoning && supportsDeveloperRole(model) {
+		if model.Reasoning && compat.supportsDeveloperRole {
 			role = "developer"
 		}
 		out = append(out, wireMessage{Role: role, Content: ai.SanitizeSurrogates(chat.SystemPrompt)})
 	}
 
+	// lastRole tracks the previous message's role so a toolResult -> user
+	// transition can be bridged with a synthetic assistant message on
+	// providers that require it (compat.requiresAssistantAfterToolResult).
+	lastRole := ""
 	for i := 0; i < len(transformed); i++ {
 		msg := transformed[i]
+
+		if _, isUser := msg.(ai.UserMessage); isUser && compat.requiresAssistantAfterToolResult && lastRole == "toolResult" {
+			out = append(out, wireMessage{Role: "assistant", Content: "I have processed the tool results."})
+		}
+
 		switch m := msg.(type) {
 		case ai.UserMessage:
 			out = append(out, convertUserMessage(m))
+			lastRole = "user"
 
 		case *ai.AssistantMessage:
 			wireMsg, ok := convertAssistantMessage(m)
 			if ok {
 				out = append(out, wireMsg)
 			}
+			lastRole = "assistant"
 
 		case ai.ToolResultMessage:
 			j := i
@@ -444,10 +426,11 @@ func convertMessages(chat ai.Context, model *ai.Model) []wireMessage {
 				if !ok {
 					break
 				}
-				out = append(out, convertToolResultMessage(next))
+				out = append(out, convertToolResultMessage(next, compat))
 				j++
 			}
 			i = j - 1
+			lastRole = "toolResult"
 		}
 	}
 
@@ -515,7 +498,7 @@ func convertAssistantMessage(m *ai.AssistantMessage) (wireMessage, bool) {
 	return wireMsg, true
 }
 
-func convertToolResultMessage(m ai.ToolResultMessage) wireMessage {
+func convertToolResultMessage(m ai.ToolResultMessage, compat resolvedCompat) wireMessage {
 	var texts []string
 	hasImages := false
 	for _, c := range m.Content {
@@ -534,7 +517,11 @@ func convertToolResultMessage(m ai.ToolResultMessage) wireMessage {
 			text = "(no tool output)"
 		}
 	}
-	return wireMessage{Role: "tool", Content: ai.SanitizeSurrogates(text), ToolCallID: m.ToolCallID}
+	wireMsg := wireMessage{Role: "tool", Content: ai.SanitizeSurrogates(text), ToolCallID: m.ToolCallID}
+	if compat.requiresToolResultName && m.ToolName != "" {
+		wireMsg.Name = m.ToolName
+	}
+	return wireMsg
 }
 
 // --- headers -------------------------------------------------------------
