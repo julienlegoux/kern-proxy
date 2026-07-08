@@ -4,47 +4,4 @@ okf_version: "0.1"
 
 # Epics
 
-Epics for the Go rebuild of `@earendil-works/pi-ai` (kern-proxy), split from
-[docs/PLAN.md](../PLAN.md) — one epic per plan phase, numbering preserved.
-Phases 1–2 were implemented before this split (their issues are closed for the
-record); epic 3 was partially delivered early (see its file for what remains).
-
-Note on links: per the OKF v0.1 spec this bundle follows, epic cross-links are
-bundle-relative absolute paths (leading `/`, resolved against `docs/epics/`).
-GitHub's web renderer resolves leading-slash links against the repository root,
-so they won't click through on github.com — navigate via the folder listing
-there, or use an OKF-aware reader.
-
-## Conventions
-
-- **Paths**: [docs/PORTING.md](../PORTING.md) is the canonical TS-file →
-  Go-package map. Epic and issue files must quote its paths verbatim (e.g.
-  `ai/internal/jsonschema`, `ai/providers/faux`) — never shorthand like
-  `internal/sse`.
-- **Dependencies**: issue frontmatter uses two fields. `depends_on` holds
-  within-epic issue numbers (build order inside one epic). `blocked_by` holds
-  cross-epic GitHub refs — issue numbers (`"#16"`) or epic tracking-issue
-  numbers (`"#5"`) when an entire epic must land first. Prose in the issue's
-  Dependencies section explains the why.
-- **GitHub issue bodies** are generated from the local issue file: frontmatter
-  and the H1 stripped, a `Part of epic #N. Spec: …` header prepended, and OKF
-  links rewritten to `blob/develop` URLs. All sections are preserved verbatim,
-  so the local file and the GitHub body never diverge — edit the local file
-  and regenerate rather than editing on GitHub.
-
-## Epics
-
-* [Epic 1: Foundation](/epic-1-foundation/EPIC_1.md) - done, [#2](https://github.com/julienlegoux/kern-proxy/issues/2) (closed)
-* [Epic 2: Faux provider & registry](/epic-2-faux-provider-registry/EPIC_2.md) - done, [#3](https://github.com/julienlegoux/kern-proxy/issues/3) (closed)
-* [Epic 3: Auth core](/epic-3-auth-core/EPIC_3.md) - done, [#4](https://github.com/julienlegoux/kern-proxy/issues/4) (closed)
-* [Epic 4: Transform & validation](/epic-4-transform-validation/EPIC_4.md) - done, [#5](https://github.com/julienlegoux/kern-proxy/issues/5) (closed)
-* [Epic 5: Anthropic adapter](/epic-5-anthropic-adapter/EPIC_5.md) - done, [#6](https://github.com/julienlegoux/kern-proxy/issues/6) (closed)
-* [Epic 6: OpenAI completions adapter](/epic-6-openai-completions/EPIC_6.md) - done, [#7](https://github.com/julienlegoux/kern-proxy/issues/7) (closed)
-* [Epic 7: Responses family (OpenAI responses, Azure, Codex)](/epic-7-responses-family/EPIC_7.md) - done, [#8](https://github.com/julienlegoux/kern-proxy/issues/8) (closed)
-* [Epic 8: Google & Vertex adapters](/epic-8-google-vertex/EPIC_8.md) - done, [#9](https://github.com/julienlegoux/kern-proxy/issues/9) (closed)
-* [Epic 9: Mistral adapter](/epic-9-mistral/EPIC_9.md) - done, [#10](https://github.com/julienlegoux/kern-proxy/issues/10) (closed)
-* [Epic 10: Bedrock adapter](/epic-10-bedrock/EPIC_10.md) - done, [#11](https://github.com/julienlegoux/kern-proxy/issues/11) (closed)
-* [Epic 11: Catalog & all provider bindings](/epic-11-catalog-all-providers/EPIC_11.md) - done, [#12](https://github.com/julienlegoux/kern-proxy/issues/12) (closed)
-* [Epic 12: OAuth flows](/epic-12-oauth-flows/EPIC_12.md) - done, [#13](https://github.com/julienlegoux/kern-proxy/issues/13) (closed)
-* [Epic 13: Images](/epic-13-images/EPIC_13.md) - done, [#14](https://github.com/julienlegoux/kern-proxy/issues/14) (closed)
-* [Epic 14: CLI & upstream-sync tooling](/epic-14-cli-sync-tooling/EPIC_14.md) - done, [#15](https://github.com/julienlegoux/kern-proxy/issues/15) (closed)
+* [Epic 1: Fix IMPLEMENTATION_REVIEW findings](/epic-1-fix-implementation-review-findings/EPIC_1.md) - open, [#76](https://github.com/julienlegoux/kern-proxy/issues/76)
