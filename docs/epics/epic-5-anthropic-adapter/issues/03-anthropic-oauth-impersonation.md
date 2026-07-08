@@ -3,12 +3,12 @@ type: Issue
 title: "Add OAuth Claude Code impersonation mode to the Anthropic adapter"
 description: "Identity system block, beta headers, claude-cli user-agent, and tool-name remap when running on an OAuth credential."
 tags: [epic-5]
-timestamp: 2026-07-08T02:00:00Z
+timestamp: 2026-07-08T04:09:18Z
 epic: 5
 issue: 03
 slug: anthropic-oauth-impersonation
 size: M
-status: pr-open
+status: done
 gh_issue: 22
 gh_pr: 52
 resource: https://github.com/julienlegoux/kern-proxy/issues/22
