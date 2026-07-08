@@ -3,12 +3,12 @@ type: Issue
 title: "Add the Anthropic PKCE login flow"
 description: "ai/auth/oauth scaffolding plus the Anthropic PKCE flow on callback port :53692 with the callback vs manual-code race handled."
 tags: [epic-12]
-timestamp: 2026-07-07T08:27:54Z
+timestamp: 2026-07-08T17:15:00Z
 epic: 12
 issue: 01
 slug: anthropic-pkce-flow
 size: M
-status: open
+status: in-progress
 gh_issue: 40
 resource: https://github.com/julienlegoux/kern-proxy/issues/40
 depends_on: []
