@@ -3,13 +3,14 @@ type: Issue
 title: "Finish upstream-sync tooling and complete PORTING.md"
 description: "Finish upstream/sync.sh, add the weekly diff CI job that opens an issue when non-empty, document the sync procedure, and complete the PORTING.md map."
 tags: [epic-14]
-timestamp: 2026-07-07T08:28:09Z
+timestamp: 2026-07-08T21:05:00Z
 epic: 14
 issue: 02
 slug: upstream-sync-porting-md
 size: M
-status: open
+status: pr-open
 gh_issue: 45
+gh_pr: 75
 resource: https://github.com/julienlegoux/kern-proxy/issues/45
 depends_on: []
 blocked_by: ["#6", "#7", "#8", "#9", "#10", "#11", "#12", "#13", "#14"]

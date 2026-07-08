@@ -18,3 +18,9 @@ jobs:
       # criteria require TestResolveExpiredOAuthRefreshesOnceUnderLock to be
       # visibly executed under the race detector.
       - run: go test ./... -race -v
+
+      # Offline test of upstream/sync.sh's diff-detection logic (no network:
+      # builds its own throwaway git repo). Keeps the weekly sync job in
+      # .github/workflows/upstream-sync.yml honest between real upstream
+      # syncs.
+      - run: bash upstream/sync_test.sh

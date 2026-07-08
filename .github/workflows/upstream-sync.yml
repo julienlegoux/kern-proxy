@@ -1,0 +1,56 @@
+name: Upstream sync check
+
+# Weekly diff of the pinned upstream revision (upstream/UPSTREAM.lock)
+# against upstream HEAD, bucketed by area via upstream/sync.sh. Opens a
+# GitHub issue when the diff is non-empty, per docs/PORTING.md's "Upstream
+# sync procedure". See upstream/sync_test.sh for the offline test of
+# sync.sh's diff-detection logic, run on every push in .github/workflows/test.yml.
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch: {} # manual trigger, e.g. to rehearse this job after merge
+
+permissions:
+  issues: write
+
+jobs:
+  sync-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Diff upstream since the pinned revision
+        id: sync
+        run: upstream/sync.sh | tee "$RUNNER_TEMP/upstream-sync-output.txt"
+
+      - name: Ensure the upstream-sync label exists
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create upstream-sync \
+            --repo "$GITHUB_REPOSITORY" \
+            --color BFA100 \
+            --description "Weekly upstream diff has changes to port" \
+            --force
+
+      - name: Skip if an upstream-sync issue is already open
+        if: steps.sync.outputs.changed == 'true'
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          count=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --label upstream-sync --json number --jq 'length')
+          echo "count=$count" >>"$GITHUB_OUTPUT"
+
+      - name: Open an issue for the new upstream diff
+        if: steps.sync.outputs.changed == 'true' && steps.existing.outputs.count == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pinned=$(grep '^commit=' upstream/UPSTREAM.lock | cut -d= -f2 | cut -c1-12)
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Upstream sync: changes since $pinned" \
+            --label upstream-sync \
+            --body-file "$RUNNER_TEMP/upstream-sync-output.txt"
