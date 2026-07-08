@@ -158,6 +158,25 @@ type StreamOptions struct {
 	// ServiceTier selects OpenAI's service tier ("auto"|"default"|"flex"|
 	// "priority"); empty leaves the provider default.
 	ServiceTier string
+
+	// --- azure-openai-responses only (same flat-merge deviation as above;
+	// upstream's AzureOpenAIResponsesOptions extends StreamOptions with these
+	// four fields) ---
+
+	// AzureAPIVersion overrides the Azure OpenAI API version; empty resolves
+	// AZURE_OPENAI_API_VERSION then defaults to "v1".
+	AzureAPIVersion string
+	// AzureResourceName builds the default Azure base URL
+	// (https://<name>.openai.azure.com/openai/v1) when AzureBaseURL is unset;
+	// empty resolves AZURE_OPENAI_RESOURCE_NAME.
+	AzureResourceName string
+	// AzureBaseURL overrides the Azure endpoint directly; empty resolves
+	// AZURE_OPENAI_BASE_URL, then AzureResourceName, then Model.BaseURL.
+	AzureBaseURL string
+	// AzureDeploymentName overrides the deployment name sent as the request's
+	// model field; empty resolves AZURE_OPENAI_DEPLOYMENT_NAME_MAP (keyed by
+	// model ID), then falls back to the model ID itself.
+	AzureDeploymentName string
 }
 
 // EffectiveCacheRetention resolves the zero value to the "short" default.
