@@ -45,15 +45,22 @@ func Stream(ctx context.Context, model *ai.Model, chat ai.Context, opts *ai.Stre
 	return out
 }
 
-// StreamSimple implements ai.SimpleStreamFunc. Reasoning-level translation
-// (thinking-format encodings) lands in issue 03; for now this forwards the
-// base stream options only.
+// StreamSimple implements ai.SimpleStreamFunc, translating the abstract
+// Reasoning level into StreamOptions.ReasoningEffort via ai.ClampThinkingLevel
+// (dropped entirely when the model has no supported level to clamp to, i.e.
+// clamps to "off"). Ports the streamSimple half of openai-completions.ts;
+// toolChoice is out of scope (no upstream epic 6 issue reads it yet).
 func StreamSimple(ctx context.Context, model *ai.Model, chat ai.Context, opts *ai.SimpleStreamOptions) *ai.Stream {
 	apiKey := ""
 	if opts != nil {
 		apiKey = opts.APIKey
 	}
 	base := apis.BuildBaseOptions(model, chat, opts, apiKey)
+	if opts != nil && opts.Reasoning != "" {
+		if clamped := ai.ClampThinkingLevel(model, opts.Reasoning); clamped != ai.ThinkingOff {
+			base.ReasoningEffort = clamped
+		}
+	}
 	return Stream(ctx, model, chat, &base)
 }
 
@@ -215,7 +222,10 @@ func httpStatusError(resp *http.Response) error {
 // --- request building ---------------------------------------------------------
 
 // wireRequest is the OpenAI chat-completions streaming request body: the base
-// subset (no cache_control, thinking-format, or compat-matrix fields yet).
+// subset (no cache_control fields yet; those land in issue 04) plus the
+// thinking-format fields this issue wires (reasoning_effort/thinking/
+// enable_thinking/chat_template_kwargs/reasoning/tool_stream, whose shape
+// varies per Model.Compat.ThinkingFormat — see applyThinkingFormat).
 type wireRequest struct {
 	Model               string             `json:"model"`
 	Messages            []wireMessage      `json:"messages"`
@@ -226,6 +236,35 @@ type wireRequest struct {
 	MaxCompletionTokens *int               `json:"max_completion_tokens,omitempty"`
 	Temperature         *float64           `json:"temperature,omitempty"`
 	Tools               *[]wireTool        `json:"tools,omitempty"`
+	ToolStream          *bool              `json:"tool_stream,omitempty"`
+
+	// --- thinking-format fields (issue 03): shape depends on
+	// compat.thinkingFormat, so Thinking/Reasoning are typed `any` rather than
+	// a fixed struct (mirrors upstream's `as any` casts per branch). ---
+	ReasoningEffort    string         `json:"reasoning_effort,omitempty"`
+	Thinking           any            `json:"thinking,omitempty"`
+	EnableThinking     *bool          `json:"enable_thinking,omitempty"`
+	ChatTemplateKwargs map[string]any `json:"chat_template_kwargs,omitempty"`
+	Reasoning          any            `json:"reasoning,omitempty"`
+}
+
+// wireThinkingObj is the `thinking` object shape used by the "zai" and
+// "deepseek" thinkingFormats.
+type wireThinkingObj struct {
+	Type          string `json:"type"`
+	ClearThinking *bool  `json:"clear_thinking,omitempty"`
+}
+
+// wireReasoningEffort is the `reasoning` object shape used by the
+// "openrouter" and "ant-ling" thinkingFormats.
+type wireReasoningEffort struct {
+	Effort string `json:"effort"`
+}
+
+// wireReasoningEnabled is the `reasoning` object shape used by the
+// "together" thinkingFormat.
+type wireReasoningEnabled struct {
+	Enabled bool `json:"enabled"`
 }
 
 type wireStreamOptions struct {
@@ -250,6 +289,22 @@ type wireMessage struct {
 	ToolCalls  []wireToolCall `json:"tool_calls,omitempty"`
 	ToolCallID string         `json:"tool_call_id,omitempty"`
 	Name       string         `json:"name,omitempty"`
+
+	// --- thinking replay fields (issue 03) ---
+
+	// ReasoningContent/Reasoning/ReasoningText mirror the three known
+	// decode-side reasoning field names (see rawDelta.reasoningField): a
+	// replayed thinking block is written back under whichever field name its
+	// ThinkingSignature recorded. Pointers (not plain strings) so an
+	// explicitly forced empty string (requiresReasoningContentOnAssistantMessages)
+	// is distinguishable from "not set" and still serializes as `""`.
+	ReasoningContent *string `json:"reasoning_content,omitempty"`
+	Reasoning        *string `json:"reasoning,omitempty"`
+	ReasoningText    *string `json:"reasoning_text,omitempty"`
+	// ReasoningDetails replays Google-style encrypted reasoning metadata
+	// attached to tool calls (ToolCall.ThoughtSignature), one raw JSON object
+	// per tool call that has one.
+	ReasoningDetails []json.RawMessage `json:"reasoning_details,omitempty"`
 }
 
 type wireContentPart struct {
@@ -311,12 +366,195 @@ func buildParams(model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *wire
 	if len(chat.Tools) > 0 {
 		tools := convertTools(chat.Tools, compat)
 		req.Tools = &tools
+		if compat.zaiToolStream {
+			req.ToolStream = boolPtr(true)
+		}
 	} else if hasToolHistory(chat.Messages) {
 		empty := []wireTool{}
 		req.Tools = &empty
 	}
 
+	applyThinkingFormat(req, model, compat, opts)
+
 	return req
+}
+
+// --- thinking-format encoding (issue 03) -----------------------------------
+
+// applyThinkingFormat ports openai-completions.ts buildParams' thinkingFormat
+// if/else-if chain: exactly one of the 10 ThinkingFormat encodings applies,
+// selected by compat.thinkingFormat, and every branch is gated on
+// model.Reasoning (non-reasoning models never get a reasoning/thinking
+// field).
+func applyThinkingFormat(req *wireRequest, model *ai.Model, compat resolvedCompat, opts *ai.StreamOptions) {
+	if !model.Reasoning {
+		return
+	}
+	var reasoningEffort ai.ThinkingLevel
+	if opts != nil {
+		reasoningEffort = opts.ReasoningEffort
+	}
+	hasEffort := reasoningEffort != ""
+
+	switch compat.thinkingFormat {
+	case ai.ThinkingFormatZai:
+		if hasEffort {
+			req.Thinking = wireThinkingObj{Type: "enabled", ClearThinking: boolPtr(false)}
+		} else {
+			req.Thinking = wireThinkingObj{Type: "disabled"}
+		}
+		if hasEffort && compat.supportsReasoningEffort && !thinkingLevelExplicitlyNull(model, reasoningEffort) {
+			req.ReasoningEffort = mappedThinkingOrRaw(model, reasoningEffort)
+		}
+
+	case ai.ThinkingFormatQwen:
+		req.EnableThinking = boolPtr(hasEffort)
+
+	case ai.ThinkingFormatQwenChatTemplate:
+		req.ChatTemplateKwargs = map[string]any{"enable_thinking": hasEffort, "preserve_thinking": true}
+
+	case ai.ThinkingFormatChatTemplate:
+		if kwargs := buildChatTemplateKwargs(model, compat, reasoningEffort); kwargs != nil {
+			req.ChatTemplateKwargs = kwargs
+		}
+
+	case ai.ThinkingFormatDeepseek:
+		if hasEffort {
+			req.Thinking = wireThinkingObj{Type: "enabled"}
+		} else if !thinkingLevelExplicitlyNull(model, ai.ThinkingOff) {
+			req.Thinking = wireThinkingObj{Type: "disabled"}
+		}
+		if hasEffort && compat.supportsReasoningEffort {
+			req.ReasoningEffort = mappedThinkingOrRaw(model, reasoningEffort)
+		}
+
+	case ai.ThinkingFormatOpenRouter:
+		if hasEffort {
+			req.Reasoning = wireReasoningEffort{Effort: mappedThinkingOrRaw(model, reasoningEffort)}
+		} else if !thinkingLevelExplicitlyNull(model, ai.ThinkingOff) {
+			req.Reasoning = wireReasoningEffort{Effort: mappedThinkingOrDefault(model, ai.ThinkingOff, "none")}
+		}
+
+	case ai.ThinkingFormatAntLing:
+		if hasEffort {
+			if mapped, ok := mappedThinkingLevel(model, reasoningEffort); ok {
+				req.Reasoning = wireReasoningEffort{Effort: mapped}
+			}
+		}
+
+	case ai.ThinkingFormatTogether:
+		req.Reasoning = wireReasoningEnabled{Enabled: hasEffort}
+		if hasEffort && compat.supportsReasoningEffort {
+			req.ReasoningEffort = mappedThinkingOrRaw(model, reasoningEffort)
+		}
+
+	case ai.ThinkingFormatStringThinking:
+		if hasEffort {
+			req.Thinking = mappedThinkingOrRaw(model, reasoningEffort)
+		} else if !thinkingLevelExplicitlyNull(model, ai.ThinkingOff) {
+			req.Thinking = mappedThinkingOrDefault(model, ai.ThinkingOff, "none")
+		}
+
+	default: // "openai": plain reasoning_effort.
+		if hasEffort && compat.supportsReasoningEffort {
+			req.ReasoningEffort = mappedThinkingOrRaw(model, reasoningEffort)
+		} else if !hasEffort && compat.supportsReasoningEffort {
+			if off, ok := mappedThinkingLevel(model, ai.ThinkingOff); ok {
+				req.ReasoningEffort = off
+			}
+		}
+	}
+}
+
+// mappedThinkingLevel looks up model.ThinkingLevelMap[level]. ok is true only
+// for an explicit non-nil string mapping; both "absent" and "explicit null"
+// (an unsupported-level marker) return ok=false.
+func mappedThinkingLevel(model *ai.Model, level ai.ThinkingLevel) (string, bool) {
+	v, present := model.ThinkingLevelMap[level]
+	if !present || v == nil {
+		return "", false
+	}
+	return *v, true
+}
+
+// thinkingLevelExplicitlyNull reports whether level is present in
+// model.ThinkingLevelMap mapped to an explicit nil (TS `null`), the marker
+// some formats use to suppress a field entirely rather than send a default.
+func thinkingLevelExplicitlyNull(model *ai.Model, level ai.ThinkingLevel) bool {
+	v, present := model.ThinkingLevelMap[level]
+	return present && v == nil
+}
+
+// mappedThinkingOrRaw is the `model.thinkingLevelMap?.[level] ?? raw` pattern
+// shared by most thinkingFormat branches: fall back to the raw level string
+// when unmapped (including explicit null).
+func mappedThinkingOrRaw(model *ai.Model, level ai.ThinkingLevel) string {
+	if v, ok := mappedThinkingLevel(model, level); ok {
+		return v
+	}
+	return string(level)
+}
+
+// mappedThinkingOrDefault is the `model.thinkingLevelMap?.off ?? def` pattern
+// used by the "off" default value in openrouter/string-thinking.
+func mappedThinkingOrDefault(model *ai.Model, level ai.ThinkingLevel, def string) string {
+	if v, ok := mappedThinkingLevel(model, level); ok {
+		return v
+	}
+	return def
+}
+
+// buildChatTemplateKwargs resolves compat.chatTemplateKwargs into concrete
+// values for the generic "chat-template" thinkingFormat. Ports
+// buildChatTemplateKwargs/resolveChatTemplateKwargValue.
+func buildChatTemplateKwargs(model *ai.Model, compat resolvedCompat, level ai.ThinkingLevel) map[string]any {
+	if len(compat.chatTemplateKwargs) == 0 {
+		return nil
+	}
+	out := map[string]any{}
+	for k, v := range compat.chatTemplateKwargs {
+		if resolved, ok := resolveChatTemplateKwargValue(model, level, v); ok {
+			out[k] = resolved
+		}
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
+}
+
+// resolveChatTemplateKwargValue resolves one configured chat_template_kwargs
+// value. ok=false means the key is omitted entirely (TS `undefined`); ok=true
+// with a nil resolved value means an explicit JSON null is kept.
+func resolveChatTemplateKwargValue(model *ai.Model, level ai.ThinkingLevel, value ai.ChatTemplateKwargValue) (any, bool) {
+	obj, isObj := value.(map[string]any)
+	if !isObj {
+		return value, true
+	}
+	hasEffort := level != ""
+	if !hasEffort {
+		if omit, _ := obj["omitWhenOff"].(bool); omit {
+			return nil, false
+		}
+	}
+	if v, ok := obj["$var"]; ok && v == "thinking.enabled" {
+		return hasEffort, true
+	}
+	key := ai.ThinkingOff
+	if hasEffort {
+		key = level
+	}
+	mapped, present := model.ThinkingLevelMap[key]
+	if !present {
+		if hasEffort {
+			return string(level), true
+		}
+		return nil, false
+	}
+	if mapped == nil {
+		return nil, false
+	}
+	return *mapped, true
 }
 
 func convertTools(tools []ai.Tool, compat resolvedCompat) []wireTool {
@@ -413,7 +651,7 @@ func convertMessages(chat ai.Context, model *ai.Model, compat resolvedCompat) []
 			lastRole = "user"
 
 		case *ai.AssistantMessage:
-			wireMsg, ok := convertAssistantMessage(m)
+			wireMsg, ok := convertAssistantMessage(m, model, compat)
 			if ok {
 				out = append(out, wireMsg)
 			}
@@ -460,39 +698,114 @@ func imagePart(b ai.ImageContent) wireContentPart {
 	}
 }
 
-func convertAssistantMessage(m *ai.AssistantMessage) (wireMessage, bool) {
-	var textParts []string
+// convertAssistantMessage builds the wire assistant message, including
+// (issue 03) same-model thinking-block replay: as plain text content parts
+// when compat.requiresThinkingAsText, otherwise under the thinking block's
+// own signature field (reasoning_content/reasoning/reasoning_text), plus
+// replayed Google-style reasoning_details on tool calls. Cross-model thinking
+// downgrade already happened upstream in apis.TransformMessages (Epic 4), so
+// every ai.ThinkingContent block reaching this function is same-model replay.
+func convertAssistantMessage(m *ai.AssistantMessage, model *ai.Model, compat resolvedCompat) (wireMessage, bool) {
+	var textParts []wireContentPart
+	var textRaw []string
 	for _, block := range m.Content {
 		if t, ok := block.(ai.TextContent); ok && strings.TrimSpace(t.Text) != "" {
-			textParts = append(textParts, ai.SanitizeSurrogates(t.Text))
+			sanitized := ai.SanitizeSurrogates(t.Text)
+			textParts = append(textParts, wireContentPart{Type: "text", Text: sanitized})
+			textRaw = append(textRaw, sanitized)
 		}
 	}
-	text := strings.Join(textParts, "")
+	assistantText := strings.Join(textRaw, "")
+
+	var thinkingBlocks []ai.ThinkingContent
+	for _, block := range m.Content {
+		if t, ok := block.(ai.ThinkingContent); ok && strings.TrimSpace(t.Thinking) != "" {
+			thinkingBlocks = append(thinkingBlocks, t)
+		}
+	}
+
+	wireMsg := wireMessage{Role: "assistant"}
+	hasArrayContent := false
+
+	switch {
+	case len(thinkingBlocks) > 0 && compat.requiresThinkingAsText:
+		var thinkingTexts []string
+		for _, b := range thinkingBlocks {
+			thinkingTexts = append(thinkingTexts, ai.SanitizeSurrogates(b.Thinking))
+		}
+		parts := append([]wireContentPart{{Type: "text", Text: strings.Join(thinkingTexts, "\n\n")}}, textParts...)
+		wireMsg.Content = parts
+		hasArrayContent = true
+
+	case len(thinkingBlocks) > 0:
+		if assistantText != "" {
+			wireMsg.Content = assistantText
+		}
+		signature := thinkingBlocks[0].ThinkingSignature
+		if model.Provider == "opencode-go" && signature == "reasoning" {
+			signature = "reasoning_content"
+		}
+		if signature != "" {
+			var joined []string
+			for _, b := range thinkingBlocks {
+				joined = append(joined, b.Thinking)
+			}
+			text := strings.Join(joined, "\n")
+			switch signature {
+			case "reasoning_content":
+				wireMsg.ReasoningContent = &text
+			case "reasoning":
+				wireMsg.Reasoning = &text
+			case "reasoning_text":
+				wireMsg.ReasoningText = &text
+			}
+		}
+
+	case assistantText != "":
+		wireMsg.Content = assistantText
+	}
 
 	var toolCalls []wireToolCall
+	var reasoningDetails []json.RawMessage
 	for _, block := range m.Content {
-		if tc, ok := block.(ai.ToolCall); ok {
-			args := tc.Arguments
-			if args == nil {
-				args = map[string]any{}
-			}
-			argsJSON, _ := json.Marshal(args)
-			toolCalls = append(toolCalls, wireToolCall{
-				ID:   tc.ID,
-				Type: "function",
-				Function: wireToolCallFunction{
-					Name:      tc.Name,
-					Arguments: string(argsJSON),
-				},
-			})
+		tc, ok := block.(ai.ToolCall)
+		if !ok {
+			continue
+		}
+		args := tc.Arguments
+		if args == nil {
+			args = map[string]any{}
+		}
+		argsJSON, _ := json.Marshal(args)
+		toolCalls = append(toolCalls, wireToolCall{
+			ID:   tc.ID,
+			Type: "function",
+			Function: wireToolCallFunction{
+				Name:      tc.Name,
+				Arguments: string(argsJSON),
+			},
+		})
+		if tc.ThoughtSignature != "" && json.Valid([]byte(tc.ThoughtSignature)) {
+			reasoningDetails = append(reasoningDetails, json.RawMessage(tc.ThoughtSignature))
 		}
 	}
-
-	wireMsg := wireMessage{Role: "assistant", ToolCalls: toolCalls}
-	if text != "" {
-		wireMsg.Content = text
+	wireMsg.ToolCalls = toolCalls
+	if len(reasoningDetails) > 0 {
+		wireMsg.ReasoningDetails = reasoningDetails
 	}
-	if text == "" && len(toolCalls) == 0 {
+
+	if compat.requiresReasoningContentOnAssistantMessages && model.Reasoning && wireMsg.ReasoningContent == nil {
+		empty := ""
+		wireMsg.ReasoningContent = &empty
+	}
+
+	hasContent := hasArrayContent
+	if !hasContent {
+		if s, ok := wireMsg.Content.(string); ok && s != "" {
+			hasContent = true
+		}
+	}
+	if !hasContent && len(toolCalls) == 0 {
 		return wireMessage{}, false
 	}
 	return wireMsg, true
@@ -574,6 +887,11 @@ func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, 
 	toolByID := map[string]*toolCallBlock{}
 	var toolOrder []*toolCallBlock
 	hasFinishReason := false
+	// pendingReasoningDetails buffers encrypted reasoning_details (see
+	// rawReasoningDetail) that arrive before their matching tool-call id is
+	// known, keyed by tool-call id; applied as soon as a block with that id
+	// exists (see ensureToolCallBlock).
+	pendingReasoningDetails := map[string]string{}
 
 	ensureTextBlock := func() *textBlock {
 		if tb == nil {
@@ -617,6 +935,21 @@ func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, 
 		}
 		if delta.ID != "" {
 			toolByID[delta.ID] = block
+		}
+		// Apply any reasoning_details buffered before this block's id was
+		// known. Uses the id already stored on the block's ai.ToolCall (set
+		// at creation from delta.ID above), matching upstream's
+		// applyPendingReasoningDetail(block), which reads block.id at this
+		// same point — a block whose id only becomes known on a *later*
+		// delta does not get a second chance here (upstream quirk, ported
+		// faithfully).
+		if id := output.Content[block.contentIndex].(ai.ToolCall).ID; id != "" {
+			if sig, ok := pendingReasoningDetails[id]; ok {
+				cur := output.Content[block.contentIndex].(ai.ToolCall)
+				cur.ThoughtSignature = sig
+				output.Content[block.contentIndex] = cur
+				delete(pendingReasoningDetails, id)
+			}
 		}
 		return block
 	}
@@ -714,6 +1047,24 @@ func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, 
 			output.Content[block.contentIndex] = cur
 			out.Push(ai.ToolCallDeltaEvent{ContentIndex: block.contentIndex, Delta: argDelta, Partial: output.Clone()})
 		}
+
+		for _, raw := range delta.ReasoningDetails {
+			var detail rawReasoningDetail
+			if err := json.Unmarshal(raw, &detail); err != nil || !detail.isEncrypted() {
+				continue
+			}
+			serialized, err := json.Marshal(detail)
+			if err != nil {
+				continue
+			}
+			if block, ok := toolByID[detail.ID]; ok {
+				cur := output.Content[block.contentIndex].(ai.ToolCall)
+				cur.ThoughtSignature = string(serialized)
+				output.Content[block.contentIndex] = cur
+			} else {
+				pendingReasoningDetails[detail.ID] = string(serialized)
+			}
+		}
 	}
 
 	if tb != nil {
@@ -773,6 +1124,22 @@ type rawDelta struct {
 	Reasoning        string             `json:"reasoning"`
 	ReasoningText    string             `json:"reasoning_text"`
 	ToolCalls        []rawToolCallDelta `json:"tool_calls"`
+	ReasoningDetails []json.RawMessage  `json:"reasoning_details"`
+}
+
+// rawReasoningDetail is a Google-style encrypted reasoning-details entry
+// (isEncryptedReasoningDetail upstream): opaque metadata for reusing thought
+// context on a subsequent turn, attached to whichever tool call shares its id.
+type rawReasoningDetail struct {
+	Type string `json:"type"`
+	ID   string `json:"id"`
+	Data string `json:"data"`
+}
+
+// isEncrypted validates the shape upstream's isEncryptedReasoningDetail
+// checks: a non-empty id and data on the "reasoning.encrypted" type.
+func (d rawReasoningDetail) isEncrypted() bool {
+	return d.Type == "reasoning.encrypted" && d.ID != "" && d.Data != ""
 }
 
 // reasoningField returns the first non-empty reasoning field name and text,

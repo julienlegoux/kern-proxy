@@ -132,6 +132,17 @@ type StreamOptions struct {
 	// ThinkingDisplay controls thinking-content verbosity. Empty uses the
 	// adapter default (AnthropicThinkingSummarized).
 	ThinkingDisplay AnthropicThinkingDisplay
+
+	// --- openai-completions only (same flat-merge deviation as above;
+	// upstream's OpenAICompletionsOptions extends StreamOptions with
+	// reasoningEffort) ---
+
+	// ReasoningEffort is the (already-clamped) abstract thinking level,
+	// translated into the vendor-specific reasoning/thinking request shape
+	// selected by Model.Compat.ThinkingFormat. Empty means reasoning is off
+	// or unrequested; StreamSimple resolves this from
+	// SimpleStreamOptions.Reasoning via ai.ClampThinkingLevel.
+	ReasoningEffort ThinkingLevel
 }
 
 // EffectiveCacheRetention resolves the zero value to the "short" default.
