@@ -5,6 +5,6 @@
 * [Adopt the retry helper in the openairesponses and azure adapters](./03-retry-openairesponses-azure.md) - M, done, [#89](https://github.com/julienlegoux/kern-proxy/issues/89)
 * [Adopt the retry helper in the google, vertex, and mistral adapters](./04-retry-google-vertex-mistral.md) - M, done, [#90](https://github.com/julienlegoux/kern-proxy/issues/90)
 * [Map MaxRetries/MaxRetryDelay onto the bedrock AWS SDK retryer](./05-bedrock-sdk-retries.md) - S, done, [#91](https://github.com/julienlegoux/kern-proxy/issues/91)
-* [Fix the Stream.Events() goroutine leak with a context-taking signature](./06-stream-events-context-cancel.md) - M, pr-open, [#92](https://github.com/julienlegoux/kern-proxy/issues/92)
+* [Fix the Stream.Events() goroutine leak with a context-taking signature](./06-stream-events-context-cancel.md) - M, done, [#92](https://github.com/julienlegoux/kern-proxy/issues/92)
 * [Unify Message implementations on pointer receivers](./07-message-pointer-receivers.md) - S, open, [#93](https://github.com/julienlegoux/kern-proxy/issues/93)
 * [Document session serialize/restore round-tripping](./08-session-roundtrip-docs.md) - S, open, [#94](https://github.com/julienlegoux/kern-proxy/issues/94)
