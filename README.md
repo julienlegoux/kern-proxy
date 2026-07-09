@@ -2,7 +2,6 @@
 
 [![Test](https://github.com/julienlegoux/kern-proxy/actions/workflows/test.yml/badge.svg)](https://github.com/julienlegoux/kern-proxy/actions/workflows/test.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/julienlegoux/kern-proxy/ai.svg)](https://pkg.go.dev/github.com/julienlegoux/kern-proxy/ai)
-[![Go Report Card](https://goreportcard.com/badge/github.com/julienlegoux/kern-proxy)](https://goreportcard.com/report/github.com/julienlegoux/kern-proxy)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A unified LLM API for Go: one streaming interface across 35 providers —
