@@ -3,13 +3,13 @@ type: Issue
 title: "Adopt the retry helper in the openairesponses and azure adapters"
 description: "Switch the openairesponses and azure request paths to the shared HTTP retry helper so MaxRetries/MaxRetryDelay are honored, with per-adapter httptest coverage."
 tags: [epic-1]
-timestamp: 2026-07-09T11:05:00Z
+timestamp: 2026-07-09T11:20:00Z
 resource: https://github.com/julienlegoux/kern-proxy/issues/89
 epic: 1
 issue: 3
 slug: retry-openairesponses-azure
 size: M
-status: pr-open
+status: done
 gh_issue: 89
 gh_pr: 100
 depends_on: [1]
