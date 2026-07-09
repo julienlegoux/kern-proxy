@@ -3,13 +3,13 @@ type: Issue
 title: "Add golangci-lint to CI"
 description: "Add a minimal .golangci.yml and a lint job to .github/workflows/test.yml, and fix or explicitly ignore whatever the first run flags."
 tags: [epic-2]
-timestamp: 2026-07-09T15:10:00Z
+timestamp: 2026-07-09T15:25:00Z
 resource: https://github.com/julienlegoux/kern-proxy/issues/95
 epic: 2
 issue: 1
 slug: golangci-lint-ci
 size: M
-status: pr-open
+status: done
 gh_issue: 95
 gh_pr: 106
 depends_on: []
