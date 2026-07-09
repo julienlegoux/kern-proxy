@@ -33,6 +33,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/julienlegoux/kern-proxy/ai"
 )
@@ -66,6 +67,13 @@ type clientConfig struct {
 	// Headers carries caller-supplied custom headers to attach to every
 	// request; nil/empty means none.
 	Headers map[string]string
+	// MaxRetries is the resolved retry cap (StreamOptions.MaxRetries, or
+	// defaultMaxRetries when unset). It counts retries, not attempts --
+	// client.go converts.
+	MaxRetries int
+	// MaxRetryDelay caps the SDK's exponential backoff between attempts.
+	// Zero leaves the SDK's own maximum in place.
+	MaxRetryDelay time.Duration
 }
 
 // arnRegionPattern extracts the region from a Bedrock inference-profile ARN,
@@ -96,6 +104,14 @@ func resolveClientConfig(model *ai.Model, opts *ai.StreamOptions) clientConfig {
 		optBearerToken = opts.BedrockBearerToken
 		env = opts.Env
 		cfg.Headers = ai.ProviderHeadersToRecord(opts.Headers)
+	}
+
+	cfg.MaxRetries = defaultMaxRetries
+	if opts != nil && opts.MaxRetries != nil {
+		cfg.MaxRetries = *opts.MaxRetries
+	}
+	if opts != nil {
+		cfg.MaxRetryDelay = opts.EffectiveMaxRetryDelay()
 	}
 
 	cfg.Profile = firstNonEmptyString(optProfile, providerEnvValue("AWS_PROFILE", env))
