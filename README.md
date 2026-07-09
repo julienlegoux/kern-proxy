@@ -111,6 +111,24 @@ Credentials land in `~/.pi/agent/auth.json` and are picked up (and refreshed)
 automatically. Full details — resolution order, every env var, Bedrock/Vertex
 specifics — in [docs/auth.md](docs/auth.md).
 
+### Credential modes
+
+The two paths carry different terms-of-service risk:
+
+- **API keys** (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, AWS creds, Google ADC, …)
+  — billed per token under a developer agreement written for programmatic
+  access. No ToS risk. Use these in anything you ship.
+- **Subscription OAuth** (Claude Pro/Max, ChatGPT Plus/Pro, GitHub Copilot) —
+  `pi-ai login` yields a first-party client's credential, and kern-proxy then
+  presents itself as that client (`user-agent: claude-cli/…`,
+  `Editor-Version: vscode/…`). This is inherited upstream behavior and it is
+  fine for personal use. Shipping it in a product means directing users to
+  impersonate a first-party client against a subscription not licensed for
+  programmatic access — providers can revoke the account.
+
+See [docs/auth.md](docs/auth.md#credential-modes-and-terms-of-service-risk) for
+the details.
+
 ## Documentation
 
 | Doc | What's in it |

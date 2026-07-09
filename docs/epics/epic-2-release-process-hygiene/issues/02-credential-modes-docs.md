@@ -3,14 +3,15 @@ type: Issue
 title: "Document credential-mode ToS risk"
 description: "Docs-only: add a credential-modes note (API-key vs subscription-OAuth risk) to the README Authentication section and docs/auth.md."
 tags: [epic-2]
-timestamp: 2026-07-09T01:22:02Z
+timestamp: 2026-07-09T15:40:00Z
 resource: https://github.com/julienlegoux/kern-proxy/issues/96
 epic: 2
 issue: 2
 slug: credential-modes-docs
 size: S
-status: open
+status: pr-open
 gh_issue: 96
+gh_pr: 107
 depends_on: []
 ---
 
