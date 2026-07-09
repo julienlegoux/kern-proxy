@@ -2,6 +2,8 @@ upstream/.upstream-clone/
 *.test
 *.exe
 coverage.out
+# local GOTMPDIR (Application Control blocks test binaries in the system temp dir)
+.gotmp/
 dist/
 node_modules/
 .obsidian/

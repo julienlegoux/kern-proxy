@@ -1,10 +1,6 @@
-// Package ai is the domain core of kern-proxy: a Go port of the unified LLM
-// API from @earendil-works/pi-ai. It defines the provider-agnostic message
-// model, streaming event protocol, model descriptors, and options shared by
-// every API adapter and provider.
-//
-// Ports: packages/ai/src/types.ts
 package ai
+
+// Ports: packages/ai/src/types.ts
 
 // Api identifies a wire protocol (not a vendor). Many providers share one Api.
 type Api = string
