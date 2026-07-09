@@ -516,7 +516,7 @@ func loginCodexBrowser(ctx context.Context, opts codexBrowserLoginOptions) (*ai.
 	if err != nil {
 		return nil, fmt.Errorf("oauth: start codex callback server: %w", err)
 	}
-	defer server.Close()
+	defer func() { _ = server.Close() }()
 
 	redirectURI := server.RedirectURI
 

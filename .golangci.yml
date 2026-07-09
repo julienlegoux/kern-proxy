@@ -1,0 +1,65 @@
+version: "2"
+
+# Minimal on purpose: golangci-lint's standard linter set (errcheck, govet,
+# ineffassign, staticcheck, unused) and nothing more. Enabling an opinionated
+# battery (revive, gocognit, exhaustive, ...) is deliberate future work; the
+# first pass is about having a linter at all.
+#
+# No linter is disabled and no path is excluded. The three narrowings below are
+# each scoped to one check or one function, and each carries its reason.
+linters:
+  default: standard
+  settings:
+    errcheck:
+      exclude-functions:
+        # Closing a response body after the response has been read (or after
+        # the request has already failed). The error reports a problem
+        # returning a connection to the pool; there is no recovery, and no
+        # caller who could act on it. 23 sites, all `defer resp.Body.Close()`.
+        - (io.Closer).Close
+        # Writing a CLI diagnostic to stdout/stderr. If that write fails the
+        # terminal is gone, a message about it would go to the same place, and
+        # the exit code we already return is the only signal left.
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+    staticcheck:
+      # golangci-lint's default staticcheck check set, minus ST1005. Spelled
+      # out because listing `checks` replaces the default rather than adding
+      # to it -- a bare `[all, -ST1005]` silently switches on ST1003 and
+      # friends, which want ProviderId renamed to ProviderID.
+      checks:
+        - all
+        - -ST1000
+        - -ST1003
+        - -ST1016
+        - -ST1020
+        - -ST1021
+        - -ST1022
+        # ST1005 (error strings: not capitalized, no trailing punctuation).
+        #
+        # kern-proxy is a port. Its error text is copied verbatim from
+        # @earendil-works/pi-ai, where these strings are user-facing and
+        # sentence-cased -- "Request was aborted", "No API key for provider:
+        # %s". Rewriting them to Go house style would be a silent behavior
+        # change, not a style fix: ai/retry.go and ai/overflow.go classify
+        # transient failures and context overflow by matching this exact text
+        # (e.g. "stream ended before message_stop"), tests assert it, and
+        # upstream's own tests are the reason it reads the way it does.
+        #
+        # The punctuation half of ST1005 caught three real problems on the
+        # first run and they are fixed; keeping the check on for that alone
+        # would cost 35 inline suppressions across the adapters.
+        - -ST1005
+
+formatters:
+  enable:
+    - gofmt
+
+issues:
+  # Report everything. The defaults (max-issues-per-linter: 50,
+  # max-same-issues: 3) silently hide repeats, which turns a green run into a
+  # statement about the first three occurrences rather than about the codebase.
+  # Both categories above were undercounted by 3x until this was set.
+  max-issues-per-linter: 0
+  max-same-issues: 0

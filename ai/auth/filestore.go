@@ -68,7 +68,7 @@ func (s *FileCredentialStore) withLock(ctx context.Context, fn func() error) err
 	if !locked {
 		return fmt.Errorf("auth: lock %s: not acquired", lock.Path())
 	}
-	defer lock.Unlock()
+	defer func() { _ = lock.Unlock() }()
 	return fn()
 }
 

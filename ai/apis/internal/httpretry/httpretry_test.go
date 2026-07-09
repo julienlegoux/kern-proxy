@@ -54,7 +54,7 @@ func TestRetriesTransientStatusesThenSucceeds(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Do: unexpected error: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("status = %d, want 200", resp.StatusCode)
@@ -222,7 +222,7 @@ func TestMaxRetryDelayClampsServerRequestedDelay(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Do: unexpected error: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	elapsed := time.Since(start)
 
 	if elapsed > 2*time.Second {
@@ -418,7 +418,7 @@ func TestHeaderTimeoutDoesNotCancelBodyRead(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Do: unexpected error: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

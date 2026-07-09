@@ -106,7 +106,7 @@ func loginAnthropic(ctx context.Context, opts anthropicLoginOptions) (*ai.OAuthC
 	if err != nil {
 		return nil, fmt.Errorf("oauth: start anthropic callback server: %w", err)
 	}
-	defer server.Close()
+	defer func() { _ = server.Close() }()
 
 	redirectURI := server.RedirectURI
 	exchangeRedirectURI := redirectURI

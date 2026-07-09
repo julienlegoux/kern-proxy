@@ -99,7 +99,7 @@ func resolveAzureConfig(model *ai.Model, opts *ai.StreamOptions) (baseURL, apiVe
 	if resolved == "" {
 		return "", "", errors.New(
 			"Azure OpenAI base URL is required. Set AZURE_OPENAI_BASE_URL or AZURE_OPENAI_RESOURCE_NAME, " +
-				"or pass AzureBaseURL, AzureResourceName, or model.BaseURL.",
+				"or pass AzureBaseURL, AzureResourceName, or model.BaseURL",
 		)
 	}
 
