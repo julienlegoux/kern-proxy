@@ -7,4 +7,4 @@
 * [Map MaxRetries/MaxRetryDelay onto the bedrock AWS SDK retryer](./05-bedrock-sdk-retries.md) - S, done, [#91](https://github.com/julienlegoux/kern-proxy/issues/91)
 * [Fix the Stream.Events() goroutine leak with a context-taking signature](./06-stream-events-context-cancel.md) - M, done, [#92](https://github.com/julienlegoux/kern-proxy/issues/92)
 * [Unify Message implementations on pointer receivers](./07-message-pointer-receivers.md) - S, done, [#93](https://github.com/julienlegoux/kern-proxy/issues/93)
-* [Document session serialize/restore round-tripping](./08-session-roundtrip-docs.md) - S, pr-open, [#94](https://github.com/julienlegoux/kern-proxy/issues/94)
+* [Document session serialize/restore round-tripping](./08-session-roundtrip-docs.md) - S, done, [#94](https://github.com/julienlegoux/kern-proxy/issues/94)

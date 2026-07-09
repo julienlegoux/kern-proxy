@@ -3,13 +3,13 @@ type: Issue
 title: "Document session serialize/restore round-tripping"
 description: "Docs-only: add a serialize/deserialize-a-session example to docs/usage.md and a pointer from the README quick start."
 tags: [epic-1]
-timestamp: 2026-07-09T14:05:00Z
+timestamp: 2026-07-09T14:20:00Z
 resource: https://github.com/julienlegoux/kern-proxy/issues/94
 epic: 1
 issue: 8
 slug: session-roundtrip-docs
 size: S
-status: pr-open
+status: done
 gh_issue: 94
 gh_pr: 105
 depends_on: []

@@ -3,11 +3,11 @@ type: Epic
 title: "Reliability & API fixes"
 description: "Make the documented API surface real: honor MaxRetries/MaxRetryDelay in every adapter, fix the Stream.Events goroutine leak, unify message receivers, and document session round-tripping."
 tags: [epic]
-timestamp: 2026-07-09T01:16:00Z
+timestamp: 2026-07-09T14:20:00Z
 resource: https://github.com/julienlegoux/kern-proxy/issues/85
 epic: 1
 slug: reliability-api-fixes
-status: open
+status: done
 gh_issue: 85
 milestone: 16
 source: docs/PLAN.md#epic-1--reliability--api-fixes
