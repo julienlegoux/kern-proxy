@@ -18,22 +18,20 @@
 package codex
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"math"
 	"net/http"
 	"regexp"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/julienlegoux/kern-proxy/ai"
 	"github.com/julienlegoux/kern-proxy/ai/apis"
+	"github.com/julienlegoux/kern-proxy/ai/apis/internal/httpretry"
 	"github.com/julienlegoux/kern-proxy/ai/apis/openairesponses"
 )
 
@@ -42,16 +40,9 @@ import (
 const defaultCodexBaseURL = "https://chatgpt.com/backend-api"
 
 // defaultMaxRetries matches upstream's DEFAULT_MAX_RETRIES: Codex's own
-// per-request HTTP retry cap defaults to zero (no retries), unlike the
-// generic "2" default this repo's shared StreamOptions.MaxRetries doc
-// describes for OpenAI/Anthropic-style clients -- no other adapter in this
-// repo implements that generic default yet, so there is no conflict.
+// per-request HTTP retry cap defaults to zero (no retries), unlike the shared
+// httpretry.DefaultMaxRetries of 2 that the other adapters use.
 const defaultMaxRetries = 0
-
-// baseRetryDelay is the exponential-backoff base delay (ports BASE_DELAY_MS).
-// Declared as a var (not a const) so tests can shrink it to keep retry tests
-// fast without waiting on real 1s/2s/4s sleeps.
-var baseRetryDelay = 1000 * time.Millisecond
 
 // Stream implements ai.StreamFunc for the Codex Responses HTTP/SSE wire
 // protocol.
@@ -267,12 +258,14 @@ func finishCodexStream(ctx context.Context, out *ai.Stream, output *ai.Assistant
 	out.Push(ai.DoneEvent{Reason: output.StopReason, Message: output})
 }
 
-// doRequestWithRetry sends the Codex SSE POST, retrying transient failures up
-// to opts.MaxRetries times with exponential backoff (or the server's
-// retry-after delay when present). Ports the fetch-with-retry loop in
-// stream() (the SSE branch only). bodyBytes is whatever run() decided to
-// send -- the zstd-compressed body in the normal case (see run()'s call
-// site), or the raw JSON if compression somehow failed.
+// doRequestWithRetry sends the Codex SSE POST through the shared
+// request-level retry loop (ai/apis/internal/httpretry), which was generalized
+// from this function. Codex keeps its deliberate default of zero retries
+// (defaultMaxRetries) rather than the shared DefaultMaxRetries of 2, and keeps
+// its own error-body parsing (parseErrorResponse) and header-timeout message.
+// bodyBytes is whatever run() decided to send -- the zstd-compressed body in
+// the normal case (see run()'s call site), or the raw JSON if compression
+// somehow failed.
 func doRequestWithRetry(
 	ctx context.Context,
 	url string,
@@ -281,195 +274,26 @@ func doRequestWithRetry(
 	model *ai.Model,
 	opts *ai.StreamOptions,
 ) (*http.Response, error) {
-	maxRetries := defaultMaxRetries
-	if opts != nil && opts.MaxRetries != nil {
-		maxRetries = *opts.MaxRetries
-	}
-	var headerTimeout time.Duration
-	if opts != nil {
-		headerTimeout = opts.Timeout
-	}
-	client := &http.Client{}
-
-	var lastErr error
-	for attempt := 0; ; attempt++ {
-		if ctx.Err() != nil {
-			return nil, errors.New("Request was aborted")
-		}
-
-		req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(bodyBytes))
-		if err != nil {
-			return nil, err
-		}
-		for k, v := range headers {
-			req.Header.Set(k, v)
-		}
-
-		resp, err := doWithHeaderTimeout(ctx, client, req, headerTimeout)
-		if err != nil {
-			if ctx.Err() != nil {
-				return nil, errors.New("Request was aborted")
-			}
-			lastErr = err
-			if attempt < maxRetries {
-				if sleepErr := sleepCtx(ctx, exponentialDelay(attempt)); sleepErr != nil {
-					return nil, sleepErr
-				}
-				continue
-			}
-			return nil, lastErr
-		}
-
-		if opts != nil && opts.OnResponse != nil {
-			respMeta := ai.ProviderResponse{Status: resp.StatusCode, Headers: ai.HeadersToRecord(resp.Header)}
-			if cbErr := opts.OnResponse(ctx, respMeta, model); cbErr != nil {
-				resp.Body.Close()
-				return nil, cbErr
-			}
-		}
-
-		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-			return resp, nil
-		}
-
-		errBody, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-		resp.Body.Close()
-		errorText := string(errBody)
-
-		if attempt < maxRetries && isRetryableError(resp.StatusCode, errorText) {
-			delay := exponentialDelay(attempt)
-			if retryAfter, ok := getRetryAfterDelay(resp.Header); ok {
-				if resp.StatusCode == http.StatusTooManyRequests {
-					delay = capRetryDelay(retryAfter, opts)
-				} else {
-					delay = retryAfter
-				}
-			}
-			if sleepErr := sleepCtx(ctx, delay); sleepErr != nil {
-				return nil, sleepErr
-			}
-			continue
-		}
-
-		return nil, parseErrorResponse(resp.StatusCode, resp.Status, errorText)
-	}
+	return httpretry.Do(ctx, httpretry.Request{
+		URL:     url,
+		Body:    bodyBytes,
+		Headers: headers,
+	}, httpretry.Config{
+		Opts:              opts,
+		Model:             model,
+		DefaultMaxRetries: defaultMaxRetries,
+		ParseError:        parseErrorResponse,
+		TimeoutError: func(timeout time.Duration) error {
+			return fmt.Errorf("Codex SSE response headers timed out after %dms", timeout.Milliseconds())
+		},
+	})
 }
 
-// doWithHeaderTimeout applies timeout only until response headers arrive
-// (ports the AbortSignal.timeout(httpTimeoutMs) combined into the SSE fetch
-// call): once the request succeeds, the timer is stopped so it never cancels
-// the body read that follows. A zero timeout disables this (the request then
-// only respects ctx).
-func doWithHeaderTimeout(ctx context.Context, client *http.Client, req *http.Request, timeout time.Duration) (*http.Response, error) {
-	if timeout <= 0 {
-		return client.Do(req)
-	}
-
-	timeoutCtx, cancel := context.WithCancel(req.Context())
-	timer := time.AfterFunc(timeout, cancel)
-	resp, err := client.Do(req.WithContext(timeoutCtx))
-	if err != nil {
-		timer.Stop()
-		if timeoutCtx.Err() != nil && ctx.Err() == nil {
-			return nil, fmt.Errorf("Codex SSE response headers timed out after %dms", timeout.Milliseconds())
-		}
-		return nil, err
-	}
-	timer.Stop()
-	return resp, nil
-}
-
-// sleepCtx sleeps for d, or returns an aborted error if ctx is cancelled
-// first.
-func sleepCtx(ctx context.Context, d time.Duration) error {
-	if d <= 0 {
-		if ctx.Err() != nil {
-			return errors.New("Request was aborted")
-		}
-		return nil
-	}
-	timer := time.NewTimer(d)
-	defer timer.Stop()
-	select {
-	case <-timer.C:
-		return nil
-	case <-ctx.Done():
-		return errors.New("Request was aborted")
-	}
-}
-
-// exponentialDelay ports `BASE_DELAY_MS * 2 ** attempt`.
-func exponentialDelay(attempt int) time.Duration {
-	return baseRetryDelay * time.Duration(math.Pow(2, float64(attempt)))
-}
-
-// --- retry classification -----------------------------------------------
-
-var (
-	terminalRateLimitPattern = regexp.MustCompile(
-		`(?i)GoUsageLimitError|FreeUsageLimitError|Monthly usage limit reached|available balance|insufficient_quota|out of budget|quota exceeded|billing`,
-	)
-	retryableTextPattern  = regexp.MustCompile(`(?i)rate.?limit|overloaded|service.?unavailable|upstream.?connect|connection.?refused`)
-	usageLimitCodePattern = regexp.MustCompile(`(?i)usage_limit_reached|usage_not_included|rate_limit_exceeded`)
-)
-
-// isRetryableError ports isRetryableError: a 429 whose body text matches a
-// terminal (subscription/quota) rate-limit pattern is never retried; other
-// 429/5xx statuses, and any status whose body matches the generic transient
-// pattern, are retryable.
-func isRetryableError(status int, errorText string) bool {
-	if status == http.StatusTooManyRequests && terminalRateLimitPattern.MatchString(errorText) {
-		return false
-	}
-	switch status {
-	case http.StatusTooManyRequests, http.StatusInternalServerError, http.StatusBadGateway,
-		http.StatusServiceUnavailable, http.StatusGatewayTimeout:
-		return true
-	}
-	return retryableTextPattern.MatchString(errorText)
-}
-
-// getRetryAfterDelay ports getRetryAfterDelayMs: retry-after-ms wins over
-// retry-after (itself parsed as either seconds or an HTTP date).
-func getRetryAfterDelay(headers http.Header) (time.Duration, bool) {
-	if raw := headers.Get("retry-after-ms"); raw != "" {
-		if ms, err := strconv.ParseFloat(raw, 64); err == nil {
-			if ms < 0 {
-				ms = 0
-			}
-			return time.Duration(ms * float64(time.Millisecond)), true
-		}
-	}
-
-	raw := headers.Get("retry-after")
-	if raw == "" {
-		return 0, false
-	}
-	if secs, err := strconv.ParseFloat(raw, 64); err == nil {
-		if secs < 0 {
-			secs = 0
-		}
-		return time.Duration(secs * float64(time.Second)), true
-	}
-	if t, err := http.ParseTime(raw); err == nil {
-		delay := time.Until(t)
-		if delay < 0 {
-			delay = 0
-		}
-		return delay, true
-	}
-	return 0, false
-}
-
-// capRetryDelay ports capRetryDelayMs: caps a server-requested 429 delay at
-// opts.EffectiveMaxRetryDelay (0 disables the cap).
-func capRetryDelay(delay time.Duration, opts *ai.StreamOptions) time.Duration {
-	maxDelay := opts.EffectiveMaxRetryDelay()
-	if maxDelay > 0 && delay > maxDelay {
-		return maxDelay
-	}
-	return delay
-}
+// usageLimitCodePattern matches the error codes Codex returns when a ChatGPT
+// usage limit rejects the request, so parseErrorResponse can upgrade them to a
+// friendly message. Retry classification itself now lives in
+// httpretry.IsRetryable, which shares ai/retry.go's patterns.
+var usageLimitCodePattern = regexp.MustCompile(`(?i)usage_limit_reached|usage_not_included|rate_limit_exceeded`)
 
 // parseErrorResponse ports parseErrorResponse: prefers a JSON error body's
 // own message, upgrading to a friendly usage-limit message when the error
