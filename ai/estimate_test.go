@@ -85,7 +85,7 @@ func TestEstimateImagesUseFixedCost(t *testing.T) {
 
 func TestEstimateContextAddsPrefixWithoutAnchor(t *testing.T) {
 	chat := Context{
-		SystemPrompt: "abcdefgh",                                        // 2 tokens
+		SystemPrompt: "abcdefgh",                                         // 2 tokens
 		Messages:     []Message{&UserMessage{Content: UserText("abcd")}}, // 1 token
 	}
 	est := EstimateContextTokens(chat)

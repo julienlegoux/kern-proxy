@@ -27,6 +27,6 @@ func compressRequestBodyZstd(bodyJSON []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer enc.Close()
+	defer func() { _ = enc.Close() }()
 	return enc.EncodeAll(bodyJSON, make([]byte, 0, len(bodyJSON))), nil
 }

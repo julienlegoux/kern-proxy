@@ -13,6 +13,7 @@ package vertex
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"regexp"
@@ -66,7 +67,7 @@ func resolveProject(option string, env map[string]string) (string, error) {
 	if v := providerEnvValue("GCLOUD_PROJECT", env); v != "" {
 		return v, nil
 	}
-	return "", fmt.Errorf("Vertex AI requires a project ID. Set GOOGLE_CLOUD_PROJECT/GCLOUD_PROJECT or pass project in options.")
+	return "", errors.New("Vertex AI requires a project ID. Set GOOGLE_CLOUD_PROJECT/GCLOUD_PROJECT or pass project in options")
 }
 
 // resolveLocation resolves the Vertex AI region: the option value, else
@@ -79,7 +80,7 @@ func resolveLocation(option string, env map[string]string) (string, error) {
 	if v := providerEnvValue("GOOGLE_CLOUD_LOCATION", env); v != "" {
 		return v, nil
 	}
-	return "", fmt.Errorf("Vertex AI requires a location. Set GOOGLE_CLOUD_LOCATION or pass location in options.")
+	return "", errors.New("Vertex AI requires a location. Set GOOGLE_CLOUD_LOCATION or pass location in options")
 }
 
 // providerEnvValue reads name from the per-request env override first, then

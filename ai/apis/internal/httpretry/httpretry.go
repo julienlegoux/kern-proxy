@@ -134,7 +134,7 @@ func Do(ctx context.Context, req Request, cfg Config) (*http.Response, error) {
 		if cfg.Opts != nil && cfg.Opts.OnResponse != nil {
 			meta := ai.ProviderResponse{Status: resp.StatusCode, Headers: ai.HeadersToRecord(resp.Header)}
 			if cbErr := cfg.Opts.OnResponse(ctx, meta, cfg.Model); cbErr != nil {
-				resp.Body.Close()
+				_ = resp.Body.Close()
 				return nil, cbErr
 			}
 		}
@@ -144,7 +144,7 @@ func Do(ctx context.Context, req Request, cfg Config) (*http.Response, error) {
 		}
 
 		errBody, _ := io.ReadAll(io.LimitReader(resp.Body, maxErrorBodyBytes))
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		errorText := string(errBody)
 
 		if attempt < maxRetries && IsRetryable(resp.StatusCode, errorText) {

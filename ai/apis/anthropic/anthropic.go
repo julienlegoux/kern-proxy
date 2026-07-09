@@ -554,6 +554,8 @@ func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, 
 	}
 
 	if sawStart && !sawStop {
+		// The wording is load-bearing: ai/retry.go classifies "stream ended
+		// before message_stop" as a transient failure by matching this text.
 		return errors.New("Anthropic stream ended before message_stop")
 	}
 	return nil
@@ -855,7 +857,7 @@ func sendDisabledThinking(model *ai.Model) bool {
 		return true
 	}
 	mapped, present := model.ThinkingLevelMap[ai.ThinkingOff]
-	return !(present && mapped == nil)
+	return !present || mapped != nil
 }
 
 // --- cache_control -----------------------------------------------------------
