@@ -1,0 +1,6 @@
+# Pinned upstream revision this port tracks.
+# Update via the procedure in PORTING.md after each sync.
+repo=https://github.com/earendil-works/pi
+commit=244f1deaf1ae0fc1a242d9df5cddf457cf3d36a7
+package=packages/ai
+version=0.80.3
