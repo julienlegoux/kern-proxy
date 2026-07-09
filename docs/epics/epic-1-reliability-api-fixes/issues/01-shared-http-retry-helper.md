@@ -3,13 +3,13 @@ type: Issue
 title: "Extract a shared HTTP retry helper from the Codex adapter"
 description: "Generalize Codex's doRequestWithRetry into a shared helper package, unify its retry-classification regexes with ai/retry.go, migrate codex onto it, and document the default MaxRetries for other adapters."
 tags: [epic-1]
-timestamp: 2026-07-09T01:20:16Z
+timestamp: 2026-07-09T09:00:00Z
 resource: https://github.com/julienlegoux/kern-proxy/issues/87
 epic: 1
 issue: 1
 slug: shared-http-retry-helper
 size: M
-status: open
+status: in-progress
 gh_issue: 87
 depends_on: []
 ---
