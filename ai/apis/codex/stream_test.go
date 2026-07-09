@@ -22,6 +22,7 @@ import (
 	"github.com/klauspost/compress/zstd"
 
 	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-proxy/ai/apis/internal/httpretry"
 )
 
 func mockCodexToken(t *testing.T, accountID string) string {
@@ -525,12 +526,12 @@ func TestStream_RetriesOnRetryAfterHeaderVariants(t *testing.T) {
 // TestStream_ExponentialBackoffAcrossRepeatedRetries ports "uses exponential
 // backoff across repeated SSE retries without retry headers": 3 successive
 // 429s (no retry-after header) with maxRetries:3 should all be retried and
-// the 4th attempt succeeds. The package-level baseRetryDelay is shrunk for
-// the duration of the test so this doesn't wait on real 1s/2s/4s sleeps.
+// the 4th attempt succeeds. The shared httpretry.BaseDelay is shrunk for the
+// duration of the test so this doesn't wait on real 1s/2s/4s sleeps.
 func TestStream_ExponentialBackoffAcrossRepeatedRetries(t *testing.T) {
-	original := baseRetryDelay
-	baseRetryDelay = time.Millisecond
-	t.Cleanup(func() { baseRetryDelay = original })
+	original := httpretry.BaseDelay
+	httpretry.BaseDelay = time.Millisecond
+	t.Cleanup(func() { httpretry.BaseDelay = original })
 
 	var requests int32
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

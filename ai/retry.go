@@ -85,6 +85,28 @@ var retryableProviderErrorPattern = buildProviderErrorPattern([]string{
 	"please retry your request",
 })
 
+// IsNonRetryableProviderLimitError reports whether raw provider error text
+// names a subscription, quota, or billing limit — an account-level condition
+// that will not clear by retrying. It short-circuits every retry policy in
+// this repo, including the HTTP-request-level one adapters run before
+// streaming begins (ai/apis/internal/httpretry).
+func IsNonRetryableProviderLimitError(text string) bool {
+	return nonRetryableProviderLimitErrorPattern.MatchString(text)
+}
+
+// IsRetryableProviderErrorText reports whether raw provider error text looks
+// like a transient provider or transport failure. Unlike
+// IsRetryableAssistantError it makes no claim about the surrounding message —
+// callers that already know they are looking at an error body (an HTTP error
+// response, say) use this directly.
+//
+// Callers must consult IsNonRetryableProviderLimitError first: quota text such
+// as "quota exceeded" also matches this pattern's "rate.?limit"-family
+// entries, and the terminal classification wins.
+func IsRetryableProviderErrorText(text string) bool {
+	return retryableProviderErrorPattern.MatchString(text)
+}
+
 // IsRetryableAssistantError classifies whether a failed assistant message
 // looks like a transient provider or transport error, so callers can decide if
 // the last assistant turn should be restarted.
