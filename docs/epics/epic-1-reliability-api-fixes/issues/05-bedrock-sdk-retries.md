@@ -3,13 +3,13 @@ type: Issue
 title: "Map MaxRetries/MaxRetryDelay onto the bedrock AWS SDK retryer"
 description: "Bedrock speaks the AWS SDK, not raw HTTP — configure the SDK retryer from StreamOptions instead of adopting the shared helper."
 tags: [epic-1]
-timestamp: 2026-07-09T12:05:00Z
+timestamp: 2026-07-09T12:20:00Z
 resource: https://github.com/julienlegoux/kern-proxy/issues/91
 epic: 1
 issue: 5
 slug: bedrock-sdk-retries
 size: S
-status: pr-open
+status: done
 gh_issue: 91
 gh_pr: 102
 depends_on: [1]
