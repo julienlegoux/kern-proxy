@@ -3,13 +3,13 @@ type: Issue
 title: "Unify Message implementations on pointer receivers"
 description: "Make UserMessage and ToolResultMessage implement Message via pointer receivers like AssistantMessage already does; update construction sites and tests."
 tags: [epic-1]
-timestamp: 2026-07-09T13:30:00Z
+timestamp: 2026-07-09T13:50:00Z
 resource: https://github.com/julienlegoux/kern-proxy/issues/93
 epic: 1
 issue: 7
 slug: message-pointer-receivers
 size: S
-status: pr-open
+status: done
 gh_issue: 93
 gh_pr: 104
 depends_on: []
