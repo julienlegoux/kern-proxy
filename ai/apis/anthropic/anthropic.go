@@ -984,7 +984,7 @@ func convertMessages(messages []ai.Message, model *ai.Model, cacheControl *wireC
 	out := make([]wireMessage, 0, len(transformed))
 	for i := 0; i < len(transformed); i++ {
 		switch m := transformed[i].(type) {
-		case ai.UserMessage:
+		case *ai.UserMessage:
 			if m.Content.Plain != nil {
 				text := ai.SanitizeSurrogates(*m.Content.Plain)
 				if strings.TrimSpace(text) == "" {
@@ -1006,11 +1006,11 @@ func convertMessages(messages []ai.Message, model *ai.Model, cacheControl *wireC
 			}
 			out = append(out, wireMessage{Role: "assistant", Content: blocks})
 
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			results := []map[string]any{toolResultBlock(m)}
 			j := i + 1
 			for j < len(transformed) {
-				next, ok := transformed[j].(ai.ToolResultMessage)
+				next, ok := transformed[j].(*ai.ToolResultMessage)
 				if !ok {
 					break
 				}
@@ -1137,7 +1137,7 @@ func imageBlock(b ai.ImageContent) map[string]any {
 	}
 }
 
-func toolResultBlock(m ai.ToolResultMessage) map[string]any {
+func toolResultBlock(m *ai.ToolResultMessage) map[string]any {
 	return map[string]any{
 		"type":        "tool_result",
 		"tool_use_id": m.ToolCallID,

@@ -14,7 +14,7 @@ import (
 )
 
 func userContext(text string) ai.Context {
-	return ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText(text), Timestamp: 1}}}
+	return ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText(text), Timestamp: 1}}}
 }
 
 func complete(t *testing.T, models ai.Models, model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *ai.AssistantMessage {
@@ -263,8 +263,8 @@ func TestPromptCachingPerSessionID(t *testing.T) {
 	}
 
 	longer := ai.Context{Messages: []ai.Message{
-		ai.UserMessage{Content: ai.UserText("shared prefix message"), Timestamp: 1},
-		ai.UserMessage{Content: ai.UserText("and a follow-up"), Timestamp: 2},
+		&ai.UserMessage{Content: ai.UserText("shared prefix message"), Timestamp: 1},
+		&ai.UserMessage{Content: ai.UserText("and a follow-up"), Timestamp: 2},
 	}}
 	second := complete(t, models, model, longer, opts)
 	if second.Usage.CacheRead <= 0 {

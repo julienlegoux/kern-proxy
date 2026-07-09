@@ -39,7 +39,7 @@ func cacheAffinityModel(baseURL string, compat *ai.Compat) *ai.Model {
 func cacheAffinityChat() ai.Context {
 	return ai.Context{
 		SystemPrompt: "System prompt",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}},
 		Tools: []ai.Tool{{
 			Name:        "read",
 			Description: "Read a file",
@@ -262,7 +262,7 @@ func captureHeaders(t *testing.T, model *ai.Model, opts *ai.StreamOptions) http.
 	}
 	opts.APIKey = "sk-test"
 
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	stream := Stream(context.Background(), model, chat, opts)
 	if _, err := stream.Result(context.Background()); err != nil {
 		t.Fatalf("Result: %v", err)

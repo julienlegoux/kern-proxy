@@ -45,7 +45,7 @@ func TestBuildRequestBody_BasicRequestShape(t *testing.T) {
 	model := testModel("https://chatgpt.com/backend-api")
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi")}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi")}},
 	}
 
 	body := buildRequestBody(model, chat, &ai.StreamOptions{APIKey: "token"})
@@ -94,7 +94,7 @@ func TestBuildRequestBody_BasicRequestShape(t *testing.T) {
 
 func TestBuildRequestBody_DefaultInstructionsWhenNoSystemPrompt(t *testing.T) {
 	model := testModel("https://chatgpt.com/backend-api")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi")}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi")}}}
 	body := buildRequestBody(model, chat, &ai.StreamOptions{APIKey: "token"})
 	decoded := marshalRoundtrip(t, body)
 	if decoded["instructions"] != "You are a helpful assistant." {
@@ -104,7 +104,7 @@ func TestBuildRequestBody_DefaultInstructionsWhenNoSystemPrompt(t *testing.T) {
 
 func TestBuildRequestBody_TextVerbosityOverride(t *testing.T) {
 	model := testModel("https://chatgpt.com/backend-api")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi")}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi")}}}
 	body := buildRequestBody(model, chat, &ai.StreamOptions{APIKey: "token", TextVerbosity: "high"})
 	decoded := marshalRoundtrip(t, body)
 	text := decoded["text"].(map[string]any)
@@ -115,7 +115,7 @@ func TestBuildRequestBody_TextVerbosityOverride(t *testing.T) {
 
 func TestBuildRequestBody_PromptCacheKeySetAndClampedWhenSessionIDPresent(t *testing.T) {
 	model := testModel("https://chatgpt.com/backend-api")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi")}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi")}}}
 	longSession := ""
 	for i := 0; i < 67; i++ {
 		longSession += "x"
@@ -131,7 +131,7 @@ func TestBuildRequestBody_PromptCacheKeySetAndClampedWhenSessionIDPresent(t *tes
 func TestBuildRequestBody_ToolsIncludedWhenPresent(t *testing.T) {
 	model := testModel("https://chatgpt.com/backend-api")
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi")}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi")}},
 		Tools:    []ai.Tool{{Name: "get_weather", Description: "gets weather", Parameters: ai.JSONSchema(`{"type":"object"}`)}},
 	}
 	body := buildRequestBody(model, chat, &ai.StreamOptions{APIKey: "token"})
@@ -145,7 +145,7 @@ func TestBuildRequestBody_ToolsIncludedWhenPresent(t *testing.T) {
 func TestBuildRequestBody_ReasoningEffortMinimalClampedViaThinkingLevelMap(t *testing.T) {
 	model := testModel("https://chatgpt.com/backend-api")
 	model.ThinkingLevelMap = ai.ThinkingLevelMap{ai.ThinkingMinimal: strPtr("low")}
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi")}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi")}}}
 	body := buildRequestBody(model, chat, &ai.StreamOptions{APIKey: "token", ReasoningEffort: ai.ThinkingMinimal})
 	decoded := marshalRoundtrip(t, body)
 	reasoning, ok := decoded["reasoning"].(map[string]any)
@@ -162,7 +162,7 @@ func TestBuildRequestBody_ReasoningEffortMinimalClampedViaThinkingLevelMap(t *te
 
 func TestBuildRequestBody_ReasoningOffMapsToNoneOrSuppresses(t *testing.T) {
 	model := testModel("https://chatgpt.com/backend-api")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi")}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi")}}}
 	body := buildRequestBody(model, chat, &ai.StreamOptions{APIKey: "token", ReasoningEffort: ai.ThinkingOff})
 	decoded := marshalRoundtrip(t, body)
 	reasoning, ok := decoded["reasoning"].(map[string]any)

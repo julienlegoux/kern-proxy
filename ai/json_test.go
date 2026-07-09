@@ -50,7 +50,7 @@ func TestContentPartWireFormat(t *testing.T) {
 }
 
 func TestUserMessageStringContentRoundTrip(t *testing.T) {
-	msg := UserMessage{Content: UserText("hello"), Timestamp: 123}
+	msg := &UserMessage{Content: UserText("hello"), Timestamp: 123}
 	got := mustJSON(t, msg)
 	want := `{"role":"user","content":"hello","timestamp":123}`
 	if got != want {
@@ -60,7 +60,7 @@ func TestUserMessageStringContentRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unmarshal: %v", err)
 	}
-	user, ok := back.(UserMessage)
+	user, ok := back.(*UserMessage)
 	if !ok {
 		t.Fatalf("wrong type %T", back)
 	}
@@ -70,7 +70,7 @@ func TestUserMessageStringContentRoundTrip(t *testing.T) {
 }
 
 func TestUserMessageBlockContentRoundTrip(t *testing.T) {
-	msg := UserMessage{
+	msg := &UserMessage{
 		Content: UserBlocks(
 			TextContent{Text: "look at this"},
 			ImageContent{Data: "AAAA", MimeType: "image/png"},
@@ -138,7 +138,7 @@ func TestAssistantMessageRoundTrip(t *testing.T) {
 }
 
 func TestToolResultMessageRoundTrip(t *testing.T) {
-	msg := ToolResultMessage{
+	msg := &ToolResultMessage{
 		ToolCallID: "tc_1",
 		ToolName:   "search",
 		Content:    []UserContentPart{TextContent{Text: "result"}},

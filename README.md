@@ -67,7 +67,7 @@ func main() {
 	chat := ai.Context{
 		SystemPrompt: "You are a helpful assistant.",
 		Messages: []ai.Message{
-			ai.UserMessage{
+			&ai.UserMessage{
 				Content:   ai.UserText("Hello, who are you?"),
 				Timestamp: time.Now().UnixMilli(),
 			},

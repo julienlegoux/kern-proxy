@@ -44,7 +44,7 @@ func TestStream_TextRoundTrip(t *testing.T) {
 	}
 	srv := sseServer(t, chunks)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "test-key"})
 	result, err := stream.Result(context.Background())
@@ -78,7 +78,7 @@ func TestStream_ThinkingContentArray(t *testing.T) {
 	}
 	srv := sseServer(t, chunks)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "test-key"})
 	result, err := stream.Result(context.Background())
@@ -112,7 +112,7 @@ func TestStream_ToolCallRoundTrip(t *testing.T) {
 	}
 	srv := sseServer(t, chunks)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "test-key"})
 	result, err := stream.Result(context.Background())
@@ -142,7 +142,7 @@ func TestStream_HTTPErrorSurfacesAsErrorEvent(t *testing.T) {
 	}))
 	t.Cleanup(srv.Close)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "bad-key"})
 	result, err := stream.Result(context.Background())
@@ -165,7 +165,7 @@ func TestStream_DoneSentinelStopsDecoding(t *testing.T) {
 	}
 	srv := sseServer(t, chunks)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "test-key"})
 	result, err := stream.Result(context.Background())

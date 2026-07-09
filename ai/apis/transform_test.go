@@ -69,7 +69,7 @@ func findAssistant(t *testing.T, messages []ai.Message) *ai.AssistantMessage {
 func TestTransformMessagesConvertsThinkingToTextAcrossModels(t *testing.T) {
 	model := makeCopilotClaudeModel()
 	messages := []ai.Message{
-		ai.UserMessage{Content: ai.UserText("hello"), Timestamp: time.Now().UnixMilli()},
+		&ai.UserMessage{Content: ai.UserText("hello"), Timestamp: time.Now().UnixMilli()},
 		&ai.AssistantMessage{
 			Content: []ai.AssistantContentPart{
 				ai.ThinkingContent{Thinking: "Let me think about this...", ThinkingSignature: "reasoning_content"},
@@ -106,7 +106,7 @@ func TestTransformMessagesConvertsThinkingToTextAcrossModels(t *testing.T) {
 func TestTransformMessagesRemovesThoughtSignatureAcrossModels(t *testing.T) {
 	model := makeCopilotClaudeModel()
 	messages := []ai.Message{
-		ai.UserMessage{Content: ai.UserText("run a command"), Timestamp: time.Now().UnixMilli()},
+		&ai.UserMessage{Content: ai.UserText("run a command"), Timestamp: time.Now().UnixMilli()},
 		&ai.AssistantMessage{
 			Content: []ai.AssistantContentPart{
 				ai.ToolCall{
@@ -122,7 +122,7 @@ func TestTransformMessagesRemovesThoughtSignatureAcrossModels(t *testing.T) {
 			StopReason: ai.StopReasonToolUse,
 			Timestamp:  time.Now().UnixMilli(),
 		},
-		ai.ToolResultMessage{
+		&ai.ToolResultMessage{
 			ToolCallID: "call_123",
 			ToolName:   "bash",
 			Content:    []ai.UserContentPart{ai.TextContent{Text: "output"}},
@@ -151,7 +151,7 @@ func TestTransformMessagesRemovesThoughtSignatureAcrossModels(t *testing.T) {
 func TestTransformMessagesSynthesizesToolResultForTrailingOrphan(t *testing.T) {
 	model := makeCopilotClaudeModel()
 	messages := []ai.Message{
-		ai.UserMessage{Content: ai.UserText("read the file"), Timestamp: time.Now().UnixMilli()},
+		&ai.UserMessage{Content: ai.UserText("read the file"), Timestamp: time.Now().UnixMilli()},
 		makeAssistantMessage([]ai.AssistantContentPart{
 			ai.ToolCall{ID: "call_123|fc_123", Name: "read", Arguments: map[string]any{"path": "README.md"}},
 		}),
@@ -160,7 +160,7 @@ func TestTransformMessagesSynthesizesToolResultForTrailingOrphan(t *testing.T) {
 	result := TransformMessages(messages, model, anthropicNormalizeToolCallID)
 	last := result[len(result)-1]
 
-	toolResult, ok := last.(ai.ToolResultMessage)
+	toolResult, ok := last.(*ai.ToolResultMessage)
 	if !ok {
 		t.Fatalf("last message = %#v, want ToolResultMessage", last)
 	}
@@ -185,12 +185,12 @@ func TestTransformMessagesSynthesizesToolResultForTrailingOrphan(t *testing.T) {
 func TestTransformMessagesSynthesizesOnlyForMissingResults(t *testing.T) {
 	model := makeCopilotClaudeModel()
 	messages := []ai.Message{
-		ai.UserMessage{Content: ai.UserText("run commands"), Timestamp: time.Now().UnixMilli()},
+		&ai.UserMessage{Content: ai.UserText("run commands"), Timestamp: time.Now().UnixMilli()},
 		makeAssistantMessage([]ai.AssistantContentPart{
 			ai.ToolCall{ID: "call_1|fc_1", Name: "read", Arguments: map[string]any{"path": "README.md"}},
 			ai.ToolCall{ID: "call_2|fc_2", Name: "bash", Arguments: map[string]any{"command": "pwd"}},
 		}),
-		ai.ToolResultMessage{
+		&ai.ToolResultMessage{
 			ToolCallID: "call_1|fc_1",
 			ToolName:   "read",
 			Content:    []ai.UserContentPart{ai.TextContent{Text: "done"}},
@@ -201,9 +201,9 @@ func TestTransformMessagesSynthesizesOnlyForMissingResults(t *testing.T) {
 
 	result := TransformMessages(messages, model, anthropicNormalizeToolCallID)
 
-	var synthetic []ai.ToolResultMessage
+	var synthetic []*ai.ToolResultMessage
 	for _, m := range result {
-		if tr, ok := m.(ai.ToolResultMessage); ok && tr.IsError {
+		if tr, ok := m.(*ai.ToolResultMessage); ok && tr.IsError {
 			synthetic = append(synthetic, tr)
 		}
 	}
@@ -236,7 +236,7 @@ func makeTextOnlyModel() *ai.Model {
 // input; it normalizes nil content to an explicit empty value instead.
 func TestTransformMessagesNormalizesNilContentToEmpty(t *testing.T) {
 	messages := []ai.Message{
-		ai.UserMessage{Content: ai.UserContent{}, Timestamp: time.Now().UnixMilli()},
+		&ai.UserMessage{Content: ai.UserContent{}, Timestamp: time.Now().UnixMilli()},
 		&ai.AssistantMessage{
 			Api:        ai.ApiOpenAICompletions,
 			Provider:   "openai",
@@ -244,7 +244,7 @@ func TestTransformMessagesNormalizesNilContentToEmpty(t *testing.T) {
 			StopReason: ai.StopReasonStop,
 			Timestamp:  time.Now().UnixMilli(),
 		},
-		ai.ToolResultMessage{
+		&ai.ToolResultMessage{
 			ToolCallID: "call_1",
 			ToolName:   "web_search",
 			IsError:    false,
@@ -258,7 +258,7 @@ func TestTransformMessagesNormalizesNilContentToEmpty(t *testing.T) {
 	}
 	for i, m := range result {
 		switch v := m.(type) {
-		case ai.UserMessage:
+		case *ai.UserMessage:
 			if len(v.Content.Blocks) != 0 {
 				t.Errorf("message[%d] UserMessage.Content.Blocks = %#v, want empty", i, v.Content.Blocks)
 			}
@@ -266,7 +266,7 @@ func TestTransformMessagesNormalizesNilContentToEmpty(t *testing.T) {
 			if len(v.Content) != 0 {
 				t.Errorf("message[%d] AssistantMessage.Content = %#v, want empty", i, v.Content)
 			}
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			if len(v.Content) != 0 {
 				t.Errorf("message[%d] ToolResultMessage.Content = %#v, want empty", i, v.Content)
 			}
@@ -279,7 +279,7 @@ func TestTransformMessagesNormalizesNilContentToEmpty(t *testing.T) {
 func TestTransformMessagesKeepsThinkingAndSignatureForSameModel(t *testing.T) {
 	model := &ai.Model{ID: "claude-x", Api: ai.ApiAnthropicMessages, Provider: "anthropic", Input: []ai.Modality{ai.ModalityText}}
 	messages := []ai.Message{
-		ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()},
+		&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()},
 		&ai.AssistantMessage{
 			Content: []ai.AssistantContentPart{
 				ai.ThinkingContent{Thinking: "reasoning...", ThinkingSignature: "sig-1"},
@@ -358,7 +358,7 @@ func TestTransformMessagesDropsRedactedThinkingAcrossModelsKeepsSameModel(t *tes
 func TestTransformMessagesSkipsErroredAndAbortedAssistantTurns(t *testing.T) {
 	model := makeCopilotClaudeModel()
 	messages := []ai.Message{
-		ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()},
+		&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()},
 		&ai.AssistantMessage{
 			Content:    []ai.AssistantContentPart{ai.TextContent{Text: "partial"}},
 			Api:        ai.ApiOpenAICompletions,
@@ -404,7 +404,7 @@ func TestTransformMessagesSkipsErroredAndAbortedAssistantTurns(t *testing.T) {
 func TestTransformMessagesDowngradesUnsupportedImagesToPlaceholder(t *testing.T) {
 	model := &ai.Model{ID: "text-only", Api: ai.ApiOpenAICompletions, Provider: "openai", Input: []ai.Modality{ai.ModalityText}}
 	messages := []ai.Message{
-		ai.UserMessage{
+		&ai.UserMessage{
 			Content: ai.UserBlocks(
 				ai.ImageContent{Data: "aaaa", MimeType: "image/png"},
 				ai.ImageContent{Data: "bbbb", MimeType: "image/png"},
@@ -412,7 +412,7 @@ func TestTransformMessagesDowngradesUnsupportedImagesToPlaceholder(t *testing.T)
 			),
 			Timestamp: time.Now().UnixMilli(),
 		},
-		ai.ToolResultMessage{
+		&ai.ToolResultMessage{
 			ToolCallID: "call_1",
 			ToolName:   "screenshot",
 			Content:    []ai.UserContentPart{ai.ImageContent{Data: "cccc", MimeType: "image/png"}},
@@ -423,7 +423,7 @@ func TestTransformMessagesDowngradesUnsupportedImagesToPlaceholder(t *testing.T)
 
 	result := TransformMessages(messages, model, nil)
 
-	user, ok := result[0].(ai.UserMessage)
+	user, ok := result[0].(*ai.UserMessage)
 	if !ok {
 		t.Fatalf("result[0] = %#v, want UserMessage", result[0])
 	}
@@ -440,7 +440,7 @@ func TestTransformMessagesDowngradesUnsupportedImagesToPlaceholder(t *testing.T)
 		t.Errorf("Content.Blocks[1] = %#v, want the original text block", user.Content.Blocks[1])
 	}
 
-	toolResult, ok := result[1].(ai.ToolResultMessage)
+	toolResult, ok := result[1].(*ai.ToolResultMessage)
 	if !ok {
 		t.Fatalf("result[1] = %#v, want ToolResultMessage", result[1])
 	}
@@ -456,7 +456,7 @@ func TestTransformMessagesDowngradesUnsupportedImagesToPlaceholder(t *testing.T)
 func TestTransformMessagesWithoutNormalizeCallbackKeepsToolCallIDsUnchanged(t *testing.T) {
 	model := makeCopilotClaudeModel()
 	messages := []ai.Message{
-		ai.UserMessage{Content: ai.UserText("run a command"), Timestamp: time.Now().UnixMilli()},
+		&ai.UserMessage{Content: ai.UserText("run a command"), Timestamp: time.Now().UnixMilli()},
 		&ai.AssistantMessage{
 			Content: []ai.AssistantContentPart{
 				ai.ToolCall{ID: "call_123|fc_123", Name: "bash", Arguments: map[string]any{"command": "ls"}},
@@ -467,7 +467,7 @@ func TestTransformMessagesWithoutNormalizeCallbackKeepsToolCallIDsUnchanged(t *t
 			StopReason: ai.StopReasonToolUse,
 			Timestamp:  time.Now().UnixMilli(),
 		},
-		ai.ToolResultMessage{
+		&ai.ToolResultMessage{
 			ToolCallID: "call_123|fc_123",
 			ToolName:   "bash",
 			Content:    []ai.UserContentPart{ai.TextContent{Text: "output"}},
@@ -486,11 +486,109 @@ func TestTransformMessagesWithoutNormalizeCallbackKeepsToolCallIDsUnchanged(t *t
 		t.Errorf("ToolCall.ID = %q, want unchanged %q", toolCall.ID, "call_123|fc_123")
 	}
 
-	toolResult, ok := result[2].(ai.ToolResultMessage)
+	toolResult, ok := result[2].(*ai.ToolResultMessage)
 	if !ok {
 		t.Fatalf("result[2] = %#v, want ToolResultMessage", result[2])
 	}
 	if toolResult.ToolCallID != "call_123|fc_123" {
 		t.Errorf("ToolResultMessage.ToolCallID = %q, want unchanged %q", toolResult.ToolCallID, "call_123|fc_123")
+	}
+}
+
+// TestTransformMessagesDoesNotMutateCallerMessages guards the hazard that
+// pointer-receiver messages introduce. The value-receiver era let every
+// `case *ai.UserMessage:` branch mutate its copy freely and store it back.
+// With pointers, that same branch aliases the caller's message, so a
+// normalization pass would quietly rewrite the session history it was handed.
+func TestTransformMessagesDoesNotMutateCallerMessages(t *testing.T) {
+	model := &ai.Model{ID: "m", Api: ai.ApiAnthropicMessages, Provider: "anthropic", Input: []ai.Modality{ai.ModalityText}}
+
+	// Nil content on both types is what normalizeNilContent rewrites.
+	user := &ai.UserMessage{Timestamp: time.Now().UnixMilli()}
+	toolResult := &ai.ToolResultMessage{
+		ToolCallID: "call_1",
+		ToolName:   "edit",
+		Timestamp:  time.Now().UnixMilli(),
+	}
+	assistant := &ai.AssistantMessage{
+		Content: []ai.AssistantContentPart{ai.ToolCall{ID: "call_1", Name: "edit"}},
+		Api:     ai.ApiAnthropicMessages, Provider: "anthropic", Model: "m",
+		StopReason: ai.StopReasonToolUse, Timestamp: time.Now().UnixMilli(),
+	}
+
+	TransformMessages([]ai.Message{user, assistant, toolResult}, model, anthropicNormalizeToolCallID)
+
+	if user.Content.Blocks != nil || user.Content.Plain != nil {
+		t.Errorf("caller's UserMessage.Content was mutated: %#v", user.Content)
+	}
+	if toolResult.Content != nil {
+		t.Errorf("caller's ToolResultMessage.Content was mutated: %#v", toolResult.Content)
+	}
+	if toolResult.ToolCallID != "call_1" {
+		t.Errorf("caller's ToolResultMessage.ToolCallID was mutated: %q", toolResult.ToolCallID)
+	}
+}
+
+// TestTransformMessagesDoesNotMutateOnImageDowngrade covers the same hazard on
+// the image-downgrade pass, which rewrites content for a text-only model.
+func TestTransformMessagesDoesNotMutateOnImageDowngrade(t *testing.T) {
+	textOnly := &ai.Model{ID: "m", Api: ai.ApiAnthropicMessages, Provider: "anthropic", Input: []ai.Modality{ai.ModalityText}}
+
+	image := ai.ImageContent{Data: "aGk=", MimeType: "image/png"}
+	user := &ai.UserMessage{
+		Content:   ai.UserContent{Blocks: []ai.UserContentPart{image}},
+		Timestamp: time.Now().UnixMilli(),
+	}
+	toolResult := &ai.ToolResultMessage{
+		ToolCallID: "call_1", ToolName: "screenshot",
+		Content:   []ai.UserContentPart{image},
+		Timestamp: time.Now().UnixMilli(),
+	}
+	assistant := &ai.AssistantMessage{
+		Content: []ai.AssistantContentPart{ai.ToolCall{ID: "call_1", Name: "screenshot"}},
+		Api:     ai.ApiAnthropicMessages, Provider: "anthropic", Model: "m",
+		StopReason: ai.StopReasonToolUse, Timestamp: time.Now().UnixMilli(),
+	}
+
+	result := TransformMessages([]ai.Message{user, assistant, toolResult}, textOnly, anthropicNormalizeToolCallID)
+
+	if _, stillImage := user.Content.Blocks[0].(ai.ImageContent); !stillImage {
+		t.Errorf("caller's UserMessage image was downgraded in place: %#v", user.Content.Blocks[0])
+	}
+	if _, stillImage := toolResult.Content[0].(ai.ImageContent); !stillImage {
+		t.Errorf("caller's ToolResultMessage image was downgraded in place: %#v", toolResult.Content[0])
+	}
+	// ...while the transformed copies did get the placeholder.
+	if _, downgraded := result[0].(*ai.UserMessage).Content.Blocks[0].(ai.TextContent); !downgraded {
+		t.Error("transformed UserMessage still carries an image for a text-only model")
+	}
+}
+
+// TestTransformMessagesDoesNotMutateOnToolCallIDRemap covers the remap pass:
+// replaying another provider's tool-call ids rewrites them for the target, and
+// that rewrite must land on a copy.
+func TestTransformMessagesDoesNotMutateOnToolCallIDRemap(t *testing.T) {
+	model := &ai.Model{ID: "m", Api: ai.ApiAnthropicMessages, Provider: "anthropic", Input: []ai.Modality{ai.ModalityText}}
+
+	// An id Anthropic will not accept verbatim, so normalizeToolCallID rewrites it.
+	const foreignID = "call:with:colons"
+	assistant := &ai.AssistantMessage{
+		Content: []ai.AssistantContentPart{ai.ToolCall{ID: foreignID, Name: "bash"}},
+		Api:     ai.ApiOpenAICompletions, Provider: "openai", Model: "gpt-4o",
+		StopReason: ai.StopReasonToolUse, Timestamp: time.Now().UnixMilli(),
+	}
+	toolResult := &ai.ToolResultMessage{
+		ToolCallID: foreignID, ToolName: "bash",
+		Content:   []ai.UserContentPart{ai.TextContent{Text: "ok"}},
+		Timestamp: time.Now().UnixMilli(),
+	}
+
+	result := TransformMessages([]ai.Message{assistant, toolResult}, model, anthropicNormalizeToolCallID)
+
+	if toolResult.ToolCallID != foreignID {
+		t.Errorf("caller's ToolResultMessage.ToolCallID was remapped in place: %q", toolResult.ToolCallID)
+	}
+	if got := result[1].(*ai.ToolResultMessage).ToolCallID; got == foreignID {
+		t.Errorf("transformed ToolCallID = %q, want it normalized for anthropic", got)
 	}
 }

@@ -29,14 +29,14 @@ func testModel(baseURL string) *ai.Model {
 }
 
 func testChat() ai.Context {
-	return ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	return ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 }
 
 func TestBuildParams_BasicRequestShape(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 	temp := 0.5
 	maxTokens := 100

@@ -18,7 +18,7 @@ import (
 
 func TestToChatMessages_PlainUserText(t *testing.T) {
 	model := testModel("https://example.invalid")
-	messages := []ai.Message{ai.UserMessage{Content: ai.UserText("hello"), Timestamp: time.Now().UnixMilli()}}
+	messages := []ai.Message{&ai.UserMessage{Content: ai.UserText("hello"), Timestamp: time.Now().UnixMilli()}}
 	out := toChatMessages(messages, model, newToolCallIDNormalizer())
 	if len(out) != 1 || out[0].Role != "user" || out[0].Content != "hello" {
 		t.Fatalf("out = %#v, want single user message %q", out, "hello")
@@ -40,7 +40,7 @@ func TestToChatMessages_AssistantTextAndToolCall(t *testing.T) {
 			Api: ai.ApiMistralConversations, Provider: "mistral", Model: "mistral-large-latest",
 			StopReason: ai.StopReasonToolUse, Timestamp: time.Now().UnixMilli(),
 		},
-		ai.ToolResultMessage{
+		&ai.ToolResultMessage{
 			ToolCallID: "call_1", ToolName: "get_weather",
 			Content:   []ai.UserContentPart{ai.TextContent{Text: "sunny"}},
 			Timestamp: time.Now().UnixMilli(),
@@ -61,7 +61,7 @@ func TestToChatMessages_AssistantTextAndToolCall(t *testing.T) {
 func TestToChatMessages_ToolResult(t *testing.T) {
 	model := testModel("https://example.invalid")
 	messages := []ai.Message{
-		ai.ToolResultMessage{
+		&ai.ToolResultMessage{
 			ToolCallID: "call_1", ToolName: "get_weather",
 			Content:   []ai.UserContentPart{ai.TextContent{Text: "sunny"}},
 			Timestamp: time.Now().UnixMilli(),

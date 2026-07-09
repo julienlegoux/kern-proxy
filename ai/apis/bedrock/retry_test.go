@@ -99,7 +99,7 @@ func streamResult(t *testing.T, srv *httptest.Server, opts *ai.StreamOptions) *a
 	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	stream := Stream(ctx, bedrockTestModel(srv.URL), chat, bedrockOpts(opts))
 	result, err := stream.Result(ctx)
 	if err != nil {

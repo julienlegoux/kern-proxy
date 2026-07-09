@@ -14,7 +14,7 @@ func TestClampMaxTokensToContext(t *testing.T) {
 	model := &ai.Model{ContextWindow: 10000, MaxTokens: 8000}
 	// ~25 tokens of context (100 chars) -> available = 10000 - 25 - 4096.
 	chat := ai.Context{Messages: []ai.Message{
-		ai.UserMessage{Content: ai.UserText(makeText(100))},
+		&ai.UserMessage{Content: ai.UserText(makeText(100))},
 	}}
 	got := ClampMaxTokensToContext(model, chat, 8000)
 	want := 10000 - 25 - 4096
@@ -33,7 +33,7 @@ func TestClampMaxTokensToContext(t *testing.T) {
 	}
 
 	// Overfull context still returns at least the floor.
-	huge := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText(makeText(100000))}}}
+	huge := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText(makeText(100000))}}}
 	if got := ClampMaxTokensToContext(model, huge, 8000); got != 1 {
 		t.Errorf("clamped = %d, want 1", got)
 	}
@@ -41,7 +41,7 @@ func TestClampMaxTokensToContext(t *testing.T) {
 
 func TestBuildBaseOptions(t *testing.T) {
 	model := &ai.Model{ContextWindow: 200000, MaxTokens: 4096}
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi")}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi")}}}
 	opts := &ai.SimpleStreamOptions{
 		StreamOptions: ai.StreamOptions{APIKey: "from-options", SessionID: "s"},
 		Reasoning:     ai.ThinkingHigh,

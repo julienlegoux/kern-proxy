@@ -37,9 +37,9 @@ func thinkingAsTextModel() *ai.Model {
 func replayContext(assistant *ai.AssistantMessage) ai.Context {
 	return ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("hello"), Timestamp: 1},
+			&ai.UserMessage{Content: ai.UserText("hello"), Timestamp: 1},
 			assistant,
-			ai.UserMessage{Content: ai.UserText("continue"), Timestamp: 3},
+			&ai.UserMessage{Content: ai.UserText("continue"), Timestamp: 3},
 		},
 	}
 }
@@ -159,7 +159,7 @@ func TestStream_PreservesReasoningDetailsArrivingBeforeToolCall(t *testing.T) {
 	model := reasoningDetailsModel()
 	model.BaseURL = srv.URL
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("go"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("go"), Timestamp: time.Now().UnixMilli()}},
 		Tools:    []ai.Tool{{Name: "read", Description: "Read a file", Parameters: []byte(`{"type":"object"}`)}},
 	}
 
@@ -218,7 +218,7 @@ func TestStream_IgnoresMalformedReasoningDetail(t *testing.T) {
 	srv := sseServer(t, chunks)
 	model := reasoningDetailsModel()
 	model.BaseURL = srv.URL
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("go"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("go"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "test"})
 	result, err := stream.Result(context.Background())

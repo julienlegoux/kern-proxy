@@ -18,7 +18,7 @@ func TestBuildParams_BasicRequestShape(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "azure-key"}, "my-deployment")
@@ -55,7 +55,7 @@ func TestBuildParams_BasicRequestShape(t *testing.T) {
 // "clamps prompt_cache_key to OpenAI's 64-character limit" assertion.
 func TestBuildParams_PromptCacheKeyClampedTo64Chars(t *testing.T) {
 	model := testModel("https://example.invalid")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	long := ""
 	for i := 0; i < 67; i++ {
 		long += "x"
@@ -77,7 +77,7 @@ func TestBuildParams_UsesDeveloperRoleForReasoningModels(t *testing.T) {
 	model.Reasoning = true
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "azure-key"}, "dep")
 	raw, _ := json.Marshal(params)
@@ -97,7 +97,7 @@ func TestBuildParams_FallsBackToSystemRoleWhenCompatDisablesDeveloperRole(t *tes
 	model.Compat = &ai.Compat{SupportsDeveloperRole: &no}
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "azure-key"}, "dep")
 	raw, _ := json.Marshal(params)
@@ -113,7 +113,7 @@ func TestBuildParams_FallsBackToSystemRoleWhenCompatDisablesDeveloperRole(t *tes
 func TestBuildParams_OmitsToolsFieldWhenContextToolsEmpty(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 		Tools:    []ai.Tool{},
 	}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "azure-key"}, "dep")
@@ -125,7 +125,7 @@ func TestBuildParams_OmitsToolsFieldWhenContextToolsEmpty(t *testing.T) {
 func TestBuildParams_IncludesToolsWhenPresent(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 		Tools: []ai.Tool{
 			{Name: "get_weather", Description: "gets weather", Parameters: json.RawMessage(`{"type":"object"}`)},
 		},
@@ -146,7 +146,7 @@ func TestBuildParams_IncludesToolsWhenPresent(t *testing.T) {
 
 func TestBuildParams_ClampsMaxOutputTokensToMinimum(t *testing.T) {
 	model := testModel("https://example.invalid")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	small := 4
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "azure-key", MaxTokens: &small}, "dep")
 	if params.MaxOutputTokens == nil || *params.MaxOutputTokens != 16 {
@@ -157,7 +157,7 @@ func TestBuildParams_ClampsMaxOutputTokensToMinimum(t *testing.T) {
 func TestBuildParams_ReasoningEffortSetsEffortAndSummary(t *testing.T) {
 	model := testModel("https://example.invalid")
 	model.Reasoning = true
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "azure-key", ReasoningEffort: ai.ThinkingHigh}, "dep")
 	if params.Reasoning == nil {
 		t.Fatalf("reasoning = nil, want set")
@@ -175,7 +175,7 @@ func TestBuildParams_ReasoningEffortSetsEffortAndSummary(t *testing.T) {
 
 func TestBuildParams_NonReasoningModelNeverSetsReasoningField(t *testing.T) {
 	model := testModel("https://example.invalid")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "azure-key", ReasoningEffort: ai.ThinkingHigh}, "dep")
 	if params.Reasoning != nil {
 		t.Errorf("reasoning = %#v, want nil for non-reasoning model", params.Reasoning)
@@ -187,7 +187,7 @@ func TestBuildParams_NoRequestedEffortSendsMappedOffEffort(t *testing.T) {
 	model.Reasoning = true
 	off := "minimal"
 	model.ThinkingLevelMap = ai.ThinkingLevelMap{ai.ThinkingOff: &off}
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "azure-key"}, "dep")
 	if params.Reasoning == nil || params.Reasoning.Effort != "minimal" {
 		t.Errorf("reasoning = %#v, want effort=minimal", params.Reasoning)
@@ -201,7 +201,7 @@ func TestBuildParams_ExplicitNullOffSuppressesReasoningField(t *testing.T) {
 	model := testModel("https://example.invalid")
 	model.Reasoning = true
 	model.ThinkingLevelMap = ai.ThinkingLevelMap{ai.ThinkingOff: nil}
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "azure-key"}, "dep")
 	if params.Reasoning != nil {
 		t.Errorf("reasoning = %#v, want nil (explicitly suppressed)", params.Reasoning)

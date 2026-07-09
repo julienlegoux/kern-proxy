@@ -152,7 +152,7 @@ func ConvertMessages(model *ai.Model, chat ai.Context, options ConvertMessagesOp
 	for i := 0; i < len(transformed); i++ {
 		msg := transformed[i]
 		switch m := msg.(type) {
-		case ai.UserMessage:
+		case *ai.UserMessage:
 			item, ok := convertUserMessage(m)
 			if !ok {
 				continue
@@ -168,7 +168,7 @@ func ConvertMessages(model *ai.Model, chat ai.Context, options ConvertMessagesOp
 			_ = textBlockIndex
 			items = append(items, output...)
 
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			items = append(items, convertToolResultMessage(m, model))
 
 		default:
@@ -180,7 +180,7 @@ func ConvertMessages(model *ai.Model, chat ai.Context, options ConvertMessagesOp
 	return items
 }
 
-func convertUserMessage(m ai.UserMessage) (wireInputItem, bool) {
+func convertUserMessage(m *ai.UserMessage) (wireInputItem, bool) {
 	if m.Content.Plain != nil {
 		return wireEasyMessage{
 			Role:    "user",
@@ -281,7 +281,7 @@ func convertAssistantMessage(m *ai.AssistantMessage, msgIndex int, isDifferentMo
 	return output, textBlockIndex
 }
 
-func convertToolResultMessage(m ai.ToolResultMessage, model *ai.Model) wireInputItem {
+func convertToolResultMessage(m *ai.ToolResultMessage, model *ai.Model) wireInputItem {
 	var texts []string
 	var images []ai.ImageContent
 	for _, c := range m.Content {

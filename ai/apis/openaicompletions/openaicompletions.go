@@ -725,7 +725,7 @@ func convertTools(tools []ai.Tool, compat resolvedCompat) []wireTool {
 func hasToolHistory(messages []ai.Message) bool {
 	for _, msg := range messages {
 		switch m := msg.(type) {
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			return true
 		case *ai.AssistantMessage:
 			for _, b := range m.Content {
@@ -783,12 +783,12 @@ func convertMessages(chat ai.Context, model *ai.Model, compat resolvedCompat) []
 	for i := 0; i < len(transformed); i++ {
 		msg := transformed[i]
 
-		if _, isUser := msg.(ai.UserMessage); isUser && compat.requiresAssistantAfterToolResult && lastRole == "toolResult" {
+		if _, isUser := msg.(*ai.UserMessage); isUser && compat.requiresAssistantAfterToolResult && lastRole == "toolResult" {
 			out = append(out, wireMessage{Role: "assistant", Content: "I have processed the tool results."})
 		}
 
 		switch m := msg.(type) {
-		case ai.UserMessage:
+		case *ai.UserMessage:
 			out = append(out, convertUserMessage(m))
 			lastRole = "user"
 
@@ -799,10 +799,10 @@ func convertMessages(chat ai.Context, model *ai.Model, compat resolvedCompat) []
 			}
 			lastRole = "assistant"
 
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			j := i
 			for j < len(transformed) {
-				next, ok := transformed[j].(ai.ToolResultMessage)
+				next, ok := transformed[j].(*ai.ToolResultMessage)
 				if !ok {
 					break
 				}
@@ -817,7 +817,7 @@ func convertMessages(chat ai.Context, model *ai.Model, compat resolvedCompat) []
 	return out
 }
 
-func convertUserMessage(m ai.UserMessage) wireMessage {
+func convertUserMessage(m *ai.UserMessage) wireMessage {
 	if m.Content.Plain != nil {
 		return wireMessage{Role: "user", Content: ai.SanitizeSurrogates(*m.Content.Plain)}
 	}
@@ -953,7 +953,7 @@ func convertAssistantMessage(m *ai.AssistantMessage, model *ai.Model, compat res
 	return wireMsg, true
 }
 
-func convertToolResultMessage(m ai.ToolResultMessage, compat resolvedCompat) wireMessage {
+func convertToolResultMessage(m *ai.ToolResultMessage, compat resolvedCompat) wireMessage {
 	var texts []string
 	hasImages := false
 	for _, c := range m.Content {

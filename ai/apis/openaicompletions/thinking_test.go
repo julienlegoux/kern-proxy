@@ -38,7 +38,7 @@ func reasoningModel(thinkingFormat ai.ThinkingFormat, thinkingLevelMap ai.Thinki
 func strp(s string) *string { return &s }
 
 func simpleChat() ai.Context {
-	return ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	return ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 }
 
 func TestBuildParams_ThinkingFormats(t *testing.T) {
@@ -333,7 +333,7 @@ func TestBuildParams_ZaiToolStream_SetWhenCompatFlagAndToolsPresent(t *testing.T
 	model := reasoningModel(ai.ThinkingFormatZai, nil, nil)
 	model.Compat.ZaiToolStream = boolp(true)
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 		Tools:    []ai.Tool{{Name: "ping", Description: "ping", Parameters: []byte(`{"type":"object"}`)}},
 	}
 

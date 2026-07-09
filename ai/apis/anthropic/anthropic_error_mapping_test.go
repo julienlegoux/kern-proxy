@@ -47,7 +47,7 @@ func jsonErrorServer(t *testing.T, status int, body string) *httptest.Server {
 func streamAndResult(t *testing.T, srv *httptest.Server) *ai.AssistantMessage {
 	t.Helper()
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
 	result, err := stream.Result(context.Background())
 	if err != nil {

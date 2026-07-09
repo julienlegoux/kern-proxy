@@ -34,7 +34,7 @@ func boolp(b bool) *bool { return &b }
 // assertion: a together.ai model must never receive `store`.
 func TestBuildParams_OmitsStoreForNonStandardVendor(t *testing.T) {
 	model := vendorModel("together", "https://api.together.xyz/v1")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	if params.Store != nil {
@@ -47,7 +47,7 @@ func TestBuildParams_OmitsStoreForNonStandardVendor(t *testing.T) {
 // max_completion_tokens, with no explicit compat override needed.
 func TestBuildParams_UsesMaxTokensFieldForAutoDetectedVendor(t *testing.T) {
 	model := vendorModel("nvidia", "https://integrate.api.nvidia.com/v1")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	maxTokens := 256
 
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test", MaxTokens: &maxTokens})
@@ -64,7 +64,7 @@ func TestBuildParams_UsesMaxTokensFieldForAutoDetectedVendor(t *testing.T) {
 func TestBuildParams_OmitsStrictFieldForMoonshotProvider(t *testing.T) {
 	model := vendorModel("moonshotai", "https://api.moonshot.cn/v1")
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 		Tools: []ai.Tool{{
 			Name:        "ping",
 			Description: "Ping tool",
@@ -89,7 +89,7 @@ func TestBuildParams_KeepsSystemRoleForNonStandardVendorEvenWhenReasoning(t *tes
 	model := vendorModel("together", "https://api.together.xyz/v1")
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
@@ -105,7 +105,7 @@ func TestBuildParams_UsesDeveloperRoleForStandardReasoningVendor(t *testing.T) {
 	model := vendorModel("openai", "https://api.openai.com/v1")
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
@@ -122,7 +122,7 @@ func TestBuildParams_IncludesToolResultNameWhenCompatRequires(t *testing.T) {
 	model.Compat = &ai.Compat{RequiresToolResultName: boolp(true)}
 	chat := ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
+			&ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
 			&ai.AssistantMessage{
 				Content:    []ai.AssistantContentPart{ai.ToolCall{ID: "t1", Name: "noop", Arguments: map[string]any{}}},
 				StopReason: ai.StopReasonToolUse,
@@ -130,7 +130,7 @@ func TestBuildParams_IncludesToolResultNameWhenCompatRequires(t *testing.T) {
 				Provider:   "openai",
 				Model:      "some-model",
 			},
-			ai.ToolResultMessage{ToolCallID: "t1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
+			&ai.ToolResultMessage{ToolCallID: "t1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
 		},
 	}
 
@@ -148,7 +148,7 @@ func TestBuildParams_OmitsToolResultNameByDefault(t *testing.T) {
 	model := vendorModel("openai", "https://api.openai.com/v1")
 	chat := ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
+			&ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
 			&ai.AssistantMessage{
 				Content:    []ai.AssistantContentPart{ai.ToolCall{ID: "t1", Name: "noop", Arguments: map[string]any{}}},
 				StopReason: ai.StopReasonToolUse,
@@ -156,7 +156,7 @@ func TestBuildParams_OmitsToolResultNameByDefault(t *testing.T) {
 				Provider:   "openai",
 				Model:      "some-model",
 			},
-			ai.ToolResultMessage{ToolCallID: "t1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
+			&ai.ToolResultMessage{ToolCallID: "t1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
 		},
 	}
 
@@ -175,7 +175,7 @@ func TestBuildParams_InsertsSyntheticAssistantAfterToolResultWhenCompatRequires(
 	model.Compat = &ai.Compat{RequiresAssistantAfterToolResult: boolp(true)}
 	chat := ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
+			&ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
 			&ai.AssistantMessage{
 				Content:    []ai.AssistantContentPart{ai.ToolCall{ID: "t1", Name: "noop", Arguments: map[string]any{}}},
 				StopReason: ai.StopReasonToolUse,
@@ -183,8 +183,8 @@ func TestBuildParams_InsertsSyntheticAssistantAfterToolResultWhenCompatRequires(
 				Provider:   "openai",
 				Model:      "some-model",
 			},
-			ai.ToolResultMessage{ToolCallID: "t1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
-			ai.UserMessage{Content: ai.UserText("continue"), Timestamp: time.Now().UnixMilli()},
+			&ai.ToolResultMessage{ToolCallID: "t1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
+			&ai.UserMessage{Content: ai.UserText("continue"), Timestamp: time.Now().UnixMilli()},
 		},
 	}
 
@@ -214,7 +214,7 @@ func TestBuildParams_NoSyntheticAssistantByDefault(t *testing.T) {
 	model := vendorModel("openai", "https://api.openai.com/v1")
 	chat := ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
+			&ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
 			&ai.AssistantMessage{
 				Content:    []ai.AssistantContentPart{ai.ToolCall{ID: "t1", Name: "noop", Arguments: map[string]any{}}},
 				StopReason: ai.StopReasonToolUse,
@@ -222,8 +222,8 @@ func TestBuildParams_NoSyntheticAssistantByDefault(t *testing.T) {
 				Provider:   "openai",
 				Model:      "some-model",
 			},
-			ai.ToolResultMessage{ToolCallID: "t1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
-			ai.UserMessage{Content: ai.UserText("continue"), Timestamp: time.Now().UnixMilli()},
+			&ai.ToolResultMessage{ToolCallID: "t1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
+			&ai.UserMessage{Content: ai.UserText("continue"), Timestamp: time.Now().UnixMilli()},
 		},
 	}
 

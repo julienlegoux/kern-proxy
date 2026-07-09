@@ -63,7 +63,7 @@ func main() {
 	chat := ai.Context{
 		SystemPrompt: "You are a helpful assistant.",
 		Messages: []ai.Message{
-			ai.UserMessage{
+			&ai.UserMessage{
 				Content:   ai.UserText("Hello, who are you?"),
 				Timestamp: time.Now().UnixMilli(),
 			},
@@ -143,7 +143,7 @@ tools := []ai.Tool{{
 }}
 
 messages := []ai.Message{
-	ai.UserMessage{Content: ai.UserText(input), Timestamp: time.Now().UnixMilli()},
+	&ai.UserMessage{Content: ai.UserText(input), Timestamp: time.Now().UnixMilli()},
 }
 
 for round := 0; round < 8; round++ {
@@ -164,7 +164,7 @@ for round := 0; round < 8; round++ {
 			continue
 		}
 		output, isErr := runTool(call.Name, call.Arguments) // Arguments is map[string]any
-		messages = append(messages, ai.ToolResultMessage{
+		messages = append(messages, &ai.ToolResultMessage{
 			ToolCallID: call.ID,
 			ToolName:   call.Name,
 			Content:    []ai.UserContentPart{ai.TextContent{Text: output}},

@@ -70,7 +70,7 @@ func TestBuildParams_BasicRequestShape(t *testing.T) {
 	model := testModel(srv.URL)
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 
 	var captured map[string]any
@@ -128,7 +128,7 @@ func TestStream_CoalescesToolCallDeltasByStableIndexWhenIDMutates(t *testing.T) 
 	}
 	srv := sseServer(t, chunks)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("edit"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("edit"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -165,7 +165,7 @@ func TestStream_AccumulatesMixedContentReasoningAndParallelToolCalls(t *testing.
 	}
 	srv := sseServer(t, chunks)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("go"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("go"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -204,7 +204,7 @@ func TestParseChunkUsage_DoesNotDoubleCountReasoningTokens(t *testing.T) {
 	}
 	srv := sseServer(t, chunks)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -229,7 +229,7 @@ func TestParseChunkUsage_PreservesCacheReadWriteFromChunkUsage(t *testing.T) {
 	}
 	srv := sseServer(t, chunks)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -256,7 +256,7 @@ func TestStream_MapsNonStandardFinishReasonToError(t *testing.T) {
 	}
 	srv := sseServer(t, chunks)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -280,7 +280,7 @@ func TestStream_IgnoresNullStreamChunks(t *testing.T) {
 	}
 	srv := sseServer(t, chunks)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -306,7 +306,7 @@ func TestStream_ErrorsWhenStreamEndsAfterOnlyNullFinishReasonChunks(t *testing.T
 	}
 	srv := sseServer(t, chunks)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -329,7 +329,7 @@ func TestStream_ErrorsWhenStreamEndsAfterOnlyNullFinishReasonChunks(t *testing.T
 func TestBuildParams_OmitsToolsFieldWhenContextToolsEmpty(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 		Tools:    []ai.Tool{},
 	}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
@@ -342,7 +342,7 @@ func TestBuildParams_SendsEmptyToolsWhenToolHistoryPresent(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
+			&ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
 			&ai.AssistantMessage{
 				Content:    []ai.AssistantContentPart{ai.ToolCall{ID: "t1", Name: "noop", Arguments: map[string]any{}}},
 				StopReason: ai.StopReasonToolUse,
@@ -350,7 +350,7 @@ func TestBuildParams_SendsEmptyToolsWhenToolHistoryPresent(t *testing.T) {
 				Provider:   "openai",
 				Model:      "gpt-4o-mini",
 			},
-			ai.ToolResultMessage{ToolCallID: "t1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
+			&ai.ToolResultMessage{ToolCallID: "t1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
 		},
 		Tools: []ai.Tool{},
 	}
@@ -370,7 +370,7 @@ func TestStream_NonOKStatusProducesErrorEvent(t *testing.T) {
 	}))
 	t.Cleanup(srv.Close)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -398,7 +398,7 @@ func TestStream_ReparsesPartialToolArgsOnEveryDelta(t *testing.T) {
 	}
 	srv := sseServer(t, chunks)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("edit"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("edit"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 
@@ -436,7 +436,7 @@ func TestBuildParams_RoundTripsAssistantToolCallAndToolResult(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
+			&ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
 			&ai.AssistantMessage{
 				Content:    []ai.AssistantContentPart{ai.ToolCall{ID: "t1", Name: "noop", Arguments: map[string]any{"x": float64(1)}}},
 				StopReason: ai.StopReasonToolUse,
@@ -444,7 +444,7 @@ func TestBuildParams_RoundTripsAssistantToolCallAndToolResult(t *testing.T) {
 				Provider:   "openai",
 				Model:      "gpt-4o-mini",
 			},
-			ai.ToolResultMessage{ToolCallID: "t1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
+			&ai.ToolResultMessage{ToolCallID: "t1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
 		},
 	}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
@@ -487,7 +487,7 @@ func TestStream_LiveSmoke(t *testing.T) {
 		MaxTokens:     64,
 	}
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say the single word: pong"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say the single word: pong"), Timestamp: time.Now().UnixMilli()}},
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

@@ -73,7 +73,7 @@ func minimalTextEvents() []string {
 func TestStream_RequestURLShapeHeadersAndPayload(t *testing.T) {
 	srv, captured := azureSSEServer(t, minimalTextEvents())
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "azure-key", AzureDeploymentName: "my-deployment"})
 	if _, err := stream.Result(context.Background()); err != nil {
@@ -110,7 +110,7 @@ func TestStream_RequestURLShapeHeadersAndPayload(t *testing.T) {
 func TestStream_DatedAPIVersionAppendsQueryParam(t *testing.T) {
 	srv, captured := azureSSEServer(t, minimalTextEvents())
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "azure-key", AzureAPIVersion: "2024-10-21"})
 	if _, err := stream.Result(context.Background()); err != nil {
@@ -124,7 +124,7 @@ func TestStream_DatedAPIVersionAppendsQueryParam(t *testing.T) {
 func TestStream_TextRoundTrip(t *testing.T) {
 	srv, _ := azureSSEServer(t, minimalTextEvents())
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "azure-key"})
 	result, err := stream.Result(context.Background())
@@ -148,7 +148,7 @@ func TestStream_TextRoundTrip(t *testing.T) {
 
 func TestStream_MissingAPIKeyReturnsErrorEvent(t *testing.T) {
 	model := testModel("https://example.invalid")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{})
 	result, err := stream.Result(context.Background())
@@ -165,7 +165,7 @@ func TestStream_MissingAPIKeyReturnsErrorEvent(t *testing.T) {
 
 func TestStream_MissingBaseURLReturnsErrorEvent(t *testing.T) {
 	model := testModel("")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "azure-key"})
 	result, err := stream.Result(context.Background())
@@ -202,7 +202,7 @@ func TestStream_LiveSmoke(t *testing.T) {
 		MaxTokens:     64,
 	}
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say the single word: pong"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say the single word: pong"), Timestamp: time.Now().UnixMilli()}},
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
