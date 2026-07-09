@@ -1,0 +1,7 @@
+kern-proxy is a Go port of @earendil-works/pi-ai, the `packages/ai` package of
+https://github.com/earendil-works/pi, used under the MIT License:
+
+  Copyright (c) 2025 Mario Zechner
+
+The upstream license text is identical to this repository's LICENSE file
+except for the copyright line above.
