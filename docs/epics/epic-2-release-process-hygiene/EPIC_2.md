@@ -3,11 +3,11 @@ type: Epic
 title: "Release & process hygiene"
 description: "Adoption-readiness: golangci-lint in CI, a documented credential-mode ToS risk note, and a v0.1.0 tag that lands after everything else."
 tags: [epic]
-timestamp: 2026-07-09T01:16:00Z
+timestamp: 2026-07-09T16:30:00Z
 resource: https://github.com/julienlegoux/kern-proxy/issues/86
 epic: 2
 slug: release-process-hygiene
-status: open
+status: done
 gh_issue: 86
 milestone: 17
 source: docs/PLAN.md#epic-2--release--process-hygiene

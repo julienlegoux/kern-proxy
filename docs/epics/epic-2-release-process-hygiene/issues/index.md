@@ -2,4 +2,4 @@
 
 * [Add golangci-lint to CI](./01-golangci-lint-ci.md) - M, done, [#95](https://github.com/julienlegoux/kern-proxy/issues/95)
 * [Document credential-mode ToS risk](./02-credential-modes-docs.md) - S, done, [#96](https://github.com/julienlegoux/kern-proxy/issues/96)
-* [Tag v0.1.0 with a minimal release note](./03-tag-v0-1-0.md) - S, in-progress, [#97](https://github.com/julienlegoux/kern-proxy/issues/97)
+* [Tag v0.1.0 with a minimal release note](./03-tag-v0-1-0.md) - S, done, [#97](https://github.com/julienlegoux/kern-proxy/issues/97)
