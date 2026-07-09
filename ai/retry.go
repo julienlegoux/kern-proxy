@@ -32,18 +32,29 @@ var nonRetryableProviderLimitErrorPattern = buildProviderErrorPattern([]string{
 	"billing",
 })
 
-// retryableProviderErrorPattern matches transient provider/transport failures.
-var retryableProviderErrorPattern = buildProviderErrorPattern([]string{
-	// Generic provider load, HTTP status, and server-side transient failures.
-	"overloaded",
-	"rate.?limit",
-	"too many requests",
+// retryableStatusCodePatterns match the numeric status a composed assistant
+// error message carries as its prefix (e.g. `429 {"type":"error",...}`). They
+// are text patterns, so they only mean "transient" when the text they are
+// matched against is known to *start* with a status code. Never apply them to
+// a raw HTTP response body: a 400 rejecting `max_tokens: 15000` contains the
+// digits "500" and is not remotely transient.
+var retryableStatusCodePatterns = []string{
 	"429",
 	"500",
 	"502",
 	"503",
 	"504",
 	"524",
+}
+
+// transientProviderErrorPatterns match transient provider/transport failures by
+// their wording alone, independent of any status code. Safe to apply to a raw
+// error body.
+var transientProviderErrorPatterns = []string{
+	// Generic provider load and server-side transient failures.
+	"overloaded",
+	"rate.?limit",
+	"too many requests",
 	"service.?unavailable",
 	"server.?error",
 	"internal.?error",
@@ -83,7 +94,17 @@ var retryableProviderErrorPattern = buildProviderErrorPattern([]string{
 	"you can retry your request",
 	"try your request again",
 	"please retry your request",
-})
+}
+
+// retryableProviderErrorPattern matches transient provider/transport failures
+// in a composed assistant error message, whose leading status code is itself a
+// signal.
+var retryableProviderErrorPattern = buildProviderErrorPattern(
+	append(append([]string{}, retryableStatusCodePatterns...), transientProviderErrorPatterns...),
+)
+
+// transientProviderErrorPattern is the status-code-free subset.
+var transientProviderErrorPattern = buildProviderErrorPattern(transientProviderErrorPatterns)
 
 // IsNonRetryableProviderLimitError reports whether raw provider error text
 // names a subscription, quota, or billing limit — an account-level condition
@@ -94,17 +115,20 @@ func IsNonRetryableProviderLimitError(text string) bool {
 	return nonRetryableProviderLimitErrorPattern.MatchString(text)
 }
 
-// IsRetryableProviderErrorText reports whether raw provider error text looks
-// like a transient provider or transport failure. Unlike
-// IsRetryableAssistantError it makes no claim about the surrounding message —
-// callers that already know they are looking at an error body (an HTTP error
-// response, say) use this directly.
+// IsTransientProviderErrorText reports whether raw provider error text reads
+// as a transient provider or transport failure, judged on wording alone. It
+// deliberately ignores the status-code patterns IsRetryableAssistantError
+// uses: those match a composed message's leading status, and a raw HTTP error
+// body full of token counts would trip them (see retryableStatusCodePatterns).
+// Callers that already know the numeric status — the request-level retry loop
+// in ai/apis/internal/httpretry — check it themselves and use this for the
+// text fallback.
 //
 // Callers must consult IsNonRetryableProviderLimitError first: quota text such
 // as "quota exceeded" also matches this pattern's "rate.?limit"-family
 // entries, and the terminal classification wins.
-func IsRetryableProviderErrorText(text string) bool {
-	return retryableProviderErrorPattern.MatchString(text)
+func IsTransientProviderErrorText(text string) bool {
+	return transientProviderErrorPattern.MatchString(text)
 }
 
 // IsRetryableAssistantError classifies whether a failed assistant message

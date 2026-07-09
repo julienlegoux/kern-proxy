@@ -454,6 +454,13 @@ func TestIsRetryable(t *testing.T) {
 		{http.StatusServiceUnavailable, "", true},
 		{http.StatusGatewayTimeout, "", true},
 		{http.StatusBadRequest, "unknown model", false},
+		// A rejected request whose body merely *contains* the digits of a
+		// transient status must not be retried: ai/retry.go's bare "500"/"429"
+		// patterns exist to match the status prefix of a composed assistant
+		// error message, not to be applied to a raw HTTP error body.
+		{http.StatusBadRequest, `{"error":{"message":"max_tokens: 15000 > 8192"}}`, false},
+		{http.StatusBadRequest, "prompt is too long: 429000 tokens", false},
+		{http.StatusUnauthorized, "invalid api key 50024", false},
 		{http.StatusBadRequest, "upstream connect error", true},
 		{http.StatusForbidden, "", false},
 	} {
