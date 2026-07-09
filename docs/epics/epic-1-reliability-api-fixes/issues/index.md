@@ -1,6 +1,6 @@
 # Issues — Epic 1: Reliability & API fixes
 
-* [Extract a shared HTTP retry helper from the Codex adapter](./01-shared-http-retry-helper.md) - M, in-progress, [#87](https://github.com/julienlegoux/kern-proxy/issues/87)
+* [Extract a shared HTTP retry helper from the Codex adapter](./01-shared-http-retry-helper.md) - M, pr-open, [#87](https://github.com/julienlegoux/kern-proxy/issues/87)
 * [Adopt the retry helper in the anthropic and openaicompletions adapters](./02-retry-anthropic-openaicompletions.md) - M, open, [#88](https://github.com/julienlegoux/kern-proxy/issues/88)
 * [Adopt the retry helper in the openairesponses and azure adapters](./03-retry-openairesponses-azure.md) - M, open, [#89](https://github.com/julienlegoux/kern-proxy/issues/89)
 * [Adopt the retry helper in the google, vertex, and mistral adapters](./04-retry-google-vertex-mistral.md) - M, open, [#90](https://github.com/julienlegoux/kern-proxy/issues/90)
