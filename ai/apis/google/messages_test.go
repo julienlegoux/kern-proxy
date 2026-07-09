@@ -152,7 +152,7 @@ func TestConvertTools_UseParametersStripsMetaKeywords(t *testing.T) {
 
 func TestConvertMessages_PlainUserText(t *testing.T) {
 	model := testModel("https://example.invalid")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	contents := ConvertMessages(model, chat)
 	if len(contents) != 1 || contents[0].Role != "user" {
 		t.Fatalf("contents = %#v, want 1 user content", contents)
@@ -215,8 +215,8 @@ func TestConvertMessages_ThinkingBlockKeptOnlyForSameProviderAndModel(t *testing
 func TestConvertMessages_ToolResultMergesIntoSingleUserTurn(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{Messages: []ai.Message{
-		ai.ToolResultMessage{ToolCallID: "1", ToolName: "a", Content: []ai.UserContentPart{ai.TextContent{Text: "ok-a"}}},
-		ai.ToolResultMessage{ToolCallID: "2", ToolName: "b", Content: []ai.UserContentPart{ai.TextContent{Text: "ok-b"}}},
+		&ai.ToolResultMessage{ToolCallID: "1", ToolName: "a", Content: []ai.UserContentPart{ai.TextContent{Text: "ok-a"}}},
+		&ai.ToolResultMessage{ToolCallID: "2", ToolName: "b", Content: []ai.UserContentPart{ai.TextContent{Text: "ok-b"}}},
 	}}
 	contents := ConvertMessages(model, chat)
 	if len(contents) != 1 {

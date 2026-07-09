@@ -26,7 +26,8 @@ that tracks upstream over time.
   pricing, `ai.CalculateCost`, token estimation, and cache-read/write
   breakdowns.
 - **Session persistence & model hand-off** — conversations are plain
-  JSON-serializable `[]ai.Message`; resume any conversation on any provider.
+  JSON-serializable `[]ai.Message`; resume any conversation on any provider
+  ([how](docs/usage.md#session-persistence-and-model-hand-off)).
 - **Tool calling, thinking levels, retry/overflow classifiers** — portable
   across providers, clamped to what each model supports.
 - **Offline-testable** — the in-process `faux` provider exercises the full
@@ -67,7 +68,7 @@ func main() {
 	chat := ai.Context{
 		SystemPrompt: "You are a helpful assistant.",
 		Messages: []ai.Message{
-			ai.UserMessage{
+			&ai.UserMessage{
 				Content:   ai.UserText("Hello, who are you?"),
 				Timestamp: time.Now().UnixMilli(),
 			},
@@ -75,7 +76,7 @@ func main() {
 	}
 
 	stream := models.StreamSimple(ctx, model, chat, &ai.SimpleStreamOptions{})
-	for ev := range stream.Events() {
+	for ev := range stream.Events(ctx) {
 		if e, ok := ev.(ai.TextDeltaEvent); ok {
 			fmt.Print(e.Delta)
 		}
@@ -92,6 +93,11 @@ func main() {
 }
 ```
 
+A conversation is just `[]ai.Message` and round-trips through `encoding/json`,
+so saving a session and resuming it — on the same model or a different
+provider — needs no extra machinery. See
+[Session persistence and model hand-off](docs/usage.md#session-persistence-and-model-hand-off).
+
 ## Authentication
 
 Set the provider's env var (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
@@ -104,6 +110,24 @@ go run github.com/julienlegoux/kern-proxy/cmd/pi-ai login
 Credentials land in `~/.pi/agent/auth.json` and are picked up (and refreshed)
 automatically. Full details — resolution order, every env var, Bedrock/Vertex
 specifics — in [docs/auth.md](docs/auth.md).
+
+### Credential modes
+
+The two paths carry different terms-of-service risk:
+
+- **API keys** (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, AWS creds, Google ADC, …)
+  — billed per token under a developer agreement written for programmatic
+  access. No ToS risk. Use these in anything you ship.
+- **Subscription OAuth** (Claude Pro/Max, ChatGPT Plus/Pro, GitHub Copilot) —
+  `pi-ai login` yields a first-party client's credential, and kern-proxy then
+  presents itself as that client (`user-agent: claude-cli/…`,
+  `Editor-Version: vscode/…`). This is inherited upstream behavior and it is
+  fine for personal use. Shipping it in a product means directing users to
+  impersonate a first-party client against a subscription not licensed for
+  programmatic access — providers can revoke the account.
+
+See [docs/auth.md](docs/auth.md#credential-modes-and-terms-of-service-risk) for
+the details.
 
 ## Documentation
 

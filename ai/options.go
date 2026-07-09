@@ -101,8 +101,14 @@ type StreamOptions struct {
 	Timeout time.Duration
 	// WebsocketConnectTimeout covers the WebSocket open handshake only.
 	WebsocketConnectTimeout time.Duration
-	// MaxRetries is the client-side retry attempt cap; nil uses the adapter
-	// default (2 for OpenAI/Anthropic-style clients).
+	// MaxRetries caps how many times an adapter re-sends a failed request
+	// before streaming begins. nil uses the adapter default: 2 for every
+	// raw-HTTP adapter (httpretry.DefaultMaxRetries), and 0 for codex, which
+	// mirrors upstream's Codex-specific DEFAULT_MAX_RETRIES.
+	//
+	// Only the request is retried. Once events have reached the consumer a
+	// failure is surfaced in-band rather than retried, since a partially
+	// emitted stream cannot be replayed transparently.
 	MaxRetries *int
 	// MaxRetryDelay caps server-requested retry waits. nil = DefaultMaxRetryDelay;
 	// a pointer to 0 disables the cap (TS maxRetryDelayMs: 0).

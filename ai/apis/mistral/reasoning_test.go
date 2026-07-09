@@ -29,7 +29,7 @@ func reasoningModel(id string, reasoning bool, thinkingLevelMap ai.ThinkingLevel
 
 func capturePayload(t *testing.T, model *ai.Model, opts *ai.SimpleStreamOptions) *wireRequest {
 	t.Helper()
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
 
 	var captured *wireRequest
 	base := ai.SimpleStreamOptions{}
@@ -43,7 +43,7 @@ func capturePayload(t *testing.T, model *ai.Model, opts *ai.SimpleStreamOptions)
 	}
 
 	stream := StreamSimple(context.Background(), model, chat, &base)
-	stream.Result(context.Background())
+	_, _ = stream.Result(context.Background())
 
 	if captured == nil {
 		t.Fatal("expected payload to be captured before request failure")

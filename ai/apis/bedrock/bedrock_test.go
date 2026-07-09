@@ -88,7 +88,7 @@ func capturePayload(t *testing.T, model *ai.Model, chat ai.Context, opts *ai.Str
 }
 
 func TestStream_CapturesPayloadAndSurfacesClientError(t *testing.T) {
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
 	payload, result := capturePayload(t, testModel(), chat, nil)
 
 	if payload.ModelID != testModel().ID {
@@ -107,7 +107,7 @@ func TestStream_CapturesPayloadAndSurfacesClientError(t *testing.T) {
 
 func TestStream_ThrottlingExceptionGetsHumanReadablePrefix(t *testing.T) {
 	withFakeClient(t, alwaysErrorsClient(&types.ThrottlingException{Message: strPtr("too many requests")}))
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
 	stream := Stream(context.Background(), testModel(), chat, &ai.StreamOptions{})
 	result, err := stream.Result(context.Background())
 	if err != nil {
@@ -136,7 +136,7 @@ func TestStream_DecodesFakeEventStreamToDone(t *testing.T) {
 		return &fakeClient{stream: fakeStream}, nil
 	})
 
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
 	stream := Stream(context.Background(), testModel(), chat, &ai.StreamOptions{})
 	result, err := stream.Result(context.Background())
 	if err != nil {
@@ -158,7 +158,7 @@ func TestStreamSimple_SetsAdaptiveThinkingReasoning(t *testing.T) {
 	withFakeClient(t, alwaysErrorsClient(errors.New("mock send")))
 
 	var captured *wireRequest
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
 	model := opus48()
 	model.MaxTokens = 8192
 	model.ContextWindow = 200000

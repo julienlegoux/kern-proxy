@@ -15,13 +15,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/julienlegoux/kern-proxy/ai"
 	"github.com/julienlegoux/kern-proxy/ai/apis"
+	"github.com/julienlegoux/kern-proxy/ai/apis/internal/httpretry"
 	"github.com/julienlegoux/kern-proxy/ai/internal/partialjson"
 	"github.com/julienlegoux/kern-proxy/ai/internal/sse"
 )
@@ -256,38 +256,21 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 	}
 
 	url := strings.TrimRight(model.BaseURL, "/") + messagesPath
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
-	if err != nil {
-		fail(err)
-		return
-	}
-	for k, v := range buildHeaders(model, chat, opts, apiKey) {
-		req.Header.Set(k, v)
-	}
-
-	client := &http.Client{}
-	if opts != nil && opts.Timeout > 0 {
-		client.Timeout = opts.Timeout
-	}
-	resp, err := client.Do(req)
+	resp, err := httpretry.Do(ctx, httpretry.Request{
+		URL:     url,
+		Body:    body,
+		Headers: buildHeaders(model, chat, opts, apiKey),
+	}, httpretry.Config{
+		Opts:              opts,
+		Model:             model,
+		DefaultMaxRetries: httpretry.DefaultMaxRetries,
+		ParseError:        statusError,
+	})
 	if err != nil {
 		fail(err)
 		return
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		fail(httpStatusError(resp))
-		return
-	}
-
-	if opts != nil && opts.OnResponse != nil {
-		respMeta := ai.ProviderResponse{Status: resp.StatusCode, Headers: ai.HeadersToRecord(resp.Header)}
-		if err := opts.OnResponse(ctx, respMeta, model); err != nil {
-			fail(err)
-			return
-		}
-	}
 
 	out.Push(ai.StartEvent{Partial: output.Clone()})
 
@@ -312,7 +295,9 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 	out.Push(ai.DoneEvent{Reason: output.StopReason, Message: output})
 }
 
-// httpStatusError composes an error for a non-2xx Anthropic HTTP response.
+// statusError composes an error for a non-2xx Anthropic HTTP response. It has
+// the shape httpretry.Config.ParseError expects, so the shared retry loop can
+// surface Anthropic-flavored text once a request is out of retries.
 // There is no upstream Go equivalent to port line-for-line: the TS adapter
 // relies on @anthropic-ai/sdk's `.asResponse()` to throw an APIError before
 // iterateAnthropicEvents ever runs, and that SDK error's `.message` already
@@ -325,17 +310,16 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 // request_too_large case in particular is only detectable through the
 // error envelope's `type` field, not its human-readable message, so the
 // full body (not just the message) must be preserved.
-func httpStatusError(resp *http.Response) error {
-	body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-	trimmed := bytes.TrimSpace(body)
+func statusError(status int, _, body string) error {
+	trimmed := bytes.TrimSpace([]byte(body))
 	if len(trimmed) == 0 {
-		return fmt.Errorf("%d status code (no body)", resp.StatusCode)
+		return fmt.Errorf("%d status code (no body)", status)
 	}
 	var compact bytes.Buffer
 	if json.Compact(&compact, trimmed) == nil {
-		return fmt.Errorf("%d %s", resp.StatusCode, compact.String())
+		return fmt.Errorf("%d %s", status, compact.String())
 	}
-	return fmt.Errorf("%d %s", resp.StatusCode, string(trimmed))
+	return fmt.Errorf("%d %s", status, string(trimmed))
 }
 
 // assertRequestAuth mirrors upstream's assertRequestAuth: an empty apiKey is
@@ -570,6 +554,8 @@ func decodeEvents(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, 
 	}
 
 	if sawStart && !sawStop {
+		// The wording is load-bearing: ai/retry.go classifies "stream ended
+		// before message_stop" as a transient failure by matching this text.
 		return errors.New("Anthropic stream ended before message_stop")
 	}
 	return nil
@@ -871,7 +857,7 @@ func sendDisabledThinking(model *ai.Model) bool {
 		return true
 	}
 	mapped, present := model.ThinkingLevelMap[ai.ThinkingOff]
-	return !(present && mapped == nil)
+	return !present || mapped != nil
 }
 
 // --- cache_control -----------------------------------------------------------
@@ -1000,7 +986,7 @@ func convertMessages(messages []ai.Message, model *ai.Model, cacheControl *wireC
 	out := make([]wireMessage, 0, len(transformed))
 	for i := 0; i < len(transformed); i++ {
 		switch m := transformed[i].(type) {
-		case ai.UserMessage:
+		case *ai.UserMessage:
 			if m.Content.Plain != nil {
 				text := ai.SanitizeSurrogates(*m.Content.Plain)
 				if strings.TrimSpace(text) == "" {
@@ -1022,11 +1008,11 @@ func convertMessages(messages []ai.Message, model *ai.Model, cacheControl *wireC
 			}
 			out = append(out, wireMessage{Role: "assistant", Content: blocks})
 
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			results := []map[string]any{toolResultBlock(m)}
 			j := i + 1
 			for j < len(transformed) {
-				next, ok := transformed[j].(ai.ToolResultMessage)
+				next, ok := transformed[j].(*ai.ToolResultMessage)
 				if !ok {
 					break
 				}
@@ -1153,7 +1139,7 @@ func imageBlock(b ai.ImageContent) map[string]any {
 	}
 }
 
-func toolResultBlock(m ai.ToolResultMessage) map[string]any {
+func toolResultBlock(m *ai.ToolResultMessage) map[string]any {
 	return map[string]any{
 		"type":        "tool_result",
 		"tool_use_id": m.ToolCallID,

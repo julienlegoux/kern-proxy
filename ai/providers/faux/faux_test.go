@@ -14,7 +14,7 @@ import (
 )
 
 func userContext(text string) ai.Context {
-	return ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText(text), Timestamp: 1}}}
+	return ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText(text), Timestamp: 1}}}
 }
 
 func complete(t *testing.T, models ai.Models, model *ai.Model, chat ai.Context, opts *ai.StreamOptions) *ai.AssistantMessage {
@@ -187,7 +187,7 @@ func TestFactoryErrorBecomesInBandErrorEvent(t *testing.T) {
 
 	stream := models.Stream(context.Background(), handle.GetModel(""), userContext("x"), nil)
 	var events []ai.Event
-	for ev := range stream.Events() {
+	for ev := range stream.Events(context.Background()) {
 		events = append(events, ev)
 	}
 	if len(events) != 1 {
@@ -212,7 +212,7 @@ func TestEventProtocolSequence(t *testing.T) {
 
 	stream := models.Stream(context.Background(), handle.GetModel(""), userContext("x"), nil)
 	var kinds []ai.EventType
-	for ev := range stream.Events() {
+	for ev := range stream.Events(context.Background()) {
 		kinds = append(kinds, ev.EventKind())
 		// Every non-terminal event carries a partial snapshot.
 		if !ai.IsTerminalEvent(ev) {
@@ -263,8 +263,8 @@ func TestPromptCachingPerSessionID(t *testing.T) {
 	}
 
 	longer := ai.Context{Messages: []ai.Message{
-		ai.UserMessage{Content: ai.UserText("shared prefix message"), Timestamp: 1},
-		ai.UserMessage{Content: ai.UserText("and a follow-up"), Timestamp: 2},
+		&ai.UserMessage{Content: ai.UserText("shared prefix message"), Timestamp: 1},
+		&ai.UserMessage{Content: ai.UserText("and a follow-up"), Timestamp: 2},
 	}}
 	second := complete(t, models, model, longer, opts)
 	if second.Usage.CacheRead <= 0 {
@@ -305,7 +305,7 @@ func TestAbortMidStream(t *testing.T) {
 
 	sawDelta := false
 	var terminal ai.Event
-	for ev := range stream.Events() {
+	for ev := range stream.Events(context.Background()) {
 		if ev.EventKind() == ai.EventTextDelta && !sawDelta {
 			sawDelta = true
 			cancel()

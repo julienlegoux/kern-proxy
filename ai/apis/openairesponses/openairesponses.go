@@ -17,14 +17,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/julienlegoux/kern-proxy/ai"
 	"github.com/julienlegoux/kern-proxy/ai/apis"
+	"github.com/julienlegoux/kern-proxy/ai/apis/internal/httpretry"
 )
 
 const responsesPath = "/responses"
@@ -123,38 +122,21 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 	}
 
 	url := strings.TrimRight(model.BaseURL, "/") + responsesPath
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
-	if err != nil {
-		fail(err)
-		return
-	}
-	for k, v := range buildHeaders(model, opts, apiKey) {
-		req.Header.Set(k, v)
-	}
-
-	client := &http.Client{}
-	if opts != nil && opts.Timeout > 0 {
-		client.Timeout = opts.Timeout
-	}
-	resp, err := client.Do(req)
+	resp, err := httpretry.Do(ctx, httpretry.Request{
+		URL:     url,
+		Body:    body,
+		Headers: buildHeaders(model, opts, apiKey),
+	}, httpretry.Config{
+		Opts:              opts,
+		Model:             model,
+		DefaultMaxRetries: httpretry.DefaultMaxRetries,
+		ParseError:        statusError,
+	})
 	if err != nil {
 		fail(err)
 		return
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		fail(httpStatusError(resp))
-		return
-	}
-
-	if opts != nil && opts.OnResponse != nil {
-		respMeta := ai.ProviderResponse{Status: resp.StatusCode, Headers: ai.HeadersToRecord(resp.Header)}
-		if err := opts.OnResponse(ctx, respMeta, model); err != nil {
-			fail(err)
-			return
-		}
-	}
 
 	out.Push(ai.StartEvent{Partial: output.Clone()})
 
@@ -214,23 +196,22 @@ func hasHeader(headers ai.ProviderHeaders, name string) bool {
 	return false
 }
 
-// httpStatusError composes an error for a non-2xx response, matching the
+// statusError composes an error for a non-2xx response, matching the
 // anthropic/openaicompletions packages' approach: see anthropic.go's
 // httpStatusError doc comment for why this reconstructs the SDK-shaped
 // "<status> <body>" text inline rather than through a shared ai/internal/httpx
 // normalizer (deferred to whichever later issue first needs multi-SDK
 // error-shape probing).
-func httpStatusError(resp *http.Response) error {
-	body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-	trimmed := bytes.TrimSpace(body)
+func statusError(status int, _, body string) error {
+	trimmed := bytes.TrimSpace([]byte(body))
 	if len(trimmed) == 0 {
-		return fmt.Errorf("%d status code (no body)", resp.StatusCode)
+		return fmt.Errorf("%d status code (no body)", status)
 	}
 	var compact bytes.Buffer
 	if json.Compact(&compact, trimmed) == nil {
-		return fmt.Errorf("%d %s", resp.StatusCode, compact.String())
+		return fmt.Errorf("%d %s", status, compact.String())
 	}
-	return fmt.Errorf("%d %s", resp.StatusCode, string(trimmed))
+	return fmt.Errorf("%d %s", status, string(trimmed))
 }
 
 // --- compat resolution -------------------------------------------------------
@@ -473,7 +454,7 @@ func mappedThinkingLevel(model *ai.Model, level ai.ThinkingLevel) (string, bool)
 func hasToolHistory(messages []ai.Message) bool {
 	for _, msg := range messages {
 		switch m := msg.(type) {
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			return true
 		case *ai.AssistantMessage:
 			for _, b := range m.Content {

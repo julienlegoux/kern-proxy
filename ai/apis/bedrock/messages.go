@@ -170,7 +170,7 @@ func convertMessages(chat ai.Context, model *ai.Model, cacheRetention ai.CacheRe
 	result := make([]wireMessage, 0, len(transformed))
 	for i := 0; i < len(transformed); i++ {
 		switch m := transformed[i].(type) {
-		case ai.UserMessage:
+		case *ai.UserMessage:
 			content := convertUserContent(m.Content)
 			result = append(result, wireMessage{Role: "user", Content: content})
 
@@ -181,11 +181,11 @@ func convertMessages(chat ai.Context, model *ai.Model, cacheRetention ai.CacheRe
 			}
 			result = append(result, wireMessage{Role: "assistant", Content: content})
 
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			blocks := []wireContentBlock{{ToolResult: convertOneToolResult(m)}}
 			j := i + 1
 			for j < len(transformed) {
-				next, ok := transformed[j].(ai.ToolResultMessage)
+				next, ok := transformed[j].(*ai.ToolResultMessage)
 				if !ok {
 					break
 				}
@@ -207,7 +207,7 @@ func convertMessages(chat ai.Context, model *ai.Model, cacheRetention ai.CacheRe
 	return result
 }
 
-func convertOneToolResult(m ai.ToolResultMessage) *wireToolResult {
+func convertOneToolResult(m *ai.ToolResultMessage) *wireToolResult {
 	status := "success"
 	if m.IsError {
 		status = "error"

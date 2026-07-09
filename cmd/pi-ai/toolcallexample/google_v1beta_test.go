@@ -48,7 +48,7 @@ func TestGoogleCatalogModelBuildsSingleV1BetaPath(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	stream := google.StreamSimple(ctx, &model, chat, &ai.SimpleStreamOptions{StreamOptions: ai.StreamOptions{APIKey: "test-key"}})
 	if _, err := stream.Result(ctx); err != nil {
 		t.Fatalf("StreamSimple Result: %v", err)

@@ -32,7 +32,7 @@ func testModel(baseURL string) *ai.Model {
 }
 
 func testChat() ai.Context {
-	return ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hello"), Timestamp: time.Now().UnixMilli()}}}
+	return ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hello"), Timestamp: time.Now().UnixMilli()}}}
 }
 
 // --- request URL building ---
@@ -230,7 +230,7 @@ func TestBuildParams_ReusesSharedConverters(t *testing.T) {
 	model := testModel("")
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 	params := buildParams(model, chat, &ai.StreamOptions{})
 	if len(params.Contents) != 1 {

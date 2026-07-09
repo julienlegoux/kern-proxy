@@ -69,12 +69,19 @@ func (s *Stream) End(result *AssistantMessage) {
 	s.cond.Broadcast()
 }
 
-// next pops the next queued event, blocking until one is available or the
-// stream is drained. ok=false means the stream ended and the queue is empty.
-func (s *Stream) next() (Event, bool) {
+// next pops the next queued event, blocking until one is available, the stream
+// is drained, or ctx is cancelled. ok=false means there will be no more events.
+//
+// The ctx check sits inside the cond.Wait loop rather than around it: a waiter
+// only ever wakes on a Broadcast, so cancellation is delivered by broadcasting
+// (see wakeOnCancel) and then observed here on the next loop iteration.
+func (s *Stream) next(ctx context.Context) (Event, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	for {
+		if ctx.Err() != nil {
+			return nil, false
+		}
 		if len(s.queue) > 0 {
 			ev := s.queue[0]
 			s.queue = s.queue[1:]
@@ -87,19 +94,53 @@ func (s *Stream) next() (Event, bool) {
 	}
 }
 
-// Events returns a channel of all events, closed after the terminal event.
-// Each call returns a fresh channel, but events are consumed from a shared
-// queue — use a single consumer per stream.
-func (s *Stream) Events() <-chan Event {
+// wakeOnCancel broadcasts once ctx is cancelled, so a pump asleep in
+// s.cond.Wait() re-checks ctx.Err() and gives up. It returns as soon as stop
+// closes, which is what keeps it from outliving its pump: for a
+// context.Background() consumer ctx.Done() is nil and never fires, and a
+// watcher parked on it forever would be a goroutine leak of its own.
+//
+// The Broadcast is issued under s.mu so it cannot land in the window between
+// next's ctx.Err() check and its cond.Wait() — a lost wakeup there would park
+// the pump for good, which is the very bug this exists to prevent.
+func (s *Stream) wakeOnCancel(ctx context.Context, stop <-chan struct{}) {
+	select {
+	case <-ctx.Done():
+		s.mu.Lock()
+		s.cond.Broadcast()
+		s.mu.Unlock()
+	case <-stop:
+	}
+}
+
+// Events returns a channel of all events, closed after the terminal event or
+// as soon as ctx is cancelled. Each call returns a fresh channel, but events
+// are consumed from a shared queue — use a single consumer per stream.
+//
+// A consumer that stops ranging early MUST cancel ctx; the channel is
+// unbuffered, so the goroutine feeding it would otherwise block forever on the
+// next event. Pass context.Background() only when the loop is guaranteed to
+// run to completion.
+//
+// This takes a context where upstream's EventStream async-iterator does not;
+// see docs/PORTING.md.
+func (s *Stream) Events(ctx context.Context) <-chan Event {
 	ch := make(chan Event)
+	stop := make(chan struct{})
+	go s.wakeOnCancel(ctx, stop)
 	go func() {
 		defer close(ch)
+		defer close(stop)
 		for {
-			ev, ok := s.next()
+			ev, ok := s.next(ctx)
 			if !ok {
 				return
 			}
-			ch <- ev
+			select {
+			case ch <- ev:
+			case <-ctx.Done():
+				return
+			}
 		}
 	}()
 	return ch

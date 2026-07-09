@@ -247,7 +247,6 @@ func DecodeStream(out *ai.Stream, output *ai.AssistantMessage, model *ai.Model, 
 			return fmt.Errorf("Error Code %s: %s", evData.Code, msg)
 
 		case "response.failed":
-			sawTerminal = true
 			return responseFailedError(evData.Response)
 		}
 	}

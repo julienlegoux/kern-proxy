@@ -42,7 +42,7 @@ func TestConvertMessages_AppendsCachePointToLastUserMessage(t *testing.T) {
 	chat := ai.Context{
 		SystemPrompt: "You are helpful.",
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: now()},
+			&ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: now()},
 		},
 	}
 	got := convertMessages(chat, testModel(), ai.CacheRetentionShort, nil)
@@ -61,7 +61,7 @@ func TestConvertMessages_NoCachePointForNonCachingModel(t *testing.T) {
 	model.ID = "amazon.titan-text-express-v1"
 	model.Name = "Titan Text Express"
 	chat := ai.Context{Messages: []ai.Message{
-		ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: now()},
+		&ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: now()},
 	}}
 	got := convertMessages(chat, model, ai.CacheRetentionShort, nil)
 	last := got[len(got)-1].Content

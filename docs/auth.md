@@ -1,8 +1,8 @@
 ---
 type: Guide
 title: Auth & credentials
-description: How kern-proxy resolves provider credentials — env API keys, the persistent credential store, the pi-ai login CLI, and per-provider OAuth flows.
-tags: [auth, oauth, credentials, env]
+description: How kern-proxy resolves provider credentials — env API keys, the persistent credential store, the pi-ai login CLI, per-provider OAuth flows, and the terms-of-service risk each credential mode carries.
+tags: [auth, oauth, credentials, env, terms-of-service]
 timestamp: "2026-07-09"
 ---
 
@@ -113,6 +113,54 @@ domain).
 
 There is no `logout` command yet — remove a credential by deleting its entry
 from `auth.json` or calling `CredentialStore.Delete`.
+
+# Credential modes and terms-of-service risk
+
+kern-proxy has two kinds of credential, and they carry different risk. Which
+one you are on is decided by how you authenticated, not by which model you
+call.
+
+## API keys — no terms-of-service risk
+
+An API key you obtained from the provider's console (`ANTHROPIC_API_KEY`,
+`OPENAI_API_KEY`, `GEMINI_API_KEY`, `MISTRAL_API_KEY`, …), an AWS credential
+for Bedrock, or Google ADC for Vertex. You are billed per token under a
+developer agreement that exists precisely so programs can call the API. This
+is the mode to use in anything you ship.
+
+## Subscription OAuth — account-revocation risk if you ship it
+
+Logging in with `pi-ai login` to **Claude Pro/Max** (`anthropic`), **ChatGPT
+Plus/Pro** (`openai-codex`), or **GitHub Copilot** (`github-copilot`) does not
+give you an API key. It gives you the credential a *first-party client* uses,
+and kern-proxy then presents itself as that client so the request is accepted:
+
+* `anthropic` sends `user-agent: claude-cli/<version>` and `x-app: cli`, plus
+  the `oauth-2025-04-20` beta header — the Claude Code CLI's own identity
+  (`ai/apis/anthropic/anthropic.go`).
+* `github-copilot` sends `Editor-Version: vscode/1.107.0`
+  (`ai/auth/oauth/copilot.go`, and the model catalog's own header defaults).
+* All three authenticate with the first-party application's OAuth client ID
+  (`ai/auth/oauth/anthropic.go`, `codex.go`, `copilot.go`).
+
+This is inherited upstream behavior, ported faithfully from
+[`@earendil-works/pi-ai`](https://github.com/earendil-works/pi/tree/main/packages/ai),
+not something kern-proxy invented. It is why a Claude Pro subscription can
+drive this library at all.
+
+What it means for you:
+
+* **Personal use** — driving your own subscription from your own machine, the
+  way the official CLI would. This is what the flows are for.
+* **Shipping it in a product** — you are directing your users (or yourself, at
+  scale) to impersonate a first-party client against a subscription that is
+  not licensed for programmatic access. Providers can and do revoke accounts
+  for this. Their consumer terms cover subscription plans; the developer
+  agreement that permits programmatic access covers API keys.
+
+Nothing in kern-proxy stops you from using OAuth credentials in production.
+Nothing in the provider's terms stops them from closing the account when you
+do. If you are building something you intend to distribute, use API keys.
 
 # Passing a key programmatically
 

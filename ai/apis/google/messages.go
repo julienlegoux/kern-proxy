@@ -66,7 +66,7 @@ func isValidThoughtSignature(sig string) bool {
 		return false
 	}
 	for _, r := range sig {
-		if !((r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '+' || r == '/' || r == '=') {
+		if (r < 'A' || r > 'Z') && (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '+' && r != '/' && r != '=' {
 			return false
 		}
 	}
@@ -138,7 +138,7 @@ func ConvertMessages(model *ai.Model, chat ai.Context) []GoogleContent {
 
 	for i := 0; i < len(transformed); i++ {
 		switch msg := transformed[i].(type) {
-		case ai.UserMessage:
+		case *ai.UserMessage:
 			if msg.Content.Plain != nil {
 				text := ai.SanitizeSurrogates(*msg.Content.Plain)
 				contents = append(contents, GoogleContent{Role: "user", Parts: []map[string]any{{"text": text}}})
@@ -208,7 +208,7 @@ func ConvertMessages(model *ai.Model, chat ai.Context) []GoogleContent {
 			}
 			contents = append(contents, GoogleContent{Role: "model", Parts: parts})
 
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			part := functionResponsePart(msg, model)
 			if len(contents) > 0 && contents[len(contents)-1].Role == "user" && hasFunctionResponse(contents[len(contents)-1]) {
 				last := &contents[len(contents)-1]
@@ -257,7 +257,7 @@ func inlineDataPart(b ai.ImageContent) map[string]any {
 // functionResponsePart builds one `functionResponse` part for a tool result,
 // including nested image parts on models that support multimodal function
 // responses (Gemini 3+). Ports the toolResult branch of convertMessages.
-func functionResponsePart(m ai.ToolResultMessage, model *ai.Model) map[string]any {
+func functionResponsePart(m *ai.ToolResultMessage, model *ai.Model) map[string]any {
 	var texts []string
 	var images []ai.ImageContent
 	for _, c := range m.Content {

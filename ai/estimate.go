@@ -92,9 +92,9 @@ func EstimateTextTokens(text string) int {
 // EstimateMessageTokens estimates tokens for one message.
 func EstimateMessageTokens(message Message) int {
 	switch m := message.(type) {
-	case UserMessage:
+	case *UserMessage:
 		return ceilDiv(estimateUserContentChars(m.Content), charsPerToken)
-	case ToolResultMessage:
+	case *ToolResultMessage:
 		return ceilDiv(estimateBlockListChars(m.Content), charsPerToken)
 	case *AssistantMessage:
 		chars := 0

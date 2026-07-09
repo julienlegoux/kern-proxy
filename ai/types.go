@@ -192,7 +192,7 @@ type UserMessage struct {
 	Timestamp int64       `json:"timestamp"`
 }
 
-func (UserMessage) MessageRole() Role { return RoleUser }
+func (*UserMessage) MessageRole() Role { return RoleUser }
 
 // AssistantMessage is both the streaming accumulator and the final result of
 // an assistant turn. Timestamp is Unix milliseconds.
@@ -241,7 +241,7 @@ type ToolResultMessage struct {
 	Timestamp  int64             `json:"timestamp"`
 }
 
-func (ToolResultMessage) MessageRole() Role { return RoleToolResult }
+func (*ToolResultMessage) MessageRole() Role { return RoleToolResult }
 
 // Tool describes a callable tool. Parameters is a JSON Schema document.
 type Tool struct {

@@ -35,7 +35,7 @@ func TestStream_OAuthTokenUsesBearerAuthInsteadOfAPIKeyHeader(t *testing.T) {
 	defer srv.Close()
 
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: oauthTestToken})
 	if _, err := stream.Result(context.Background()); err != nil {
 		t.Fatalf("Result: %v", err)
@@ -60,7 +60,7 @@ func TestStream_OAuthTokenSetsImpersonationHeaders(t *testing.T) {
 	defer srv.Close()
 
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: oauthTestToken})
 	if _, err := stream.Result(context.Background()); err != nil {
 		t.Fatalf("Result: %v", err)
@@ -94,7 +94,7 @@ func TestStream_OAuthTokenCombinesFineGrainedToolStreamingBetaWithImpersonationB
 	notSupported := false
 	model.Compat = &ai.Compat{SupportsEagerToolInputStreaming: &notSupported}
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 		Tools:    []ai.Tool{{Name: "search", Description: "Search.", Parameters: json.RawMessage(`{"type":"object","properties":{}}`)}},
 	}
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: oauthTestToken})
@@ -121,7 +121,7 @@ func TestStream_OAuthTokenInjectsIdentitySystemBlockBeforeUserSystemPrompt(t *te
 	model := testModel(srv.URL)
 	chat := ai.Context{
 		SystemPrompt: "Be concise.",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: oauthTestToken})
 	if _, err := stream.Result(context.Background()); err != nil {
@@ -150,7 +150,7 @@ func TestStream_OAuthTokenInjectsIdentitySystemBlockWhenNoUserSystemPrompt(t *te
 	defer srv.Close()
 
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: oauthTestToken})
 	if _, err := stream.Result(context.Background()); err != nil {
 		t.Fatalf("Result: %v", err)
@@ -179,7 +179,7 @@ func TestStream_APIKeyRequestsAreUnaffectedByOAuthImpersonation(t *testing.T) {
 	defer srv.Close()
 
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-api03-test"})
 	if _, err := stream.Result(context.Background()); err != nil {
 		t.Fatalf("Result: %v", err)
@@ -216,7 +216,7 @@ func TestConvertTools_OAuthTokenRemapsMatchingToolNamesToClaudeCodeCasing(t *tes
 
 	model := testModel(srv.URL)
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 		Tools: []ai.Tool{
 			{Name: "read", Description: "Read a file.", Parameters: json.RawMessage(`{"type":"object","properties":{}}`)},
 			{Name: "find", Description: "Find files.", Parameters: json.RawMessage(`{"type":"object","properties":{}}`)},
@@ -254,7 +254,7 @@ func TestConvertAssistantBlocks_OAuthTokenRemapsHistoricalToolCallNameOutbound(t
 	now := time.Now().UnixMilli()
 	chat := ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("Add a todo"), Timestamp: now},
+			&ai.UserMessage{Content: ai.UserText("Add a todo"), Timestamp: now},
 			&ai.AssistantMessage{
 				Content:    []ai.AssistantContentPart{ai.ToolCall{ID: "toolu_1", Name: "todowrite", Arguments: map[string]any{"task": "buy milk"}}},
 				Api:        ai.ApiAnthropicMessages,
@@ -263,7 +263,7 @@ func TestConvertAssistantBlocks_OAuthTokenRemapsHistoricalToolCallNameOutbound(t
 				StopReason: ai.StopReasonToolUse,
 				Timestamp:  now,
 			},
-			ai.ToolResultMessage{ToolCallID: "toolu_1", ToolName: "todowrite", Content: []ai.UserContentPart{ai.TextContent{Text: "ok"}}, Timestamp: now},
+			&ai.ToolResultMessage{ToolCallID: "toolu_1", ToolName: "todowrite", Content: []ai.UserContentPart{ai.TextContent{Text: "ok"}}, Timestamp: now},
 		},
 	}
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: oauthTestToken})
@@ -292,7 +292,7 @@ func TestStream_OAuthTokenRemapsInboundToolCallNameBackToOriginalCasing(t *testi
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Add a todo: buy milk. Use the todowrite tool."), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Add a todo: buy milk. Use the todowrite tool."), Timestamp: time.Now().UnixMilli()}},
 		Tools: []ai.Tool{{
 			Name:        "todowrite",
 			Description: "Write a todo item",
@@ -331,7 +331,7 @@ func TestStream_OAuthTokenLeavesInboundToolCallNameUnchangedWhenNoMatchingUserTo
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("run a command"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("run a command"), Timestamp: time.Now().UnixMilli()}},
 	}
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: oauthTestToken})
 	result, err := stream.Result(context.Background())

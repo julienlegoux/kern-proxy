@@ -121,7 +121,7 @@ func toChatMessages(messages []ai.Message, model *ai.Model, normalizeID apis.Nor
 	out := make([]wireMessage, 0, len(transformed))
 	for _, msg := range transformed {
 		switch m := msg.(type) {
-		case ai.UserMessage:
+		case *ai.UserMessage:
 			if wm, ok := userMessage(m, supportsImages); ok {
 				out = append(out, wm)
 			}
@@ -129,14 +129,14 @@ func toChatMessages(messages []ai.Message, model *ai.Model, normalizeID apis.Nor
 			if wm, ok := assistantMessage(m); ok {
 				out = append(out, wm)
 			}
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			out = append(out, toolResultMessage(m, supportsImages))
 		}
 	}
 	return out
 }
 
-func userMessage(m ai.UserMessage, supportsImages bool) (wireMessage, bool) {
+func userMessage(m *ai.UserMessage, supportsImages bool) (wireMessage, bool) {
 	if m.Content.Plain != nil {
 		return wireMessage{Role: "user", Content: ai.SanitizeSurrogates(*m.Content.Plain)}, true
 	}
@@ -213,7 +213,7 @@ func assistantMessage(m *ai.AssistantMessage) (wireMessage, bool) {
 	return wm, true
 }
 
-func toolResultMessage(m ai.ToolResultMessage, supportsImages bool) wireMessage {
+func toolResultMessage(m *ai.ToolResultMessage, supportsImages bool) wireMessage {
 	var texts []string
 	hasImages := false
 	for _, part := range m.Content {

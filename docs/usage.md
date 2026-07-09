@@ -63,7 +63,7 @@ func main() {
 	chat := ai.Context{
 		SystemPrompt: "You are a helpful assistant.",
 		Messages: []ai.Message{
-			ai.UserMessage{
+			&ai.UserMessage{
 				Content:   ai.UserText("Hello, who are you?"),
 				Timestamp: time.Now().UnixMilli(),
 			},
@@ -71,7 +71,7 @@ func main() {
 	}
 
 	stream := models.StreamSimple(ctx, model, chat, &ai.SimpleStreamOptions{})
-	for ev := range stream.Events() {
+	for ev := range stream.Events(ctx) {
 		if e, ok := ev.(ai.TextDeltaEvent); ok {
 			fmt.Print(e.Delta)
 		}
@@ -107,8 +107,12 @@ Provider failures are **in-band**, mirroring upstream pi-ai:
 - `ai.IsRetryableAssistantError(msg)` classifies transient failures (you
   supply the retry loop); `ai.IsContextOverflow(msg, model.ContextWindow)`
   detects context-window overflow across providers.
-- `stream.Events()` consumes from a shared queue — use a single consumer per
-  stream.
+- `stream.Events(ctx)` consumes from a shared queue — use a single consumer
+  per stream.
+- If you `break` out of the `Events` loop before the stream terminates, cancel
+  `ctx`. The channel is unbuffered, so the goroutine feeding it blocks forever
+  on the next event otherwise. Passing `context.Background()` is only safe when
+  the loop always drains to completion.
 
 # Streaming events
 
@@ -139,7 +143,7 @@ tools := []ai.Tool{{
 }}
 
 messages := []ai.Message{
-	ai.UserMessage{Content: ai.UserText(input), Timestamp: time.Now().UnixMilli()},
+	&ai.UserMessage{Content: ai.UserText(input), Timestamp: time.Now().UnixMilli()},
 }
 
 for round := 0; round < 8; round++ {
@@ -160,7 +164,7 @@ for round := 0; round < 8; round++ {
 			continue
 		}
 		output, isErr := runTool(call.Name, call.Arguments) // Arguments is map[string]any
-		messages = append(messages, ai.ToolResultMessage{
+		messages = append(messages, &ai.ToolResultMessage{
 			ToolCallID: call.ID,
 			ToolName:   call.Name,
 			Content:    []ai.UserContentPart{ai.TextContent{Text: output}},
@@ -219,25 +223,89 @@ See [auth](/auth.md) for env vars, the credential store, and OAuth logins.
 # Session persistence and model hand-off
 
 A conversation is just `[]ai.Message`, and every message JSON-round-trips with
-a `"role"` discriminator — so persistence is plain `encoding/json`, and
-resuming on a *different* model or provider is feeding the same slice back in:
+a `"role"` discriminator — so persistence is plain `encoding/json`. Nothing
+else is needed: no custom codec, no type registry, no bookkeeping of which
+message was which.
+
+## Serializing a session
+
+Wrap the slice in `ai.Messages` to marshal it. The wrapper exists for the
+decode side (a bare `[]ai.Message` can't be unmarshalled — `ai.Message` is an
+interface), and it costs nothing on the encode side:
 
 ```go
-// persist
-raw, _ := json.Marshal(ai.Messages(messages))
-
-// later — resume on another provider mid-session
-var restored ai.Messages
-_ = json.Unmarshal(raw, &restored)
-next := models.GetModel("openai", "gpt-5")
-stream := models.StreamSimple(ctx, next,
-	ai.Context{SystemPrompt: sys, Messages: restored, Tools: tools}, opts)
+raw, err := json.Marshal(ai.Messages(messages))
+if err != nil {
+	return err
+}
+if err := os.WriteFile("session.json", raw, 0o600); err != nil {
+	return err
+}
 ```
 
-`ai.Context` itself also unmarshals directly (its `Messages` field decodes
-polymorphically). One caveat: thinking/tool-call blocks carry opaque
+## Restoring a session
+
+`ai.Messages` decodes the polymorphic list back into the concrete pointer
+types — `*ai.UserMessage`, `*ai.AssistantMessage`, `*ai.ToolResultMessage` —
+by reading each message's `"role"`:
+
+```go
+raw, err := os.ReadFile("session.json")
+if err != nil {
+	return err
+}
+var restored ai.Messages
+if err := json.Unmarshal(raw, &restored); err != nil {
+	return err
+}
+```
+
+`ai.Context` also unmarshals directly, so a whole session — system prompt,
+messages, tools — can be stored and resumed as a single value rather than
+reassembled field by field. Marshal the context itself (not just its
+messages) and you get a document you can hand straight back:
+
+```go
+// persist the whole session
+raw, err := json.Marshal(chat) // chat is an ai.Context
+if err != nil {
+	return err
+}
+
+// ...later, in another process
+var chat ai.Context
+if err := json.Unmarshal(raw, &chat); err != nil {
+	return err
+}
+```
+
+`Context.UnmarshalJSON` decodes the `messages` array polymorphically, exactly
+as `ai.Messages` does above — the two are the same mechanism at different
+granularities.
+
+## Continuing the conversation
+
+Restoring is only useful if you can keep going. Append the next turn and hand
+the context to any model — including one from a different provider, which is
+what makes this a hand-off rather than just a reload:
+
+```go
+chat.Messages = append(chat.Messages, &ai.UserMessage{
+	Content:   ai.UserText("And 3+3?"),
+	Timestamp: time.Now().UnixMilli(),
+})
+
+next := models.GetModel("openai", "gpt-5")
+stream := models.StreamSimple(ctx, next, chat, opts)
+```
+
+Both halves of this round trip are compiled and asserted as runnable examples
+in `ai/example_session_test.go` (`ExampleMessages`,
+`ExampleContext_UnmarshalJSON`), so they cannot drift from the API.
+
+One caveat on hand-off: thinking and tool-call blocks carry opaque
 provider-scoped signatures that only matter when replaying on the same
-provider; cross-provider hand-off relies on the plain text and tool content,
+provider. Cross-provider hand-off relies on the plain text and tool content,
 which is exactly what the adapters send.
 
 # Testing without a network

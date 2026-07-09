@@ -30,13 +30,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/julienlegoux/kern-proxy/ai"
 	"github.com/julienlegoux/kern-proxy/ai/apis"
+	"github.com/julienlegoux/kern-proxy/ai/apis/internal/httpretry"
 	"github.com/julienlegoux/kern-proxy/ai/internal/partialjson"
 	"github.com/julienlegoux/kern-proxy/ai/internal/sse"
 )
@@ -120,38 +120,21 @@ func run(ctx context.Context, out *ai.Stream, model *ai.Model, chat ai.Context, 
 	}
 
 	url := strings.TrimRight(model.BaseURL, "/") + chatCompletionsPath
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
-	if err != nil {
-		fail(err)
-		return
-	}
-	for k, v := range buildHeaders(model, opts, apiKey) {
-		req.Header.Set(k, v)
-	}
-
-	client := &http.Client{}
-	if opts != nil && opts.Timeout > 0 {
-		client.Timeout = opts.Timeout
-	}
-	resp, err := client.Do(req)
+	resp, err := httpretry.Do(ctx, httpretry.Request{
+		URL:     url,
+		Body:    body,
+		Headers: buildHeaders(model, opts, apiKey),
+	}, httpretry.Config{
+		Opts:              opts,
+		Model:             model,
+		DefaultMaxRetries: httpretry.DefaultMaxRetries,
+		ParseError:        statusError,
+	})
 	if err != nil {
 		fail(err)
 		return
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		fail(httpStatusError(resp))
-		return
-	}
-
-	if opts != nil && opts.OnResponse != nil {
-		respMeta := ai.ProviderResponse{Status: resp.StatusCode, Headers: ai.HeadersToRecord(resp.Header)}
-		if err := opts.OnResponse(ctx, respMeta, model); err != nil {
-			fail(err)
-			return
-		}
-	}
 
 	out.Push(ai.StartEvent{Partial: output.Clone()})
 
@@ -206,22 +189,21 @@ func hasHeader(headers ai.ProviderHeaders, name string) bool {
 	return false
 }
 
-// httpStatusError composes an error for a non-2xx response, matching the
-// anthropic adapter's approach: see its httpStatusError doc comment for why
+// statusError composes an error for a non-2xx response, matching the
+// anthropic adapter's approach: see its statusError doc comment for why
 // this reconstructs the SDK-shaped "<status> <body>" text inline rather than
 // through a shared ai/internal/httpx normalizer (deferred to whichever
 // later issue first needs multi-SDK error-shape probing).
-func httpStatusError(resp *http.Response) error {
-	body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-	trimmed := bytes.TrimSpace(body)
+func statusError(status int, _, body string) error {
+	trimmed := bytes.TrimSpace([]byte(body))
 	if len(trimmed) == 0 {
-		return fmt.Errorf("%d status code (no body)", resp.StatusCode)
+		return fmt.Errorf("%d status code (no body)", status)
 	}
 	var compact bytes.Buffer
 	if json.Compact(&compact, trimmed) == nil {
-		return fmt.Errorf("%d %s", resp.StatusCode, compact.String())
+		return fmt.Errorf("%d %s", status, compact.String())
 	}
-	return fmt.Errorf("%d %s", resp.StatusCode, string(trimmed))
+	return fmt.Errorf("%d %s", status, string(trimmed))
 }
 
 // --- request building ---------------------------------------------------------
@@ -743,7 +725,7 @@ func convertTools(tools []ai.Tool, compat resolvedCompat) []wireTool {
 func hasToolHistory(messages []ai.Message) bool {
 	for _, msg := range messages {
 		switch m := msg.(type) {
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			return true
 		case *ai.AssistantMessage:
 			for _, b := range m.Content {
@@ -801,12 +783,12 @@ func convertMessages(chat ai.Context, model *ai.Model, compat resolvedCompat) []
 	for i := 0; i < len(transformed); i++ {
 		msg := transformed[i]
 
-		if _, isUser := msg.(ai.UserMessage); isUser && compat.requiresAssistantAfterToolResult && lastRole == "toolResult" {
+		if _, isUser := msg.(*ai.UserMessage); isUser && compat.requiresAssistantAfterToolResult && lastRole == "toolResult" {
 			out = append(out, wireMessage{Role: "assistant", Content: "I have processed the tool results."})
 		}
 
 		switch m := msg.(type) {
-		case ai.UserMessage:
+		case *ai.UserMessage:
 			out = append(out, convertUserMessage(m))
 			lastRole = "user"
 
@@ -817,10 +799,10 @@ func convertMessages(chat ai.Context, model *ai.Model, compat resolvedCompat) []
 			}
 			lastRole = "assistant"
 
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			j := i
 			for j < len(transformed) {
-				next, ok := transformed[j].(ai.ToolResultMessage)
+				next, ok := transformed[j].(*ai.ToolResultMessage)
 				if !ok {
 					break
 				}
@@ -835,7 +817,7 @@ func convertMessages(chat ai.Context, model *ai.Model, compat resolvedCompat) []
 	return out
 }
 
-func convertUserMessage(m ai.UserMessage) wireMessage {
+func convertUserMessage(m *ai.UserMessage) wireMessage {
 	if m.Content.Plain != nil {
 		return wireMessage{Role: "user", Content: ai.SanitizeSurrogates(*m.Content.Plain)}
 	}
@@ -971,7 +953,7 @@ func convertAssistantMessage(m *ai.AssistantMessage, model *ai.Model, compat res
 	return wireMsg, true
 }
 
-func convertToolResultMessage(m ai.ToolResultMessage, compat resolvedCompat) wireMessage {
+func convertToolResultMessage(m *ai.ToolResultMessage, compat resolvedCompat) wireMessage {
 	var texts []string
 	hasImages := false
 	for _, c := range m.Content {

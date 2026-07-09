@@ -250,7 +250,7 @@ type logoutRacingStore struct {
 }
 
 func (s *logoutRacingStore) Modify(ctx context.Context, providerID string, fn func(Credential) (Credential, error)) (Credential, error) {
-	_ = s.InMemoryCredentialStore.Delete(ctx, providerID)
+	_ = s.Delete(ctx, providerID)
 	return s.InMemoryCredentialStore.Modify(ctx, providerID, fn)
 }
 

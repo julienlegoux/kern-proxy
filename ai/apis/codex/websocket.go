@@ -279,7 +279,7 @@ func processCodexWebSocketStream(
 		}
 		return false, dialErr
 	}
-	defer conn.CloseNow()
+	defer func() { _ = conn.CloseNow() }()
 
 	codexRecordWebSocketRequest(sessionID)
 

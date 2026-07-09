@@ -40,7 +40,7 @@ func TestConvertMessages_RemapsForeignToolCallIDToSyntheticItemID(t *testing.T) 
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("go"), Timestamp: time.Now().UnixMilli()},
+			&ai.UserMessage{Content: ai.UserText("go"), Timestamp: time.Now().UnixMilli()},
 			&ai.AssistantMessage{
 				Content:    []ai.AssistantContentPart{ai.ToolCall{ID: "call_1|codex_item_abc", Name: "noop", Arguments: map[string]any{}}},
 				StopReason: ai.StopReasonToolUse,
@@ -48,7 +48,7 @@ func TestConvertMessages_RemapsForeignToolCallIDToSyntheticItemID(t *testing.T) 
 				Provider:   "openai-codex",
 				Model:      "codex-mini",
 			},
-			ai.ToolResultMessage{ToolCallID: "call_1|codex_item_abc", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "ok"}}},
+			&ai.ToolResultMessage{ToolCallID: "call_1|codex_item_abc", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "ok"}}},
 		},
 	}
 	items := ConvertMessages(model, chat, ConvertMessagesOptions{AllowedToolCallProviders: openAIToolCallProviders})
@@ -85,7 +85,7 @@ func TestConvertMessages_NonAllowedProviderNormalizesWithoutPipeSplit(t *testing
 	model.Provider = "groq"
 	chat := ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("go"), Timestamp: time.Now().UnixMilli()},
+			&ai.UserMessage{Content: ai.UserText("go"), Timestamp: time.Now().UnixMilli()},
 			&ai.AssistantMessage{
 				Content:    []ai.AssistantContentPart{ai.ToolCall{ID: "weird|id|shape", Name: "noop", Arguments: map[string]any{}}},
 				StopReason: ai.StopReasonToolUse,
@@ -93,7 +93,7 @@ func TestConvertMessages_NonAllowedProviderNormalizesWithoutPipeSplit(t *testing
 				Provider:   "openai",
 				Model:      "gpt-4o",
 			},
-			ai.ToolResultMessage{ToolCallID: "weird|id|shape", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "ok"}}},
+			&ai.ToolResultMessage{ToolCallID: "weird|id|shape", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "ok"}}},
 		},
 	}
 	items := ConvertMessages(model, chat, ConvertMessagesOptions{AllowedToolCallProviders: openAIToolCallProviders})

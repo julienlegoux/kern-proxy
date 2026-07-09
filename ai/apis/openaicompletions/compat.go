@@ -120,7 +120,7 @@ func detectCompat(model *ai.Model) resolvedCompat {
 		supportsStrictMode:                          !isMoonshot && !isTogether && !isCloudflareAiGateway && !isNvidia,
 		cacheControlFormat:                          cacheControlFormat,
 		sendSessionAffinityHeaders:                  false,
-		supportsLongCacheRetention:                  !(isTogether || isCloudflareWorkersAI || isCloudflareAiGateway || isNvidia || isAntLing),
+		supportsLongCacheRetention:                  !isTogether && !isCloudflareWorkersAI && !isCloudflareAiGateway && !isNvidia && !isAntLing,
 	}
 }
 

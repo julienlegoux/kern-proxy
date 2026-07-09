@@ -56,7 +56,7 @@ func minimalTextEvents() []string {
 func TestStream_TextRoundTrip(t *testing.T) {
 	srv := sseServer(t, minimalTextEvents())
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -100,7 +100,7 @@ func TestStream_ThinkingAndTextAccumulateIndependently(t *testing.T) {
 	}
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -138,12 +138,12 @@ func TestStream_ToolCallArgumentsReparseOnEveryDelta(t *testing.T) {
 	}
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("edit"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("edit"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 
 	var sawPartialArg bool
-	for ev := range stream.Events() {
+	for ev := range stream.Events(context.Background()) {
 		if d, ok := ev.(ai.ToolCallDeltaEvent); ok {
 			tc := d.Partial.Content[d.ContentIndex].(ai.ToolCall)
 			if path, ok := tc.Arguments["path"].(string); ok && path == "a" {
@@ -185,7 +185,7 @@ func TestStream_IncompleteStatusMapsToLength(t *testing.T) {
 	}
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -205,7 +205,7 @@ func TestStream_ResponseFailedEventProducesErrorEvent(t *testing.T) {
 	}
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -228,7 +228,7 @@ func TestStream_ErrorEventPropagatesImmediately(t *testing.T) {
 	}
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -252,7 +252,7 @@ func TestStream_ErrorsWhenStreamEndsWithoutTerminalEvent(t *testing.T) {
 	}
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -279,7 +279,7 @@ func TestStream_ServiceTierPricingAppliesMultiplier(t *testing.T) {
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
 	model.Cost = ai.ModelCost{Input: 1, Output: 1}
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test", ServiceTier: "flex"})
 	result, err := stream.Result(context.Background())
@@ -307,7 +307,7 @@ func TestStream_NonOKStatusProducesErrorEvent(t *testing.T) {
 	}))
 	t.Cleanup(srv.Close)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	result, err := stream.Result(context.Background())
@@ -324,7 +324,7 @@ func TestStream_NonOKStatusProducesErrorEvent(t *testing.T) {
 
 func TestStream_MissingAPIKeyProducesErrorEvent(t *testing.T) {
 	model := testModel("https://example.invalid")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{})
 	result, err := stream.Result(context.Background())
@@ -359,7 +359,7 @@ func TestStream_LiveSmoke(t *testing.T) {
 		MaxTokens:     64,
 	}
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say the single word: pong"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say the single word: pong"), Timestamp: time.Now().UnixMilli()}},
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

@@ -90,7 +90,7 @@ func TestStream_RepairsMalformedSSEJSONAndStreamedToolJSON(t *testing.T) {
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Use the edit tool."), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Use the edit tool."), Timestamp: time.Now().UnixMilli()}},
 		Tools: []ai.Tool{{
 			Name:        "edit",
 			Description: "Edit a file.",
@@ -136,7 +136,7 @@ func TestStream_PreservesRefusalStopDetails(t *testing.T) {
 	}
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("blocked request"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("blocked request"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
 	result, err := stream.Result(context.Background())
@@ -158,7 +158,7 @@ func TestStream_IgnoresUnknownSSEEventsAfterMessageStop(t *testing.T) {
 	)
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello."), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello."), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
 	result, err := stream.Result(context.Background())
@@ -189,7 +189,7 @@ func TestStream_StreamEndedBeforeMessageStopIsAnError(t *testing.T) {
 	}
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
 	result, err := stream.Result(context.Background())
@@ -209,7 +209,7 @@ func TestStream_StreamEndedBeforeMessageStopIsAnError(t *testing.T) {
 
 func TestStream_MissingAPIKeyProducesError(t *testing.T) {
 	model := testModel("http://unused.invalid")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{})
 	result, err := stream.Result(context.Background())
@@ -229,7 +229,7 @@ func TestStream_ExplicitAuthorizationHeaderSkipsAPIKeyCheck(t *testing.T) {
 	events := minimalAnthropicEvents()
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{
 		Headers: ai.ProviderHeaders{"authorization": ai.HeaderValue("Bearer xyz")},
@@ -259,7 +259,7 @@ func TestStream_SendsAPIKeyAndVersionHeaders(t *testing.T) {
 	defer srv.Close()
 
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test-key"})
 	if _, err := stream.Result(context.Background()); err != nil {
 		t.Fatalf("Result: %v", err)
@@ -290,7 +290,7 @@ func TestStream_RequestBodyMatchesExpectedShape(t *testing.T) {
 	chat := ai.Context{
 		SystemPrompt: "Be concise.",
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()},
+			&ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()},
 		},
 		Tools: []ai.Tool{{
 			Name:        "search",
@@ -367,7 +367,7 @@ func TestStream_ConvertsImagesToolCallsAndThinkingHistory(t *testing.T) {
 	now := time.Now().UnixMilli()
 	chat := ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{
+			&ai.UserMessage{
 				Content:   ai.UserBlocks(ai.TextContent{Text: "Look at this:"}, ai.ImageContent{Data: "YWJj", MimeType: "image/png"}),
 				Timestamp: now,
 			},
@@ -384,7 +384,7 @@ func TestStream_ConvertsImagesToolCallsAndThinkingHistory(t *testing.T) {
 				StopReason: ai.StopReasonToolUse,
 				Timestamp:  now,
 			},
-			ai.ToolResultMessage{
+			&ai.ToolResultMessage{
 				ToolCallID: "toolu_1",
 				ToolName:   "search",
 				Content:    []ai.UserContentPart{ai.TextContent{Text: "cat pictures"}},
@@ -453,7 +453,7 @@ func TestStream_OnPayloadCanReplaceRequestBody(t *testing.T) {
 	defer srv.Close()
 
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	var onPayloadModel *ai.Model
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{
@@ -546,7 +546,7 @@ func captureSimplePayload(t *testing.T, model *ai.Model, chat ai.Context, opts *
 func cacheControlContext() ai.Context {
 	return ai.Context{
 		SystemPrompt: "You are a helpful assistant.",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}},
 	}
 }
 
@@ -739,7 +739,7 @@ func thinkingModel(compat *ai.Compat) *ai.Model {
 }
 
 func thinkingContext() ai.Context {
-	return ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
+	return ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Hello"), Timestamp: time.Now().UnixMilli()}}}
 }
 
 func TestStreamSimple_SendsLegacyThinkingPayloadByDefaultForCustomModel(t *testing.T) {
@@ -964,7 +964,7 @@ func TestStream_PricesOneHourCacheWriteAtTwiceInputRate(t *testing.T) {
 	events := eventsWithCacheCreation(`{"ephemeral_5m_input_tokens":600000,"ephemeral_1h_input_tokens":400000}`)
 	srv := sseServer(t, events)
 	model := costTestModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
 	result, err := stream.Result(context.Background())
@@ -989,7 +989,7 @@ func TestStream_CacheWriteFallsBackToFiveMinuteRateWhenNoBreakdownReported(t *te
 	events := eventsWithCacheCreation("")
 	srv := sseServer(t, events)
 	model := costTestModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
 	result, err := stream.Result(context.Background())
@@ -1036,12 +1036,12 @@ func TestStream_DecodesThinkingBlockWithSignatureDeltas(t *testing.T) {
 	}
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
 
 	var thinkingDeltaCount, thinkingStartCount, thinkingEndCount int
-	for ev := range stream.Events() {
+	for ev := range stream.Events(context.Background()) {
 		switch ev.EventKind() {
 		case ai.EventThinkingStart:
 			thinkingStartCount++
@@ -1090,7 +1090,7 @@ func TestStream_DecodesRedactedThinkingBlock(t *testing.T) {
 	}
 	srv := sseServer(t, events)
 	model := testModel(srv.URL)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
 	result, err := stream.Result(context.Background())

@@ -23,7 +23,7 @@ func TestRun_FauxToolCallRoundTrip(t *testing.T) {
 	model := handle.GetModel("")
 
 	var resolvedCall ai.ToolCall
-	resolve := func(call ai.ToolCall) ai.ToolResultMessage {
+	resolve := func(call ai.ToolCall) *ai.ToolResultMessage {
 		resolvedCall = call
 		return DefaultResolveTool(call)
 	}
@@ -55,7 +55,7 @@ func TestRun_DirectAnswerSkipsToolResult(t *testing.T) {
 	model := handle.GetModel("")
 
 	called := false
-	resolve := func(call ai.ToolCall) ai.ToolResultMessage {
+	resolve := func(call ai.ToolCall) *ai.ToolResultMessage {
 		called = true
 		return DefaultResolveTool(call)
 	}

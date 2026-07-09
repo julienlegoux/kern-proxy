@@ -710,11 +710,9 @@ func TestLoginCodexBrowser_CallbackResolvesWhileManualCodePending(t *testing.T) 
 			}()
 		},
 		OnManualCodeInput: func(context.Context, string) (string, error) {
-			select {
-			case <-manualCtx.Done():
-				close(manualUnblocked)
-				return "", manualCtx.Err()
-			}
+			<-manualCtx.Done()
+			close(manualUnblocked)
+			return "", manualCtx.Err()
 		},
 	})
 

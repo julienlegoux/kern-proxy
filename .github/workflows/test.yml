@@ -24,3 +24,19 @@ jobs:
       # .github/workflows/upstream-sync.yml honest between real upstream
       # syncs.
       - run: bash upstream/sync_test.sh
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      # Config lives in .golangci.yml: the standard linter set, with three
+      # scoped narrowings that each carry their reason. Nothing is excluded by
+      # path, and no linter is turned off wholesale.
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.12.2

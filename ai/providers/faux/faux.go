@@ -443,14 +443,14 @@ func assistantContentToText(content []ai.AssistantContentPart) string {
 
 func messageToText(message ai.Message) string {
 	switch m := message.(type) {
-	case ai.UserMessage:
+	case *ai.UserMessage:
 		if m.Content.Plain != nil {
 			return *m.Content.Plain
 		}
 		return contentToText(m.Content.Blocks)
 	case *ai.AssistantMessage:
 		return assistantContentToText(m.Content)
-	case ai.ToolResultMessage:
+	case *ai.ToolResultMessage:
 		parts := []string{m.ToolName}
 		for _, block := range m.Content {
 			parts = append(parts, contentToText([]ai.UserContentPart{block}))

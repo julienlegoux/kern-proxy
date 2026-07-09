@@ -78,7 +78,7 @@ func TestStream_WebSocketHappyPathOverRealServer(t *testing.T) {
 		if err != nil {
 			return
 		}
-		defer conn.CloseNow()
+		defer func() { _ = conn.CloseNow() }()
 
 		req := readCodexWSRequest(t, conn)
 		if req["type"] != "response.create" {
@@ -107,13 +107,13 @@ func TestStream_WebSocketHappyPathOverRealServer(t *testing.T) {
 				"usage":  map[string]any{"input_tokens": 5, "output_tokens": 3, "total_tokens": 8},
 			},
 		})
-		conn.Close(websocket.StatusNormalClosure, "done")
+		_ = conn.Close(websocket.StatusNormalClosure, "done")
 	}))
 	t.Cleanup(srv.Close)
 
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "acc_test")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportWebSocket})
 	result, err := stream.Result(context.Background())
@@ -152,7 +152,7 @@ func TestStream_WebSocketConnectTimeoutFallsBackToSSE(t *testing.T) {
 
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{
 		APIKey:                  token,
@@ -195,7 +195,7 @@ func TestStream_WebSocketConnectionLimitReachedRetriesOnce(t *testing.T) {
 		if err != nil {
 			return
 		}
-		defer conn.CloseNow()
+		defer func() { _ = conn.CloseNow() }()
 
 		n := atomic.AddInt32(&connections, 1)
 		_ = readCodexWSRequest(t, conn)
@@ -218,7 +218,7 @@ func TestStream_WebSocketConnectionLimitReachedRetriesOnce(t *testing.T) {
 
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportWebSocket})
 	result, err := stream.Result(context.Background())
@@ -246,7 +246,7 @@ func TestStream_WebSocketIdleBeforeFirstEventFallsBackToSSE(t *testing.T) {
 			if err != nil {
 				return
 			}
-			defer conn.CloseNow()
+			defer func() { _ = conn.CloseNow() }()
 			_ = readCodexWSRequest(t, conn)
 			<-r.Context().Done() // consume the request, then go silent
 			return
@@ -259,7 +259,7 @@ func TestStream_WebSocketIdleBeforeFirstEventFallsBackToSSE(t *testing.T) {
 
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{
 		APIKey:    token,
@@ -295,7 +295,7 @@ func TestStream_WebSocketIdleAfterStartErrors(t *testing.T) {
 			if err != nil {
 				return
 			}
-			defer conn.CloseNow()
+			defer func() { _ = conn.CloseNow() }()
 			_ = readCodexWSRequest(t, conn)
 			sendCodexWSMessage(t, conn, map[string]any{
 				"type": "response.output_item.added",
@@ -311,7 +311,7 @@ func TestStream_WebSocketIdleAfterStartErrors(t *testing.T) {
 
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{
 		APIKey:    token,
@@ -348,7 +348,7 @@ func TestStream_FallbackMemoryPersistsForSession(t *testing.T) {
 			if err != nil {
 				return
 			}
-			defer conn.CloseNow()
+			defer func() { _ = conn.CloseNow() }()
 			_ = readCodexWSRequest(t, conn)
 			<-r.Context().Done() // stays silent -> idle timeout, triggering the fallback
 			return
@@ -361,7 +361,7 @@ func TestStream_FallbackMemoryPersistsForSession(t *testing.T) {
 
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 	opts := &ai.StreamOptions{
 		APIKey:    token,
 		SessionID: "fallback-memory-session",

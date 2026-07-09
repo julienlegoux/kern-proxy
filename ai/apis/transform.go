@@ -57,15 +57,22 @@ func TransformMessages(messages []ai.Message, model *ai.Model, normalizeToolCall
 
 // normalizeNilContent replaces a nil Content value with an explicit empty one
 // so later passes never have to special-case "no content".
+//
+// Every branch that rewrites content copies the message first. Messages are
+// pointers, so writing through one would edit the caller's own session history
+// -- TransformMessages is a pure function over the slice it is handed.
 func normalizeNilContent(messages []ai.Message) []ai.Message {
 	out := make([]ai.Message, len(messages))
 	for i, msg := range messages {
 		switch m := msg.(type) {
-		case ai.UserMessage:
+		case *ai.UserMessage:
 			if m.Content.Plain == nil && m.Content.Blocks == nil {
-				m.Content.Blocks = []ai.UserContentPart{}
+				clone := *m
+				clone.Content.Blocks = []ai.UserContentPart{}
+				out[i] = &clone
+			} else {
+				out[i] = m
 			}
-			out[i] = m
 		case *ai.AssistantMessage:
 			if m.Content == nil {
 				clone := *m
@@ -74,11 +81,14 @@ func normalizeNilContent(messages []ai.Message) []ai.Message {
 			} else {
 				out[i] = m
 			}
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			if m.Content == nil {
-				m.Content = []ai.UserContentPart{}
+				clone := *m
+				clone.Content = []ai.UserContentPart{}
+				out[i] = &clone
+			} else {
+				out[i] = m
 			}
-			out[i] = m
 		default:
 			out[i] = msg
 		}
@@ -113,6 +123,9 @@ func replaceImagesWithPlaceholder(content []ai.UserContentPart, placeholder stri
 // for models that don't accept image input. User messages with plain-string
 // content (no block array) are left untouched, matching upstream's
 // Array.isArray guard.
+//
+// Rewritten messages are copied first: they are pointers into the caller's
+// session history, which this pass must not edit.
 func downgradeUnsupportedImages(messages []ai.Message, model *ai.Model) []ai.Message {
 	if model.SupportsImageInput() {
 		return messages
@@ -121,14 +134,18 @@ func downgradeUnsupportedImages(messages []ai.Message, model *ai.Model) []ai.Mes
 	out := make([]ai.Message, len(messages))
 	for i, msg := range messages {
 		switch m := msg.(type) {
-		case ai.UserMessage:
+		case *ai.UserMessage:
 			if m.Content.Plain == nil {
-				m.Content.Blocks = replaceImagesWithPlaceholder(m.Content.Blocks, nonVisionUserImagePlaceholder)
+				clone := *m
+				clone.Content.Blocks = replaceImagesWithPlaceholder(m.Content.Blocks, nonVisionUserImagePlaceholder)
+				out[i] = &clone
+			} else {
+				out[i] = m
 			}
-			out[i] = m
-		case ai.ToolResultMessage:
-			m.Content = replaceImagesWithPlaceholder(m.Content, nonVisionToolImagePlaceholder)
-			out[i] = m
+		case *ai.ToolResultMessage:
+			clone := *m
+			clone.Content = replaceImagesWithPlaceholder(m.Content, nonVisionToolImagePlaceholder)
+			out[i] = &clone
 		default:
 			out[i] = msg
 		}
@@ -143,11 +160,13 @@ func downgradeUnsupportedImages(messages []ai.Message, model *ai.Model) []ai.Mes
 // by block.
 func transformOne(msg ai.Message, model *ai.Model, toolCallIDMap map[string]string, normalizeToolCallID NormalizeToolCallID) ai.Message {
 	switch m := msg.(type) {
-	case ai.UserMessage:
+	case *ai.UserMessage:
 		return m
-	case ai.ToolResultMessage:
+	case *ai.ToolResultMessage:
 		if normalizedID, ok := toolCallIDMap[m.ToolCallID]; ok && normalizedID != m.ToolCallID {
-			m.ToolCallID = normalizedID
+			clone := *m
+			clone.ToolCallID = normalizedID
+			return &clone
 		}
 		return m
 	case *ai.AssistantMessage:
@@ -239,7 +258,7 @@ func insertOrphanToolResults(messages []ai.Message) []ai.Message {
 	flush := func() {
 		for _, tc := range pendingToolCalls {
 			if !existingToolResultIDs[tc.ID] {
-				result = append(result, ai.ToolResultMessage{
+				result = append(result, &ai.ToolResultMessage{
 					ToolCallID: tc.ID,
 					ToolName:   tc.Name,
 					Content:    []ai.UserContentPart{ai.TextContent{Text: "No result provided"}},
@@ -279,10 +298,10 @@ func insertOrphanToolResults(messages []ai.Message) []ai.Message {
 			}
 
 			result = append(result, m)
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			existingToolResultIDs[m.ToolCallID] = true
 			result = append(result, m)
-		case ai.UserMessage:
+		case *ai.UserMessage:
 			// User message interrupts tool flow - insert synthetic results
 			// for orphaned calls.
 			flush()
