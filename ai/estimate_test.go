@@ -37,9 +37,9 @@ func TestEstimateTextTokens(t *testing.T) {
 
 func TestEstimateAnchorsOnLastUsage(t *testing.T) {
 	messages := []Message{
-		UserMessage{Content: UserText("earlier message that is long enough to matter")},
+		&UserMessage{Content: UserText("earlier message that is long enough to matter")},
 		assistantWithUsage(1000, StopReasonStop),
-		UserMessage{Content: UserText("12345678")}, // 2 tokens trailing
+		&UserMessage{Content: UserText("12345678")}, // 2 tokens trailing
 	}
 	est := EstimateMessagesTokens(messages)
 	if est.LastUsageIndex != 1 {
@@ -64,8 +64,8 @@ func TestEstimateSkipsFailedAssistantTurns(t *testing.T) {
 
 func TestEstimateWithoutUsageAnchor(t *testing.T) {
 	messages := []Message{
-		UserMessage{Content: UserText("abcdefgh")},                               // 2 tokens
-		ToolResultMessage{Content: []UserContentPart{TextContent{Text: "abcd"}}}, // 1 token
+		&UserMessage{Content: UserText("abcdefgh")},                               // 2 tokens
+		&ToolResultMessage{Content: []UserContentPart{TextContent{Text: "abcd"}}}, // 1 token
 	}
 	est := EstimateMessagesTokens(messages)
 	if est.LastUsageIndex != -1 || est.Tokens != 3 || est.TrailingTokens != 3 {
@@ -75,7 +75,7 @@ func TestEstimateWithoutUsageAnchor(t *testing.T) {
 
 func TestEstimateImagesUseFixedCost(t *testing.T) {
 	messages := []Message{
-		UserMessage{Content: UserBlocks(ImageContent{Data: "AAAA", MimeType: "image/png"})},
+		&UserMessage{Content: UserBlocks(ImageContent{Data: "AAAA", MimeType: "image/png"})},
 	}
 	est := EstimateMessagesTokens(messages)
 	if est.Tokens != 1200 { // 4800 chars / 4
@@ -86,7 +86,7 @@ func TestEstimateImagesUseFixedCost(t *testing.T) {
 func TestEstimateContextAddsPrefixWithoutAnchor(t *testing.T) {
 	chat := Context{
 		SystemPrompt: "abcdefgh",                                        // 2 tokens
-		Messages:     []Message{UserMessage{Content: UserText("abcd")}}, // 1 token
+		Messages:     []Message{&UserMessage{Content: UserText("abcd")}}, // 1 token
 	}
 	est := EstimateContextTokens(chat)
 	if est.Tokens != 3 {

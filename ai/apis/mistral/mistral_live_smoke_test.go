@@ -37,7 +37,7 @@ func TestLiveSmoke_MistralStreamsPlainText(t *testing.T) {
 		MaxTokens:     8192,
 	}
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{
+		Messages: []ai.Message{&ai.UserMessage{
 			Content:   ai.UserText("Reply with exactly the text: smoke-ok"),
 			Timestamp: time.Now().UnixMilli(),
 		}},

@@ -454,7 +454,7 @@ func mappedThinkingLevel(model *ai.Model, level ai.ThinkingLevel) (string, bool)
 func hasToolHistory(messages []ai.Message) bool {
 	for _, msg := range messages {
 		switch m := msg.(type) {
-		case ai.ToolResultMessage:
+		case *ai.ToolResultMessage:
 			return true
 		case *ai.AssistantMessage:
 			for _, b := range m.Content {

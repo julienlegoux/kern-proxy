@@ -127,7 +127,7 @@ func TestStream_BasicSSERoundTripAndHeaders(t *testing.T) {
 	srv, captured := codexSSEServer(t, "completed")
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "acc_test")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE})
 	result, err := stream.Result(context.Background())
@@ -169,7 +169,7 @@ func TestStream_IncompleteMapsToStopReasonLength(t *testing.T) {
 	srv, _ := codexSSEServer(t, "incomplete")
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE})
 	result, err := stream.Result(context.Background())
@@ -189,7 +189,7 @@ func TestStream_SetsSessionHeadersAndPromptCacheKeyWhenSessionIDProvided(t *test
 	srv, captured := codexSSEServer(t, "completed")
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, SessionID: "test-session-123", Transport: ai.TransportSSE})
 	if _, err := stream.Result(context.Background()); err != nil {
@@ -214,7 +214,7 @@ func TestStream_NoSessionHeadersWhenSessionIDAbsent(t *testing.T) {
 	srv, captured := codexSSEServer(t, "completed")
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE})
 	if _, err := stream.Result(context.Background()); err != nil {
@@ -232,7 +232,7 @@ func TestStream_ClampsPromptCacheKeyTo64Characters(t *testing.T) {
 	srv, _ := codexSSEServer(t, "completed")
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 	sessionID := strings.Repeat("x", 67)
 
 	var captured map[string]any
@@ -261,7 +261,7 @@ func TestStream_PreservesXHighReasoningEffortFromSimpleOptions(t *testing.T) {
 	model.ID = "gpt-5.5"
 	model.ThinkingLevelMap = ai.ThinkingLevelMap{ai.ThinkingXHigh: strPtr("xhigh")}
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := StreamSimple(context.Background(), model, chat, &ai.SimpleStreamOptions{
 		StreamOptions: ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE},
@@ -287,7 +287,7 @@ func TestStream_ClampsMinimalReasoningEffortToLow(t *testing.T) {
 			model.ID = modelID
 			model.ThinkingLevelMap = ai.ThinkingLevelMap{ai.ThinkingMinimal: strPtr("low")}
 			token := mockCodexToken(t, "")
-			chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+			chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
 			stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, ReasoningEffort: ai.ThinkingMinimal, Transport: ai.TransportSSE})
 			if _, err := stream.Result(context.Background()); err != nil {
@@ -334,7 +334,7 @@ data: {"type":"response.completed","response":{"status":"completed","service_tie
 			model.ID = tc.modelID
 			model.Cost = ai.ModelCost{Input: 1, Output: 2}
 			token := mockCodexToken(t, "")
-			chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
+			chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("Say hello"), Timestamp: time.Now().UnixMilli()}}}
 
 			stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, ServiceTier: tc.serviceTier, Transport: ai.TransportSSE})
 			result, err := stream.Result(context.Background())
@@ -356,7 +356,7 @@ data: {"type":"response.completed","response":{"status":"completed","service_tie
 
 func TestStream_MissingAPIKeyReturnsErrorEvent(t *testing.T) {
 	model := codexModel("https://example.invalid")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{})
 	result, err := stream.Result(context.Background())
@@ -373,7 +373,7 @@ func TestStream_MissingAPIKeyReturnsErrorEvent(t *testing.T) {
 
 func TestStream_InvalidTokenReturnsErrorEvent(t *testing.T) {
 	model := codexModel("https://example.invalid")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "not-a-jwt"})
 	result, err := stream.Result(context.Background())
@@ -402,7 +402,7 @@ func TestStream_HeaderTimeoutWhenResponseHeadersDoNotArrive(t *testing.T) {
 
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Timeout: 30 * time.Millisecond, Transport: ai.TransportSSE})
 	result, err := stream.Result(context.Background())
@@ -437,7 +437,7 @@ func TestStream_AbortsBodyReadAfterHeadersArrive(t *testing.T) {
 
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -503,7 +503,7 @@ func TestStream_RetriesOnRetryAfterHeaderVariants(t *testing.T) {
 
 			model := codexModel(srv.URL)
 			token := mockCodexToken(t, "")
-			chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+			chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 			maxRetries := 1
 
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -550,7 +550,7 @@ func TestStream_ExponentialBackoffAcrossRepeatedRetries(t *testing.T) {
 
 	model := codexModel(srv.URL)
 	token := mockCodexToken(t, "")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	maxRetries := 3
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -590,7 +590,7 @@ func TestStream_LiveSmoke(t *testing.T) {
 	chat := ai.Context{
 		SystemPrompt: "You are a helpful assistant. Reply exactly as requested.",
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("Reply with exactly: codex live smoke success"), Timestamp: time.Now().UnixMilli()},
+			&ai.UserMessage{Content: ai.UserText("Reply with exactly: codex live smoke success"), Timestamp: time.Now().UnixMilli()},
 		},
 	}
 
@@ -630,7 +630,7 @@ func TestStream_ZstdCompressesSSERequestBody(t *testing.T) {
 	token := mockCodexToken(t, "")
 
 	largeText := strings.Repeat("compress me ", 400)
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText(largeText), Timestamp: 1}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText(largeText), Timestamp: 1}}}
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE})
 	if _, err := stream.Result(context.Background()); err != nil {
 		t.Fatalf("Result: %v", err)
@@ -664,7 +664,7 @@ func TestStream_ZstdCompressesSSERequestBody(t *testing.T) {
 
 	capturedEncoding = ""
 	capturedBody = nil
-	chat = ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: 1}}}
+	chat = ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: 1}}}
 	stream = Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE})
 	if _, err := stream.Result(context.Background()); err != nil {
 		t.Fatalf("Result: %v", err)

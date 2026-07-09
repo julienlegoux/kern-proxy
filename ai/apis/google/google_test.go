@@ -22,7 +22,7 @@ func TestBuildParams_BasicRequestShape(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 	temp := 0.5
 	maxTokens := 100
@@ -51,7 +51,7 @@ func TestBuildParams_BasicRequestShape(t *testing.T) {
 func TestBuildParams_ToolChoiceSetsFunctionCallingConfig(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 		Tools:    []ai.Tool{{Name: "noop", Parameters: json.RawMessage(`{"type":"object"}`)}},
 	}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "k", GoogleToolChoice: "none"})
@@ -70,7 +70,7 @@ func TestBuildParams_ThinkingBudgetForNonGemini3Model(t *testing.T) {
 	model.Reasoning = true
 	on := true
 	budget := 2048
-	params := buildParams(model, ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}, &ai.StreamOptions{
+	params := buildParams(model, ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}, &ai.StreamOptions{
 		APIKey:               "k",
 		ThinkingEnabled:      &on,
 		ThinkingBudgetTokens: &budget,
@@ -91,7 +91,7 @@ func TestBuildParams_ThinkingLevelForGemini3ProModel(t *testing.T) {
 	model.ID = "gemini-3-pro"
 	model.Reasoning = true
 	on := true
-	params := buildParams(model, ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}, &ai.StreamOptions{
+	params := buildParams(model, ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}, &ai.StreamOptions{
 		APIKey:              "k",
 		ThinkingEnabled:     &on,
 		GoogleThinkingLevel: ai.GoogleThinkingLevelHigh,
@@ -107,7 +107,7 @@ func TestBuildParams_ThinkingDisabledUsesBudgetZeroForBudgetModel(t *testing.T) 
 	model := testModel("https://example.invalid")
 	model.Reasoning = true
 	off := false
-	params := buildParams(model, ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}, &ai.StreamOptions{
+	params := buildParams(model, ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}, &ai.StreamOptions{
 		APIKey:          "k",
 		ThinkingEnabled: &off,
 	})
@@ -124,7 +124,7 @@ func TestBuildParams_ThinkingDisabledUsesLowLevelForGemini3Pro(t *testing.T) {
 	model.ID = "gemini-3-pro"
 	model.Reasoning = true
 	off := false
-	params := buildParams(model, ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}, &ai.StreamOptions{
+	params := buildParams(model, ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}, &ai.StreamOptions{
 		APIKey:          "k",
 		ThinkingEnabled: &off,
 	})
@@ -187,7 +187,7 @@ func TestStreamSimple_UsesBudgetBasedThinkingByDefault(t *testing.T) {
 
 	model := testModel(srv.URL)
 	model.Reasoning = true
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	stream := StreamSimple(context.Background(), model, chat, &ai.SimpleStreamOptions{StreamOptions: ai.StreamOptions{APIKey: "k"}, Reasoning: ai.ThinkingMedium})
 	if _, err := stream.Result(context.Background()); err != nil {
 		t.Fatalf("Result: %v", err)

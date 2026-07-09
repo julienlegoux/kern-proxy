@@ -201,9 +201,9 @@ func marshalWithRole(role Role, v any) ([]byte, error) {
 	return out, nil
 }
 
-func (m UserMessage) MarshalJSON() ([]byte, error) {
+func (m *UserMessage) MarshalJSON() ([]byte, error) {
 	type alias UserMessage
-	return marshalWithRole(RoleUser, alias(m))
+	return marshalWithRole(RoleUser, (*alias)(m))
 }
 
 func (m *AssistantMessage) MarshalJSON() ([]byte, error) {
@@ -211,9 +211,9 @@ func (m *AssistantMessage) MarshalJSON() ([]byte, error) {
 	return marshalWithRole(RoleAssistant, (*alias)(m))
 }
 
-func (m ToolResultMessage) MarshalJSON() ([]byte, error) {
+func (m *ToolResultMessage) MarshalJSON() ([]byte, error) {
 	type alias ToolResultMessage
-	return marshalWithRole(RoleToolResult, alias(m))
+	return marshalWithRole(RoleToolResult, (*alias)(m))
 }
 
 func (m *AssistantMessage) UnmarshalJSON(data []byte) error {
@@ -258,7 +258,7 @@ func UnmarshalMessage(data []byte) (Message, error) {
 		if err := json.Unmarshal(data, &v); err != nil {
 			return nil, err
 		}
-		return v, nil
+		return &v, nil
 	case RoleAssistant:
 		var v AssistantMessage
 		if err := json.Unmarshal(data, &v); err != nil {
@@ -270,7 +270,7 @@ func UnmarshalMessage(data []byte) (Message, error) {
 		if err := json.Unmarshal(data, &v); err != nil {
 			return nil, err
 		}
-		return v, nil
+		return &v, nil
 	default:
 		return nil, fmt.Errorf("ai: unknown message role %q", probe.Role)
 	}

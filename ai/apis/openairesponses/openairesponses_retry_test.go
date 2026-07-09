@@ -26,7 +26,7 @@ func TestMain(m *testing.M) {
 }
 
 func retryChat() ai.Context {
-	return ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	return ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 }
 
 // retryServer answers via respond; returning false streams a minimal

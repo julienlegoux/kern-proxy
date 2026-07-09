@@ -29,7 +29,7 @@ func now() int64 { return time.Now().UnixMilli() }
 
 func TestConvertMessages_PlainUserText(t *testing.T) {
 	chat := ai.Context{Messages: []ai.Message{
-		ai.UserMessage{Content: ai.UserText("hello"), Timestamp: now()},
+		&ai.UserMessage{Content: ai.UserText("hello"), Timestamp: now()},
 	}}
 	got := convertMessages(chat, testModel(), ai.CacheRetentionNone, nil)
 	if len(got) != 1 {
@@ -42,7 +42,7 @@ func TestConvertMessages_PlainUserText(t *testing.T) {
 
 func TestConvertMessages_ReplacesBlankUserStringWithPlaceholder(t *testing.T) {
 	chat := ai.Context{Messages: []ai.Message{
-		ai.UserMessage{Content: ai.UserText("   "), Timestamp: now()},
+		&ai.UserMessage{Content: ai.UserText("   "), Timestamp: now()},
 	}}
 	got := convertMessages(chat, testModel(), ai.CacheRetentionNone, nil)
 	if len(got) != 1 || len(got[0].Content) != 1 || got[0].Content[0].Text != emptyTextPlaceholder {
@@ -52,7 +52,7 @@ func TestConvertMessages_ReplacesBlankUserStringWithPlaceholder(t *testing.T) {
 
 func TestConvertMessages_FiltersBlankUserTextBlocksWhenOtherContentRemains(t *testing.T) {
 	chat := ai.Context{Messages: []ai.Message{
-		ai.UserMessage{Content: ai.UserBlocks(ai.TextContent{Text: ""}, ai.TextContent{Text: "hello"}), Timestamp: now()},
+		&ai.UserMessage{Content: ai.UserBlocks(ai.TextContent{Text: ""}, ai.TextContent{Text: "hello"}), Timestamp: now()},
 	}}
 	got := convertMessages(chat, testModel(), ai.CacheRetentionNone, nil)
 	if len(got) != 1 || len(got[0].Content) != 1 || got[0].Content[0].Text != "hello" {
@@ -66,7 +66,7 @@ func TestConvertMessages_ReplacesUserContentEmptiedBySurrogateSanitizationWithPl
 	// ai/sanitize_test.go's TestSanitizeSurrogates_UnpairedHighSurrogate).
 	unpairedHighSurrogate := string([]byte{0xED, 0xA0, 0xBD})
 	chat := ai.Context{Messages: []ai.Message{
-		ai.UserMessage{Content: ai.UserText(unpairedHighSurrogate), Timestamp: now()},
+		&ai.UserMessage{Content: ai.UserText(unpairedHighSurrogate), Timestamp: now()},
 	}}
 	got := convertMessages(chat, testModel(), ai.CacheRetentionNone, nil)
 	if len(got) != 1 || len(got[0].Content) != 1 || got[0].Content[0].Text != emptyTextPlaceholder {
@@ -113,7 +113,7 @@ func TestConvertMessages_SkipsAssistantMessagesWithOnlyUnrecognizedContent(t *te
 
 func TestConvertMessages_ReplacesBlankToolResultContentWithPlaceholder(t *testing.T) {
 	chat := ai.Context{Messages: []ai.Message{
-		ai.ToolResultMessage{
+		&ai.ToolResultMessage{
 			ToolCallID: "tool-1",
 			ToolName:   "tool",
 			Content:    []ai.UserContentPart{ai.TextContent{Text: ""}},
@@ -133,8 +133,8 @@ func TestConvertMessages_ReplacesBlankToolResultContentWithPlaceholder(t *testin
 
 func TestConvertMessages_MergesConsecutiveToolResultsIntoOneMessage(t *testing.T) {
 	chat := ai.Context{Messages: []ai.Message{
-		ai.ToolResultMessage{ToolCallID: "t1", Content: []ai.UserContentPart{ai.TextContent{Text: "a"}}, Timestamp: now()},
-		ai.ToolResultMessage{ToolCallID: "t2", Content: []ai.UserContentPart{ai.TextContent{Text: "b"}}, Timestamp: now()},
+		&ai.ToolResultMessage{ToolCallID: "t1", Content: []ai.UserContentPart{ai.TextContent{Text: "a"}}, Timestamp: now()},
+		&ai.ToolResultMessage{ToolCallID: "t2", Content: []ai.UserContentPart{ai.TextContent{Text: "b"}}, Timestamp: now()},
 	}}
 	got := convertMessages(chat, testModel(), ai.CacheRetentionNone, nil)
 	if len(got) != 1 {

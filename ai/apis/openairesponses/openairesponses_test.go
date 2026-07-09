@@ -33,7 +33,7 @@ func TestBuildParams_BasicRequestShape(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
@@ -87,7 +87,7 @@ func TestBuildParams_UsesDeveloperRoleForReasoningModels(t *testing.T) {
 	model.Reasoning = true
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	raw, _ := json.Marshal(params)
@@ -107,7 +107,7 @@ func TestBuildParams_FallsBackToSystemRoleWhenCompatDisablesDeveloperRole(t *tes
 	model.Compat = &ai.Compat{SupportsDeveloperRole: &no}
 	chat := ai.Context{
 		SystemPrompt: "be helpful",
-		Messages:     []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages:     []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 	}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	raw, _ := json.Marshal(params)
@@ -125,7 +125,7 @@ func TestBuildParams_FallsBackToSystemRoleWhenCompatDisablesDeveloperRole(t *tes
 func TestBuildParams_UserImageBlocksConvertToInputImageParts(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{
+		Messages: []ai.Message{&ai.UserMessage{
 			Content:   ai.UserBlocks(ai.TextContent{Text: "look"}, ai.ImageContent{Data: "Zm9v", MimeType: "image/png"}),
 			Timestamp: time.Now().UnixMilli(),
 		}},
@@ -160,7 +160,7 @@ func TestBuildParams_RoundTripsAssistantToolCallAndToolResult(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
+			&ai.UserMessage{Content: ai.UserText("use the tool"), Timestamp: time.Now().UnixMilli()},
 			&ai.AssistantMessage{
 				Content:    []ai.AssistantContentPart{ai.ToolCall{ID: "call_1|fc_item1", Name: "noop", Arguments: map[string]any{"x": float64(1)}}},
 				StopReason: ai.StopReasonToolUse,
@@ -168,7 +168,7 @@ func TestBuildParams_RoundTripsAssistantToolCallAndToolResult(t *testing.T) {
 				Provider:   "openai",
 				Model:      "gpt-5.1",
 			},
-			ai.ToolResultMessage{ToolCallID: "call_1|fc_item1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
+			&ai.ToolResultMessage{ToolCallID: "call_1|fc_item1", ToolName: "noop", Content: []ai.UserContentPart{ai.TextContent{Text: "done"}}},
 		},
 	}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
@@ -200,7 +200,7 @@ func TestBuildParams_ReplaysThinkingSignatureVerbatim(t *testing.T) {
 	sig := `{"type":"reasoning","id":"rs_1","summary":[],"encrypted_content":"abc"}`
 	chat := ai.Context{
 		Messages: []ai.Message{
-			ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()},
+			&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()},
 			&ai.AssistantMessage{
 				Content: []ai.AssistantContentPart{
 					ai.ThinkingContent{Thinking: "reasoning summary", ThinkingSignature: sig},
@@ -232,7 +232,7 @@ func TestBuildParams_ReplaysThinkingSignatureVerbatim(t *testing.T) {
 func TestBuildParams_OmitsToolsFieldWhenContextToolsEmpty(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 		Tools:    []ai.Tool{},
 	}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
@@ -244,7 +244,7 @@ func TestBuildParams_OmitsToolsFieldWhenContextToolsEmpty(t *testing.T) {
 func TestBuildParams_IncludesToolsWithStrictDefaultFalse(t *testing.T) {
 	model := testModel("https://example.invalid")
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}},
 		Tools: []ai.Tool{
 			{Name: "get_weather", Description: "gets weather", Parameters: json.RawMessage(`{"type":"object"}`)},
 		},
@@ -264,7 +264,7 @@ func TestBuildParams_IncludesToolsWithStrictDefaultFalse(t *testing.T) {
 // (OPENAI_RESPONSES_MIN_OUTPUT_TOKENS).
 func TestBuildParams_ClampsMaxOutputTokensToMinimum(t *testing.T) {
 	model := testModel("https://example.invalid")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	small := 4
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test", MaxTokens: &small})
 	if params.MaxOutputTokens == nil || *params.MaxOutputTokens != 16 {
@@ -278,7 +278,7 @@ func TestBuildParams_ClampsMaxOutputTokensToMinimum(t *testing.T) {
 func TestBuildParams_ReasoningEffortSetsEffortAndSummary(t *testing.T) {
 	model := testModel("https://example.invalid")
 	model.Reasoning = true
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test", ReasoningEffort: ai.ThinkingHigh})
 	if params.Reasoning == nil {
 		t.Fatalf("reasoning = nil, want set")
@@ -299,7 +299,7 @@ func TestBuildParams_ReasoningEffortSetsEffortAndSummary(t *testing.T) {
 // when a ReasoningEffort is requested.
 func TestBuildParams_NonReasoningModelNeverSetsReasoningField(t *testing.T) {
 	model := testModel("https://example.invalid")
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test", ReasoningEffort: ai.ThinkingHigh})
 	if params.Reasoning != nil {
 		t.Errorf("reasoning = %#v, want nil for non-reasoning model", params.Reasoning)
@@ -316,7 +316,7 @@ func TestBuildParams_NoRequestedEffortSendsMappedOffEffort(t *testing.T) {
 	model.Reasoning = true
 	off := "minimal"
 	model.ThinkingLevelMap = ai.ThinkingLevelMap{ai.ThinkingOff: &off}
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	if params.Reasoning == nil {
 		t.Fatalf("reasoning = nil, want set")
@@ -335,7 +335,7 @@ func TestBuildParams_NoRequestedEffortSendsMappedOffEffort(t *testing.T) {
 func TestBuildParams_NoRequestedEffortDefaultsToNoneWithoutMapping(t *testing.T) {
 	model := testModel("https://example.invalid")
 	model.Reasoning = true
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	if params.Reasoning == nil || params.Reasoning.Effort != "none" {
 		t.Errorf("reasoning = %#v, want effort=none", params.Reasoning)
@@ -349,7 +349,7 @@ func TestBuildParams_ExplicitNullOffSuppressesReasoningField(t *testing.T) {
 	model := testModel("https://example.invalid")
 	model.Reasoning = true
 	model.ThinkingLevelMap = ai.ThinkingLevelMap{ai.ThinkingOff: nil}
-	chat := ai.Context{Messages: []ai.Message{ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
+	chat := ai.Context{Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText("hi"), Timestamp: time.Now().UnixMilli()}}}
 	params := buildParams(model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 	if params.Reasoning != nil {
 		t.Errorf("reasoning = %#v, want nil (explicitly suppressed)", params.Reasoning)

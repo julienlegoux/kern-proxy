@@ -26,16 +26,16 @@ var WeatherTool = ai.Tool{
 
 // ResolveTool answers one tool call. Swap DefaultResolveTool for a real
 // implementation in a production agent.
-type ResolveTool func(call ai.ToolCall) ai.ToolResultMessage
+type ResolveTool func(call ai.ToolCall) *ai.ToolResultMessage
 
 // DefaultResolveTool answers a get_weather call with a canned forecast; it
 // never calls out to a real weather service.
-func DefaultResolveTool(call ai.ToolCall) ai.ToolResultMessage {
+func DefaultResolveTool(call ai.ToolCall) *ai.ToolResultMessage {
 	location, _ := call.Arguments["location"].(string)
 	if location == "" {
 		location = "that location"
 	}
-	return ai.ToolResultMessage{
+	return &ai.ToolResultMessage{
 		ToolCallID: call.ID,
 		ToolName:   call.Name,
 		Content:    []ai.UserContentPart{ai.TextContent{Text: fmt.Sprintf("Sunny and 22C in %s.", location)}},
@@ -61,7 +61,7 @@ func Run(
 	}
 
 	chat := ai.Context{
-		Messages: []ai.Message{ai.UserMessage{Content: ai.UserText(prompt), Timestamp: time.Now().UnixMilli()}},
+		Messages: []ai.Message{&ai.UserMessage{Content: ai.UserText(prompt), Timestamp: time.Now().UnixMilli()}},
 		Tools:    []ai.Tool{WeatherTool},
 	}
 

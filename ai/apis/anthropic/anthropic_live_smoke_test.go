@@ -39,7 +39,7 @@ func TestLiveSmoke_AnthropicOpus48StreamsWithReasoning(t *testing.T) {
 	}
 	chat := ai.Context{
 		SystemPrompt: "You are a precise assistant. Follow the user's instructions exactly.",
-		Messages: []ai.Message{ai.UserMessage{
+		Messages: []ai.Message{&ai.UserMessage{
 			Content: ai.UserText("Compute 48291 * 7317 and 90844 - 17729, add the results, and determine " +
 				"whether the sum is divisible by 11. Reply with exactly this format and nothing else: " +
 				"sum=<sum>; divisibleBy11=<yes|no>"),
