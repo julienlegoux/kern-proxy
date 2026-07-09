@@ -26,7 +26,8 @@ that tracks upstream over time.
   pricing, `ai.CalculateCost`, token estimation, and cache-read/write
   breakdowns.
 - **Session persistence & model hand-off** — conversations are plain
-  JSON-serializable `[]ai.Message`; resume any conversation on any provider.
+  JSON-serializable `[]ai.Message`; resume any conversation on any provider
+  ([how](docs/usage.md#session-persistence-and-model-hand-off)).
 - **Tool calling, thinking levels, retry/overflow classifiers** — portable
   across providers, clamped to what each model supports.
 - **Offline-testable** — the in-process `faux` provider exercises the full
@@ -91,6 +92,11 @@ func main() {
 		msg.Usage.Input, msg.Usage.Output, cost.Total)
 }
 ```
+
+A conversation is just `[]ai.Message` and round-trips through `encoding/json`,
+so saving a session and resuming it — on the same model or a different
+provider — needs no extra machinery. See
+[Session persistence and model hand-off](docs/usage.md#session-persistence-and-model-hand-off).
 
 ## Authentication
 
