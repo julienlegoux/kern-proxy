@@ -71,7 +71,7 @@ func main() {
 	}
 
 	stream := models.StreamSimple(ctx, model, chat, &ai.SimpleStreamOptions{})
-	for ev := range stream.Events() {
+	for ev := range stream.Events(ctx) {
 		if e, ok := ev.(ai.TextDeltaEvent); ok {
 			fmt.Print(e.Delta)
 		}
@@ -107,8 +107,12 @@ Provider failures are **in-band**, mirroring upstream pi-ai:
 - `ai.IsRetryableAssistantError(msg)` classifies transient failures (you
   supply the retry loop); `ai.IsContextOverflow(msg, model.ContextWindow)`
   detects context-window overflow across providers.
-- `stream.Events()` consumes from a shared queue — use a single consumer per
-  stream.
+- `stream.Events(ctx)` consumes from a shared queue — use a single consumer
+  per stream.
+- If you `break` out of the `Events` loop before the stream terminates, cancel
+  `ctx`. The channel is unbuffered, so the goroutine feeding it blocks forever
+  on the next event otherwise. Passing `context.Background()` is only safe when
+  the loop always drains to completion.
 
 # Streaming events
 

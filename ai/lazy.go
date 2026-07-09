@@ -34,7 +34,14 @@ func LazyStream(ctx context.Context, model *Model, setup func(ctx context.Contex
 			outer.Push(ErrorEvent{Reason: StopReasonError, Error: message})
 			return
 		}
-		for ev := range inner.Events() {
+		// context.Background(), deliberately, not ctx: an aborted request
+		// still terminates the inner stream with an in-band aborted/error
+		// event, and that terminal event is exactly what has to reach outer.
+		// Cancelling this pump on ctx would race the adapter and swallow it,
+		// leaving outer.End(nil) to report a stream that ended without a
+		// result. Nothing leaks -- the adapter observes ctx itself and always
+		// terminates, so this loop always drains, and outer.Push never blocks.
+		for ev := range inner.Events(context.Background()) {
 			outer.Push(ev)
 		}
 		// A well-behaved inner stream terminates via done/error, which also

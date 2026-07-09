@@ -187,7 +187,7 @@ func TestFactoryErrorBecomesInBandErrorEvent(t *testing.T) {
 
 	stream := models.Stream(context.Background(), handle.GetModel(""), userContext("x"), nil)
 	var events []ai.Event
-	for ev := range stream.Events() {
+	for ev := range stream.Events(context.Background()) {
 		events = append(events, ev)
 	}
 	if len(events) != 1 {
@@ -212,7 +212,7 @@ func TestEventProtocolSequence(t *testing.T) {
 
 	stream := models.Stream(context.Background(), handle.GetModel(""), userContext("x"), nil)
 	var kinds []ai.EventType
-	for ev := range stream.Events() {
+	for ev := range stream.Events(context.Background()) {
 		kinds = append(kinds, ev.EventKind())
 		// Every non-terminal event carries a partial snapshot.
 		if !ai.IsTerminalEvent(ev) {
@@ -305,7 +305,7 @@ func TestAbortMidStream(t *testing.T) {
 
 	sawDelta := false
 	var terminal ai.Event
-	for ev := range stream.Events() {
+	for ev := range stream.Events(context.Background()) {
 		if ev.EventKind() == ai.EventTextDelta && !sawDelta {
 			sawDelta = true
 			cancel()

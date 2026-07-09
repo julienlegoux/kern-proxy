@@ -69,7 +69,7 @@ func TestLiveSmoke_AnthropicOpus48StreamsWithReasoning(t *testing.T) {
 	stream := StreamSimple(ctx, model, chat, opts)
 
 	sawThinking := false
-	for ev := range stream.Events() {
+	for ev := range stream.Events(context.Background()) {
 		switch ev.EventKind() {
 		case ai.EventThinkingStart, ai.EventThinkingDelta, ai.EventThinkingEnd:
 			sawThinking = true

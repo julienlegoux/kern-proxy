@@ -5,6 +5,7 @@ package ai
 
 import (
 	"context"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -22,7 +23,7 @@ func TestStreamDeliversEventsInOrder(t *testing.T) {
 	}()
 
 	var kinds []EventType
-	for ev := range s.Events() {
+	for ev := range s.Events(context.Background()) {
 		kinds = append(kinds, ev.EventKind())
 	}
 	want := []EventType{EventStart, EventTextStart, EventTextDelta, EventTextDelta, EventTextEnd, EventDone}
@@ -77,7 +78,7 @@ func TestStreamDropsEventsAfterTerminal(t *testing.T) {
 	s.Push(DoneEvent{Reason: StopReasonStop, Message: &AssistantMessage{}})
 
 	count := 0
-	for range s.Events() {
+	for range s.Events(context.Background()) {
 		count++
 	}
 	if count != 1 {
@@ -104,7 +105,7 @@ func TestStreamEndWakesConsumers(t *testing.T) {
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
-		for range s.Events() {
+		for range s.Events(context.Background()) {
 		}
 	}()
 	s.End(nil)
@@ -125,10 +126,140 @@ func TestStreamConsumeThenResult(t *testing.T) {
 		s.Push(StartEvent{Partial: final})
 		s.Push(DoneEvent{Reason: StopReasonToolUse, Message: final})
 	}()
-	for range s.Events() {
+	for range s.Events(context.Background()) {
 	}
 	got, err := s.Result(context.Background())
 	if err != nil || got != final {
 		t.Fatalf("got %v, %v", got, err)
+	}
+}
+
+// --- Events(ctx) cancellation ------------------------------------------------
+//
+// Events' pump goroutine sends on an unbuffered channel. Without a cancel path
+// a consumer that stops ranging early strands that goroutine forever, holding
+// the stream and every event it references live. These tests pin the contract
+// that makes the leak impossible: cancelling ctx unblocks the pump wherever it
+// is parked -- mid-send on the channel, or asleep in the condition variable
+// waiting for an event that never comes.
+
+// pumpExited reports whether the pump closed ch (its `defer close(ch)`) within
+// the deadline. Channel closure is the pump's own done-signal: it can only
+// happen from inside the goroutine, as its last act.
+func pumpExited(t *testing.T, ch <-chan Event, within time.Duration) bool {
+	t.Helper()
+	deadline := time.After(within)
+	for {
+		select {
+		case _, open := <-ch:
+			if !open {
+				return true
+			}
+			// A buffered-up event we don't care about; keep draining.
+		case <-deadline:
+			return false
+		}
+	}
+}
+
+// TestStreamEventsPumpExitsWhenConsumerStopsEarly is the leak itself: the
+// consumer takes one event and walks away from a stream that never terminates.
+// The pump is parked on `ch <- ev` with the next event.
+func TestStreamEventsPumpExitsWhenConsumerStopsEarly(t *testing.T) {
+	s := NewStream()
+	msg := &AssistantMessage{StopReason: StopReasonStop}
+	ctx, cancel := context.WithCancel(context.Background())
+
+	ch := s.Events(ctx)
+	s.Push(StartEvent{Partial: msg})
+	s.Push(TextDeltaEvent{ContentIndex: 0, Delta: "one", Partial: msg})
+	s.Push(TextDeltaEvent{ContentIndex: 0, Delta: "two", Partial: msg})
+
+	<-ch // consume exactly one event, then break out of the loop
+	cancel()
+
+	if !pumpExited(t, ch, time.Second) {
+		t.Fatal("pump goroutine still running after cancel: Events leaked it")
+	}
+}
+
+// TestStreamEventsPumpExitsWhileWaitingForEvents parks the pump in
+// s.cond.Wait() instead: the queue is empty and the stream never terminates,
+// so only a Broadcast can wake it. sync.Cond cannot select on ctx.Done().
+func TestStreamEventsPumpExitsWhileWaitingForEvents(t *testing.T) {
+	s := NewStream()
+	ctx, cancel := context.WithCancel(context.Background())
+
+	ch := s.Events(ctx)
+	time.Sleep(20 * time.Millisecond) // let the pump reach cond.Wait()
+	cancel()
+
+	if !pumpExited(t, ch, time.Second) {
+		t.Fatal("pump goroutine still parked in cond.Wait() after cancel")
+	}
+}
+
+// TestStreamEventsCancelledBeforeFirstEvent covers the already-cancelled ctx.
+func TestStreamEventsCancelledBeforeFirstEvent(t *testing.T) {
+	s := NewStream()
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	if !pumpExited(t, s.Events(ctx), time.Second) {
+		t.Fatal("Events(cancelled ctx) did not close its channel")
+	}
+}
+
+// TestStreamEventsBackgroundContextDrainsFully is the regression guard for
+// every existing full-drain consumer: nothing about their behavior changes.
+func TestStreamEventsBackgroundContextDrainsFully(t *testing.T) {
+	s := NewStream()
+	msg := &AssistantMessage{StopReason: StopReasonStop}
+	go func() {
+		s.Push(StartEvent{Partial: msg})
+		s.Push(TextDeltaEvent{ContentIndex: 0, Delta: "hi", Partial: msg})
+		s.Push(DoneEvent{Reason: StopReasonStop, Message: msg})
+	}()
+
+	count := 0
+	for range s.Events(context.Background()) {
+		count++
+	}
+	if count != 3 {
+		t.Fatalf("drained %d events, want 3", count)
+	}
+}
+
+// TestStreamEventsLeavesNoGoroutinesBehind guards the cancellation plumbing
+// itself. Waking a pump parked in sync.Cond needs a watcher goroutine on
+// ctx.Done(); with context.Background() that channel is nil and never fires,
+// so the watcher must instead exit when the pump finishes. If it doesn't,
+// every completed stream leaks one goroutine -- trading the bug for a quieter
+// one.
+func TestStreamEventsLeavesNoGoroutinesBehind(t *testing.T) {
+	settle := func() int {
+		var n int
+		for i := 0; i < 50; i++ {
+			n = runtime.NumGoroutine()
+			time.Sleep(10 * time.Millisecond)
+			if runtime.NumGoroutine() == n {
+				return n
+			}
+		}
+		return n
+	}
+
+	before := settle()
+
+	for i := 0; i < 50; i++ {
+		s := NewStream()
+		msg := &AssistantMessage{StopReason: StopReasonStop}
+		s.Push(DoneEvent{Reason: StopReasonStop, Message: msg})
+		for range s.Events(context.Background()) {
+		}
+	}
+
+	if after := settle(); after > before+2 {
+		t.Fatalf("goroutines: %d before, %d after 50 fully-drained streams", before, after)
 	}
 }

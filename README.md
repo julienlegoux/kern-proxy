@@ -75,7 +75,7 @@ func main() {
 	}
 
 	stream := models.StreamSimple(ctx, model, chat, &ai.SimpleStreamOptions{})
-	for ev := range stream.Events() {
+	for ev := range stream.Events(ctx) {
 		if e, ok := ev.(ai.TextDeltaEvent); ok {
 			fmt.Print(e.Delta)
 		}

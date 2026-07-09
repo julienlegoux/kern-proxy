@@ -3,14 +3,15 @@ type: Issue
 title: "Fix the Stream.Events() goroutine leak with a context-taking signature"
 description: "Change Events() to Events(ctx context.Context) so the pump goroutine exits when the consumer stops early; update all in-repo consumers and record the TS-contract deviation in PORTING.md."
 tags: [epic-1]
-timestamp: 2026-07-09T01:20:16Z
+timestamp: 2026-07-09T12:45:00Z
 resource: https://github.com/julienlegoux/kern-proxy/issues/92
 epic: 1
 issue: 6
 slug: stream-events-context-cancel
 size: M
-status: open
+status: pr-open
 gh_issue: 92
+gh_pr: 103
 depends_on: []
 ---
 
