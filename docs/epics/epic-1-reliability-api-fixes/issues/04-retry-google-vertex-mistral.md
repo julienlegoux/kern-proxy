@@ -3,13 +3,13 @@ type: Issue
 title: "Adopt the retry helper in the google, vertex, and mistral adapters"
 description: "Switch the google, google/vertex, and mistral request paths to the shared HTTP retry helper so MaxRetries/MaxRetryDelay are honored, with per-adapter httptest coverage."
 tags: [epic-1]
-timestamp: 2026-07-09T11:35:00Z
+timestamp: 2026-07-09T11:50:00Z
 resource: https://github.com/julienlegoux/kern-proxy/issues/90
 epic: 1
 issue: 4
 slug: retry-google-vertex-mistral
 size: M
-status: pr-open
+status: done
 gh_issue: 90
 gh_pr: 101
 depends_on: [1]
