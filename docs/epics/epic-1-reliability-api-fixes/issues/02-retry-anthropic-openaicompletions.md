@@ -3,13 +3,13 @@ type: Issue
 title: "Adopt the retry helper in the anthropic and openaicompletions adapters"
 description: "Switch the anthropic and openaicompletions request paths to the shared HTTP retry helper so MaxRetries/MaxRetryDelay are honored, with per-adapter httptest coverage."
 tags: [epic-1]
-timestamp: 2026-07-09T10:40:00Z
+timestamp: 2026-07-09T10:50:00Z
 resource: https://github.com/julienlegoux/kern-proxy/issues/88
 epic: 1
 issue: 2
 slug: retry-anthropic-openaicompletions
 size: M
-status: pr-open
+status: done
 gh_issue: 88
 gh_pr: 99
 depends_on: [1]
