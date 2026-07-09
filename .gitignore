@@ -5,3 +5,6 @@ coverage.out
 dist/
 node_modules/
 .obsidian/
+
+# throwaway local live-testing web UI (go run ./testbed)
+testbed/
