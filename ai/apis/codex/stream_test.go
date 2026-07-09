@@ -444,7 +444,7 @@ func TestStream_AbortsBodyReadAfterHeadersArrive(t *testing.T) {
 	stream := Stream(ctx, model, chat, &ai.StreamOptions{APIKey: token, Transport: ai.TransportSSE})
 
 	sawFirstDelta := false
-	for ev := range stream.Events() {
+	for ev := range stream.Events(context.Background()) {
 		if d, ok := ev.(ai.TextDeltaEvent); ok {
 			sawFirstDelta = true
 			if d.Delta == "one" {

@@ -1041,7 +1041,7 @@ func TestStream_DecodesThinkingBlockWithSignatureDeltas(t *testing.T) {
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-ant-test"})
 
 	var thinkingDeltaCount, thinkingStartCount, thinkingEndCount int
-	for ev := range stream.Events() {
+	for ev := range stream.Events(context.Background()) {
 		switch ev.EventKind() {
 		case ai.EventThinkingStart:
 			thinkingStartCount++

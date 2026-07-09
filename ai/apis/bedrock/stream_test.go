@@ -8,6 +8,7 @@ package bedrock
 // synthetic AWS SDK stream events.
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -31,7 +32,7 @@ func newOutput(model *ai.Model) *ai.AssistantMessage {
 
 func drainEvents(out *ai.Stream) []ai.Event {
 	var events []ai.Event
-	for ev := range out.Events() {
+	for ev := range out.Events(context.Background()) {
 		events = append(events, ev)
 	}
 	return events

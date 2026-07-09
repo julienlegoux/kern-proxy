@@ -143,7 +143,7 @@ func TestStream_ToolCallArgumentsReparseOnEveryDelta(t *testing.T) {
 	stream := Stream(context.Background(), model, chat, &ai.StreamOptions{APIKey: "sk-test"})
 
 	var sawPartialArg bool
-	for ev := range stream.Events() {
+	for ev := range stream.Events(context.Background()) {
 		if d, ok := ev.(ai.ToolCallDeltaEvent); ok {
 			tc := d.Partial.Content[d.ContentIndex].(ai.ToolCall)
 			if path, ok := tc.Arguments["path"].(string); ok && path == "a" {

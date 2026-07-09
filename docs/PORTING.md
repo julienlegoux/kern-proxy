@@ -70,6 +70,13 @@ naming its upstream source.
 - **Cancellation**: TS `AbortSignal` → `context.Context` as the first argument
   of `Stream`/`Complete`; cancellation yields the in-band `error` event with
   StopReason `"aborted"`.
+- **`Stream.Events(ctx)`**: upstream's `EventStream` is an async iterator that
+  a JS consumer abandons with `break`, letting the generator be garbage
+  collected. Go's equivalent is a goroutine feeding an unbuffered channel, and
+  abandoning it strands that goroutine forever. `Events` therefore takes a
+  `context.Context` where upstream takes nothing, and its pump exits on
+  cancellation. A consumer that stops ranging early must cancel; pass
+  `context.Background()` only when the loop always runs to completion.
 - **Durations**: TS `timeoutMs`-style numbers → `time.Duration` fields.
 - **Compat struct**: the three per-api TS compat interfaces merge into one flat
   `ai.Compat` struct; adapters read only their own fields.
