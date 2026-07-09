@@ -243,7 +243,9 @@ func ExponentialDelay(attempt int) time.Duration {
 //
 // Both text classifications come from ai/retry.go, so the request-level retry
 // loop and the assistant-turn-level one (ai.IsRetryableAssistantError) agree
-// on what "transient" means.
+// on what "transient" means. The text fallback uses the status-code-free
+// subset: a raw error body is not a composed assistant message, so digits in
+// it ("max_tokens: 15000") carry no meaning.
 func IsRetryable(status int, errorText string) bool {
 	if ai.IsNonRetryableProviderLimitError(errorText) {
 		return false
@@ -253,7 +255,7 @@ func IsRetryable(status int, errorText string) bool {
 		http.StatusServiceUnavailable, http.StatusGatewayTimeout:
 		return true
 	}
-	return ai.IsRetryableProviderErrorText(errorText)
+	return ai.IsTransientProviderErrorText(errorText)
 }
 
 // RetryAfterDelay reads the server-requested delay (ports
