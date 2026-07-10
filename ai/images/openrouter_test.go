@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 func TestGenerateImagesOpenRouter_ReturnsTextPlusImagesInFinalOutput(t *testing.T) {

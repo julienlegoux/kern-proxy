@@ -29,10 +29,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis"
-	"github.com/julienlegoux/kern-proxy/ai/apis/internal/httpretry"
-	"github.com/julienlegoux/kern-proxy/ai/apis/openairesponses"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis"
+	"github.com/julienlegoux/kern-link/ai/apis/internal/httpretry"
+	"github.com/julienlegoux/kern-link/ai/apis/openairesponses"
 )
 
 // defaultCodexBaseURL is Codex's default backend, used when the model

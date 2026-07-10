@@ -3,10 +3,10 @@ package providers
 // Ports: packages/ai/src/providers/google.ts
 
 import (
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis/google"
-	"github.com/julienlegoux/kern-proxy/ai/auth"
-	"github.com/julienlegoux/kern-proxy/ai/catalog"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis/google"
+	"github.com/julienlegoux/kern-link/ai/auth"
+	"github.com/julienlegoux/kern-link/ai/catalog"
 )
 
 // GoogleProvider builds the Google (Gemini) provider binding, over the

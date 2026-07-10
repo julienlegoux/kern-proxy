@@ -1,4 +1,4 @@
-// Package oauth ports the shared scaffolding behind kern-proxy's interactive
+// Package oauth ports the shared scaffolding behind kern-link's interactive
 // OAuth login flows (PKCE, a local callback server, and JSON token-exchange
 // plumbing), plus the Anthropic PKCE flow that is the first consumer.
 //

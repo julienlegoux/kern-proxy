@@ -16,7 +16,7 @@ package providers
 // and GitHub Copilot — see those bindings' own doc comments — bringing the
 // total to upstream's ~35 built-in providers.
 
-import "github.com/julienlegoux/kern-proxy/ai"
+import "github.com/julienlegoux/kern-link/ai"
 
 // Providers returns every built-in provider binding, freshly constructed.
 func Providers() []ai.Provider {

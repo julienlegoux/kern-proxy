@@ -23,7 +23,7 @@ import (
 // customHeadersMiddlewareID names the registered Build-step middleware.
 // Ports the MIDDLEWARE_NAME constant ("pi-ai-custom-headers"), renamed for
 // this port.
-const customHeadersMiddlewareID = "kern-proxy-bedrock-custom-headers"
+const customHeadersMiddlewareID = "kern-link-bedrock-custom-headers"
 
 // isReservedBedrockHeader reports whether key participates in SigV4 signing
 // or bearer-token auth, and so must never be overwritten by a

@@ -3,11 +3,11 @@ package providers
 // Ports: packages/ai/src/providers/opencode-go.ts
 
 import (
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis/anthropic"
-	"github.com/julienlegoux/kern-proxy/ai/apis/openaicompletions"
-	"github.com/julienlegoux/kern-proxy/ai/auth"
-	"github.com/julienlegoux/kern-proxy/ai/catalog"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis/anthropic"
+	"github.com/julienlegoux/kern-link/ai/apis/openaicompletions"
+	"github.com/julienlegoux/kern-link/ai/auth"
+	"github.com/julienlegoux/kern-link/ai/catalog"
 )
 
 // OpenCodeGoProvider builds the OpenCode Zen Go provider binding,

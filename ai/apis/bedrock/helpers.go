@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 // providerEnvValue reads name from the request-scoped env override first,

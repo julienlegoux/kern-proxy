@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 func vendorModel(provider, baseURL string) *ai.Model {

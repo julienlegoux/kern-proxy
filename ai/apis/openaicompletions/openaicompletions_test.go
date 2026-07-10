@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 // writeChunkedSSE formats OpenAI-style SSE: each event is "data: <json>\n\n",

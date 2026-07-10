@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 // cacheAffinityModel builds an openrouter-style model whose compat can be

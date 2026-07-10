@@ -1,7 +1,7 @@
-# kern-proxy
+# kern-link
 
-[![Test](https://github.com/julienlegoux/kern-proxy/actions/workflows/test.yml/badge.svg)](https://github.com/julienlegoux/kern-proxy/actions/workflows/test.yml)
-[![Go Reference](https://pkg.go.dev/badge/github.com/julienlegoux/kern-proxy/ai.svg)](https://pkg.go.dev/github.com/julienlegoux/kern-proxy/ai)
+[![Test](https://github.com/julienlegoux/kern-link/actions/workflows/test.yml/badge.svg)](https://github.com/julienlegoux/kern-link/actions/workflows/test.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/julienlegoux/kern-link/ai.svg)](https://pkg.go.dev/github.com/julienlegoux/kern-link/ai)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A unified LLM API for Go: one streaming interface across 35 providers —
@@ -10,7 +10,7 @@ GitHub Copilot, OpenAI Codex, OpenRouter, Groq, xAI, and more — with automatic
 credential resolution (env keys and OAuth), token & cost tracking, and
 conversations you can persist and hand off to a different model mid-session.
 
-kern-proxy is a full-parity Go port of
+kern-link is a full-parity Go port of
 [`@earendil-works/pi-ai`](https://github.com/earendil-works/pi/tree/main/packages/ai)
 that tracks upstream over time.
 
@@ -40,7 +40,7 @@ that tracks upstream over time.
 ## Install
 
 ```sh
-go get github.com/julienlegoux/kern-proxy
+go get github.com/julienlegoux/kern-link
 ```
 
 ## Quick start
@@ -54,8 +54,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/providers"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/providers"
 )
 
 func main() {
@@ -108,7 +108,7 @@ Set the provider's env var (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
 `GEMINI_API_KEY`, …) or log in once over OAuth:
 
 ```sh
-go run github.com/julienlegoux/kern-proxy/cmd/pi-ai login
+go run github.com/julienlegoux/kern-link/cmd/pi-ai login
 ```
 
 Credentials land in `~/.pi/agent/auth.json` and are picked up (and refreshed)
@@ -123,7 +123,7 @@ The two paths carry different terms-of-service risk:
   — billed per token under a developer agreement written for programmatic
   access. No ToS risk. Use these in anything you ship.
 - **Subscription OAuth** (Claude Pro/Max, ChatGPT Plus/Pro, GitHub Copilot) —
-  `pi-ai login` yields a first-party client's credential, and kern-proxy then
+  `pi-ai login` yields a first-party client's credential, and kern-link then
   presents itself as that client (`user-agent: claude-cli/…`,
   `Editor-Version: vscode/…`). This is inherited upstream behavior and it is
   fine for personal use. Shipping it in a product means directing users to
@@ -137,7 +137,7 @@ the details.
 
 | Doc | What's in it |
 |---|---|
-| [pkg.go.dev](https://pkg.go.dev/github.com/julienlegoux/kern-proxy/ai) | API reference with runnable examples |
+| [pkg.go.dev](https://pkg.go.dev/github.com/julienlegoux/kern-link/ai) | API reference with runnable examples |
 | [docs/usage.md](docs/usage.md) | Streaming, tool calls, thinking levels, cost tracking, persistence & model hand-off, offline testing |
 | [docs/architecture.md](docs/architecture.md) | Package layering, the unified message/event model, request flow, provider list |
 | [docs/auth.md](docs/auth.md) | Env keys per provider, credential store, OAuth flows, the `pi-ai` CLI |

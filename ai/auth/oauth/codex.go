@@ -37,7 +37,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 const (

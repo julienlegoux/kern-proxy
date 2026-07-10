@@ -27,7 +27,7 @@ import (
 
 	"github.com/coder/websocket"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 // readCodexWSRequest reads and decodes one client message. Uses t.Errorf (not

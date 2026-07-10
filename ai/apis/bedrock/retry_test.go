@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 func intPtr(v int) *int { return &v }

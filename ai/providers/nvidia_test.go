@@ -11,7 +11,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/julienlegoux/kern-proxy/ai/catalog"
+	"github.com/julienlegoux/kern-link/ai/catalog"
 )
 
 func TestNvidiaProviderIsDynamic(t *testing.T) {

@@ -35,7 +35,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 // clientConfig is the resolved Bedrock client configuration: everything the

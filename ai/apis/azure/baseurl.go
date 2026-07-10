@@ -11,7 +11,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 // defaultAzureAPIVersion is DEFAULT_AZURE_API_VERSION: Azure's unversioned

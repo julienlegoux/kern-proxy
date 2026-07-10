@@ -1,4 +1,4 @@
-module github.com/julienlegoux/kern-proxy
+module github.com/julienlegoux/kern-link
 
 go 1.25.0
 

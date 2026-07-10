@@ -10,8 +10,8 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis"
 )
 
 // wireMessage is one entry of the Mistral chat completions `messages` array.

@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 func compatModel(provider, baseURL, id string) *ai.Model {

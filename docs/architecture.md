@@ -1,14 +1,14 @@
 ---
 type: Reference
 title: Architecture
-description: Package layering of the kern-proxy library — domain core, wire adapters, provider registry, auth, embedded catalog — and how a streaming request flows through them.
+description: Package layering of the kern-link library — domain core, wire adapters, provider registry, auth, embedded catalog — and how a streaming request flows through them.
 tags: [architecture, packages, providers]
 timestamp: "2026-07-09"
 ---
 
 # Architecture
 
-kern-proxy is a library, not a server. Everything builds on the domain core in
+kern-link is a library, not a server. Everything builds on the domain core in
 package `ai`: a unified message model and streaming event protocol that every
 provider adapter translates to and from.
 

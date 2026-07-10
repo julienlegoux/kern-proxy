@@ -34,11 +34,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis"
-	"github.com/julienlegoux/kern-proxy/ai/apis/internal/httpretry"
-	"github.com/julienlegoux/kern-proxy/ai/internal/partialjson"
-	"github.com/julienlegoux/kern-proxy/ai/internal/sse"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis"
+	"github.com/julienlegoux/kern-link/ai/apis/internal/httpretry"
+	"github.com/julienlegoux/kern-link/ai/internal/partialjson"
+	"github.com/julienlegoux/kern-link/ai/internal/sse"
 )
 
 const chatCompletionsPath = "/chat/completions"

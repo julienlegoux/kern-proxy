@@ -3,10 +3,10 @@ package providers
 // Ports: packages/ai/src/providers/minimax.ts
 
 import (
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis/anthropic"
-	"github.com/julienlegoux/kern-proxy/ai/auth"
-	"github.com/julienlegoux/kern-proxy/ai/catalog"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis/anthropic"
+	"github.com/julienlegoux/kern-link/ai/auth"
+	"github.com/julienlegoux/kern-link/ai/catalog"
 )
 
 // MiniMaxProvider builds the MiniMax provider binding, over the

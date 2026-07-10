@@ -7,8 +7,8 @@ package codex
 import (
 	"strings"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis/openairesponses"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis/openairesponses"
 )
 
 // codexToolCallProviders ports CODEX_TOOL_CALL_PROVIDERS: the providers whose

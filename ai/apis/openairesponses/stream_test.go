@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 // writeResponsesSSE formats each event as "event: <type>\ndata: <json>\n\n",

@@ -10,7 +10,7 @@ package anthropic
 // SDK error message already "folds the body into the message" (status code +
 // the JSON-stringified error body, or "<status> status code (no body)" when
 // the body is empty — the exact wording that comment calls out for a bodyless
-// 403). kern-proxy has no vendored SDK, so this package composes the
+// 403). kern-link has no vendored SDK, so this package composes the
 // equivalent text itself from the raw net/http response, in the same shape,
 // so ai/retry.go and ai/overflow.go's text-pattern classifiers (already
 // ported from Epic 1) can fire against real Anthropic error responses:
@@ -28,7 +28,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 func jsonErrorServer(t *testing.T, status int, body string) *httptest.Server {
