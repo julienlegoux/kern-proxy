@@ -16,8 +16,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/providers"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/providers"
 )
 
 func TestLiveSmoke_GeminiToolCallRoundTrip(t *testing.T) {

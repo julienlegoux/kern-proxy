@@ -32,7 +32,7 @@ import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
-	ai "github.com/julienlegoux/kern-proxy/ai"
+	ai "github.com/julienlegoux/kern-link/ai"
 )
 
 var errPrinter = message.NewPrinter(language.English)

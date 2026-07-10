@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/providers/faux"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/providers/faux"
 )
 
 // fakeProvider builds a minimal ai.Provider with the given id/name/models,

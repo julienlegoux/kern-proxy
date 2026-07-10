@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 func reasoningModel(thinkingFormat ai.ThinkingFormat, thinkingLevelMap ai.ThinkingLevelMap, supportsReasoningEffort *bool) *ai.Model {

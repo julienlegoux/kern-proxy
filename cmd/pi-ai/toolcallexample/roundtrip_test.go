@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/providers/faux"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/providers/faux"
 )
 
 func TestRun_FauxToolCallRoundTrip(t *testing.T) {

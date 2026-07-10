@@ -1,30 +1,30 @@
 ---
 type: Guide
 title: Usage guide
-description: Installing kern-proxy and using the unified API — model registry, streaming, tool calls, thinking levels, cost tracking, and session persistence.
+description: Installing kern-link and using the unified API — model registry, streaming, tool calls, thinking levels, cost tracking, and session persistence.
 tags: [usage, quick-start, streaming, tools]
 timestamp: "2026-07-09"
 ---
 
 # Usage guide
 
-kern-proxy is a Go library — there is no server to run. You import it, build a
+kern-link is a Go library — there is no server to run. You import it, build a
 model registry, and stream.
 
 # Install
 
 ```sh
-go get github.com/julienlegoux/kern-proxy
+go get github.com/julienlegoux/kern-link
 ```
 
 Import paths:
 
 | Package | Purpose |
 |---|---|
-| `github.com/julienlegoux/kern-proxy/ai` | Core types: `Context`, `Model`, messages, events, options, cost |
-| `github.com/julienlegoux/kern-proxy/ai/providers` | Built-in provider registry (`providers.Models`) |
-| `github.com/julienlegoux/kern-proxy/ai/auth` | Persistent credential store, env-key helpers |
-| `github.com/julienlegoux/kern-proxy/ai/providers/faux` | In-process fake provider for tests |
+| `github.com/julienlegoux/kern-link/ai` | Core types: `Context`, `Model`, messages, events, options, cost |
+| `github.com/julienlegoux/kern-link/ai/providers` | Built-in provider registry (`providers.Models`) |
+| `github.com/julienlegoux/kern-link/ai/auth` | Persistent credential store, env-key helpers |
+| `github.com/julienlegoux/kern-link/ai/providers/faux` | In-process fake provider for tests |
 
 # Quick start
 
@@ -39,9 +39,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/auth"
-	"github.com/julienlegoux/kern-proxy/ai/providers"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/auth"
+	"github.com/julienlegoux/kern-link/ai/providers"
 )
 
 func main() {

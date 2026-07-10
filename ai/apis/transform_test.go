@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 // anthropicNormalizeToolCallID mirrors the normalizeToolCallId used by

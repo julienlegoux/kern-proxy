@@ -8,11 +8,11 @@ package providers
 // by ai/auth/oauth (oauth.AnthropicOAuth).
 
 import (
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis/anthropic"
-	"github.com/julienlegoux/kern-proxy/ai/auth"
-	"github.com/julienlegoux/kern-proxy/ai/auth/oauth"
-	"github.com/julienlegoux/kern-proxy/ai/catalog"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis/anthropic"
+	"github.com/julienlegoux/kern-link/ai/auth"
+	"github.com/julienlegoux/kern-link/ai/auth/oauth"
+	"github.com/julienlegoux/kern-link/ai/catalog"
 )
 
 // AnthropicProvider builds the Anthropic provider binding.

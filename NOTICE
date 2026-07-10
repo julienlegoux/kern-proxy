@@ -1,4 +1,4 @@
-kern-proxy is a Go port of @earendil-works/pi-ai, the `packages/ai` package of
+kern-link is a Go port of @earendil-works/pi-ai, the `packages/ai` package of
 https://github.com/earendil-works/pi, used under the MIT License:
 
   Copyright (c) 2025 Mario Zechner

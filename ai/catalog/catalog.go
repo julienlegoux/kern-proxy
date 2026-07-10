@@ -1,4 +1,4 @@
-// Package catalog embeds kern-proxy's built-in model catalog: the JSON data
+// Package catalog embeds kern-link's built-in model catalog: the JSON data
 // under data/, exported from upstream's models.generated.ts and
 // image-models.generated.ts by tools/export-catalog (see that script's doc
 // comment and docs/PORTING.md's upstream-sync procedure). data/models has
@@ -23,7 +23,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 //go:embed data

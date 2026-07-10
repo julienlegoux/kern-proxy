@@ -7,12 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.1] - 2026-07-09
+## [0.1.1] - 2026-07-10
 
 ### Added
 
 - `doc.go` package overview for the root `ai` package, runnable examples for
   streaming, tool calling, and cost tracking, README badges, and this changelog.
+
+### Changed
+
+- Renamed the repository and Go module from `kern-proxy` to
+  `github.com/julienlegoux/kern-link`. GitHub redirects the old repository
+  URL, but new imports should use the new module path.
 
 ### Removed
 
@@ -54,6 +60,6 @@ hardened by an external adoption review.
   goroutine when a consumer stops ranging early.
 - All message types use pointer receivers consistently.
 
-[Unreleased]: https://github.com/julienlegoux/kern-proxy/compare/v0.1.1...HEAD
-[0.1.1]: https://github.com/julienlegoux/kern-proxy/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/julienlegoux/kern-proxy/releases/tag/v0.1.0
+[Unreleased]: https://github.com/julienlegoux/kern-link/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/julienlegoux/kern-link/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/julienlegoux/kern-link/releases/tag/v0.1.0

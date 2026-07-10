@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis/internal/httpretry"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis/internal/httpretry"
 )
 
 // TestMain shrinks the shared backoff base for every test in this package: the

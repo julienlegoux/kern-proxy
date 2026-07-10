@@ -1,4 +1,4 @@
-// Command pi-ai is the user-facing CLI for kern-proxy's OAuth login and
+// Command pi-ai is the user-facing CLI for kern-link's OAuth login and
 // built-in provider catalog.
 //
 // Ports: packages/ai/src/cli.ts's main() argv dispatch (login/list/help).
@@ -10,8 +10,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/julienlegoux/kern-proxy/ai/auth"
-	"github.com/julienlegoux/kern-proxy/ai/providers"
+	"github.com/julienlegoux/kern-link/ai/auth"
+	"github.com/julienlegoux/kern-link/ai/providers"
 )
 
 func main() {

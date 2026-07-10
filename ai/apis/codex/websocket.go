@@ -42,8 +42,8 @@ import (
 
 	"github.com/coder/websocket"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis/openairesponses"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis/openairesponses"
 )
 
 // openAIBetaResponsesWebSockets ports OPENAI_BETA_RESPONSES_WEBSOCKETS.

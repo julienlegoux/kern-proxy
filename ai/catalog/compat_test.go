@@ -14,7 +14,7 @@ package catalog
 import (
 	"testing"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 func TestCatalogCompatMatchesApi(t *testing.T) {

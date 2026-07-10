@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/julienlegoux/kern-proxy/ai/catalog"
+	"github.com/julienlegoux/kern-link/ai/catalog"
 )
 
 // CatalogModels decodes the embedded image-model catalog for provider (e.g.

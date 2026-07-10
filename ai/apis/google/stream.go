@@ -18,8 +18,8 @@ import (
 	"strconv"
 	"sync/atomic"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/internal/sse"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/internal/sse"
 )
 
 // blockKind discriminates the in-flight text/thinking block DecodeStream

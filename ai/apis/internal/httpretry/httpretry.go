@@ -24,7 +24,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 // DefaultMaxRetries is the retry cap adapters pass as Config.DefaultMaxRetries

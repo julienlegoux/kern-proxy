@@ -20,8 +20,8 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis"
 )
 
 // converseStreamAPI abstracts the one bedrockruntime.Client call this

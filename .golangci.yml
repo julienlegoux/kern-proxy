@@ -38,7 +38,7 @@ linters:
         - -ST1022
         # ST1005 (error strings: not capitalized, no trailing punctuation).
         #
-        # kern-proxy is a port. Its error text is copied verbatim from
+        # kern-link is a port. Its error text is copied verbatim from
         # @earendil-works/pi-ai, where these strings are user-facing and
         # sentence-cased -- "Request was aborted", "No API key for provider:
         # %s". Rewriting them to Go house style would be a silent behavior
