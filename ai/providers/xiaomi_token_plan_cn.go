@@ -3,10 +3,10 @@ package providers
 // Ports: packages/ai/src/providers/xiaomi-token-plan-cn.ts
 
 import (
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis/openaicompletions"
-	"github.com/julienlegoux/kern-proxy/ai/auth"
-	"github.com/julienlegoux/kern-proxy/ai/catalog"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis/openaicompletions"
+	"github.com/julienlegoux/kern-link/ai/auth"
+	"github.com/julienlegoux/kern-link/ai/catalog"
 )
 
 // XiaomiTokenPlanCNProvider builds the Xiaomi Token Plan CN provider

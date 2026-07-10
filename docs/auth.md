@@ -1,14 +1,14 @@
 ---
 type: Guide
 title: Auth & credentials
-description: How kern-proxy resolves provider credentials — env API keys, the persistent credential store, the pi-ai login CLI, per-provider OAuth flows, and the terms-of-service risk each credential mode carries.
+description: How kern-link resolves provider credentials — env API keys, the persistent credential store, the pi-ai login CLI, per-provider OAuth flows, and the terms-of-service risk each credential mode carries.
 tags: [auth, oauth, credentials, env, terms-of-service]
 timestamp: "2026-07-09"
 ---
 
 # Auth & credentials
 
-kern-proxy resolves credentials automatically per provider. You never wire an
+kern-link resolves credentials automatically per provider. You never wire an
 HTTP header yourself — set an env var, log in once with the CLI, or pass a key
 per request, and `ai.ResolveProviderAuth` does the rest.
 
@@ -91,9 +91,9 @@ keyed by provider id; `auth.DefaultPath()` is `~/.pi/agent/auth.json`
 # OAuth logins — the `pi-ai` CLI
 
 ```sh
-go run github.com/julienlegoux/kern-proxy/cmd/pi-ai login            # interactive picker
-go run github.com/julienlegoux/kern-proxy/cmd/pi-ai login anthropic  # direct
-go run github.com/julienlegoux/kern-proxy/cmd/pi-ai list             # providers + models
+go run github.com/julienlegoux/kern-link/cmd/pi-ai login            # interactive picker
+go run github.com/julienlegoux/kern-link/cmd/pi-ai login anthropic  # direct
+go run github.com/julienlegoux/kern-link/cmd/pi-ai list             # providers + models
 ```
 
 `login` saves to `~/.pi/agent/auth.json`; any program using
@@ -116,7 +116,7 @@ from `auth.json` or calling `CredentialStore.Delete`.
 
 # Credential modes and terms-of-service risk
 
-kern-proxy has two kinds of credential, and they carry different risk. Which
+kern-link has two kinds of credential, and they carry different risk. Which
 one you are on is decided by how you authenticated, not by which model you
 call.
 
@@ -133,7 +133,7 @@ is the mode to use in anything you ship.
 Logging in with `pi-ai login` to **Claude Pro/Max** (`anthropic`), **ChatGPT
 Plus/Pro** (`openai-codex`), or **GitHub Copilot** (`github-copilot`) does not
 give you an API key. It gives you the credential a *first-party client* uses,
-and kern-proxy then presents itself as that client so the request is accepted:
+and kern-link then presents itself as that client so the request is accepted:
 
 * `anthropic` sends `user-agent: claude-cli/<version>` and `x-app: cli`, plus
   the `oauth-2025-04-20` beta header — the Claude Code CLI's own identity
@@ -145,7 +145,7 @@ and kern-proxy then presents itself as that client so the request is accepted:
 
 This is inherited upstream behavior, ported faithfully from
 [`@earendil-works/pi-ai`](https://github.com/earendil-works/pi/tree/main/packages/ai),
-not something kern-proxy invented. It is why a Claude Pro subscription can
+not something kern-link invented. It is why a Claude Pro subscription can
 drive this library at all.
 
 What it means for you:
@@ -158,7 +158,7 @@ What it means for you:
   for this. Their consumer terms cover subscription plans; the developer
   agreement that permits programmatic access covers API keys.
 
-Nothing in kern-proxy stops you from using OAuth credentials in production.
+Nothing in kern-link stops you from using OAuth credentials in production.
 Nothing in the provider's terms stops them from closing the account when you
 do. If you are building something you intend to distribute, use API keys.
 

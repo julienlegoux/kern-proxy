@@ -23,7 +23,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 // withFakeCodexTokenServer points codexTokenURL at an httptest server for the

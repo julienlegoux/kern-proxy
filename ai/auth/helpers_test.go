@@ -7,7 +7,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 type mapAuthContext map[string]string

@@ -7,7 +7,7 @@ package bedrock
 import (
 	"testing"
 
-	"github.com/julienlegoux/kern-proxy/ai"
+	"github.com/julienlegoux/kern-link/ai"
 )
 
 func opus48() *ai.Model {

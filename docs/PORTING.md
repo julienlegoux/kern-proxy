@@ -6,9 +6,9 @@ tags: [porting, upstream, parity]
 timestamp: "2026-07-09"
 ---
 
-# Porting map: @earendil-works/pi-ai → kern-proxy (Go)
+# Porting map: @earendil-works/pi-ai → kern-link (Go)
 
-kern-proxy is a full-parity Go rebuild of
+kern-link is a full-parity Go rebuild of
 [`@earendil-works/pi-ai`](https://github.com/earendil-works/pi/tree/main/packages/ai).
 The pinned upstream revision lives in `upstream/UPSTREAM.lock`; use
 `upstream/sync.sh` to diff upstream changes since the pin.

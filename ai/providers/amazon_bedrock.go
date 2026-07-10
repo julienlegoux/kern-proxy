@@ -9,9 +9,9 @@ package providers
 import (
 	"context"
 
-	"github.com/julienlegoux/kern-proxy/ai"
-	"github.com/julienlegoux/kern-proxy/ai/apis/bedrock"
-	"github.com/julienlegoux/kern-proxy/ai/catalog"
+	"github.com/julienlegoux/kern-link/ai"
+	"github.com/julienlegoux/kern-link/ai/apis/bedrock"
+	"github.com/julienlegoux/kern-link/ai/catalog"
 )
 
 func resolveBedrockAuth(_ context.Context, input ai.APIKeyResolveInput) (*ai.AuthResult, error) {
