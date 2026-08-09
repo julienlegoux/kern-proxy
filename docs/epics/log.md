@@ -25,3 +25,9 @@
 * **Creation**: Established [Issue 10: Dispatch deferred responses through ProviderStreams, Provider, and Models](/epic-2-core-types-and-models-contracts/issues/10-deferred-response-dispatch.md) (#138).
 * **Creation**: Established [Issue 11: Port utils/deferred-tools.ts as the deferred-tool split](/epic-2-core-types-and-models-contracts/issues/11-deferred-tools-split.md) (#139).
 * **Creation**: Established [Issue 12: Prove the pending and deferred stop reasons end to end through the faux provider](/epic-2-core-types-and-models-contracts/issues/12-faux-deferred-responses.md) (#140).
+* **Creation**: Established [Issue 01: Spike — price tools/export-catalog against upstream 936aff00](/epic-3-catalog-schema-and-export-tooling/issues/01-export-catalog-spike.md) (#141).
+* **Creation**: Established [Issue 02: Rework tools/export-catalog to consume upstream's generated JSON catalog](/epic-3-catalog-schema-and-export-tooling/issues/02-export-catalog-json-input.md) (#142).
+* **Creation**: Established [Issue 03: Bring ai/catalog validation up to the 0.84.1 schema](/epic-3-catalog-schema-and-export-tooling/issues/03-catalog-validation-0-84-1.md) (#143).
+* **Creation**: Established [Issue 04: Regenerate the embedded model catalog from upstream 936aff00](/epic-3-catalog-schema-and-export-tooling/issues/04-regenerate-model-catalog.md) (#144).
+* **Creation**: Established [Issue 05: Regenerate the image catalog and cover its decode path](/epic-3-catalog-schema-and-export-tooling/issues/05-regenerate-image-catalog.md) (#145).
+* **Creation**: Established [Issue 06: Honor MaxRetries and MaxRetryDelay in the OpenRouter images adapter](/epic-3-catalog-schema-and-export-tooling/issues/06-images-adapter-retry.md) (#146).
