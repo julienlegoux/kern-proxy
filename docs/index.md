@@ -15,4 +15,5 @@ Documentation bundle for kern-link, a unified LLM API for Go. Start with the
 
 Development planning lives in a separate bundle, [`docs/planning/`](planning/index.md) —
 technical specs and code conventions reverse-engineered from the codebase, for
-planning changes rather than consuming the library.
+planning changes rather than consuming the library. The epics that plan is split
+into live in a third bundle, [`docs/epics/`](epics/index.md).
