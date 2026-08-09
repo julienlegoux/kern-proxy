@@ -1,5 +1,28 @@
 # Log
 
+## 2026-08-09
+
+* **Creation**: scoped the upstream sync 0.80.3 → 0.84.1 into [SCOPE.md](SCOPE.md)
+  over a 26-decision [ledger](scope/index.md) — 22 decided, 4 N/A. Entered through
+  `define-change`, which stopped at its size guard: the measured diff is 232 files,
+  +19531/−21423 over 207 commits, well past one epic. The target is frozen at
+  upstream `936aff00`, and the program cuts into nine milestones.
+* **Decision**: the run's governing principle, set by the maintainer and reversing
+  three provisional verdicts ([09](scope/09-new-oauth-flows.md),
+  [10](scope/10-new-provider-bindings.md), [13](scope/13-pi-messages-adapter.md)):
+  a deviation must be justified by *structural non-portability*, never by cost —
+  because a deviation is not a postponement but the loss of the Go base the next
+  sync's diff must apply against. That brought ~3178 lines (four OAuth flows, the
+  radius provider, the pi-messages adapter) back into scope and tightened the
+  parity bar in [02](scope/02-parity-bar.md).
+* **Note**: two facts surfaced during deep-dive that the intake had not
+  anticipated. The repository, its tags and both releases have already transferred
+  to `kern-ia/kern-link`, but the Go module path had not — 355 references still
+  read `github.com/julienlegoux/kern-link` ([26](scope/26-module-path-migration.md)).
+  And the other Kern packages are on Go 1.26 while this one declares 1.25.0
+  ([19](scope/19-constraints.md)). Both are mechanical `go.mod` changes that would
+  conflict with every in-flight branch, so they pair as milestone 1.
+
 ## 2026-08-08
 
 * **Creation**: mapped kern-link at `b70cba3` — wrote [SPECS](SPECS.md) and
