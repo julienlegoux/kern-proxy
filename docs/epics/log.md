@@ -65,3 +65,9 @@
 * **Creation**: Established [Issue 09: Copilot — policy-state model fallback for individual accounts, and a disposition for the unported availability calls](/epic-6-auth-core-and-env-api-key-bindings/issues/09-copilot-model-availability.md) (#178).
 * **Creation**: Established [Issue 10: Bind baseten and the three qwen-token-plan providers](/epic-6-auth-core-and-env-api-key-bindings/issues/10-env-api-key-bindings.md) (#179).
 * **Creation**: Established [Issue 11: Point docs/PORTING.md at upstream's src/auth/* paths and disposition the new auth files](/epic-6-auth-core-and-env-api-key-bindings/issues/11-porting-paths-and-dispositions.md) (#180).
+* **Creation**: Established [Issue 01: Port the xAI device-code OAuth flow and bind it to the xai provider](/epic-7-four-new-oauth-flows/issues/01-xai-device-code-oauth.md) (#181).
+* **Creation**: Established [Issue 02: Port the Kimi Code device-code OAuth flow with its retrying refresh, and bind it to kimi-coding](/epic-7-four-new-oauth-flows/issues/02-kimi-coding-device-code-oauth.md) (#182).
+* **Creation**: Established [Issue 03: Port the OpenRouter PKCE OAuth flow and bind it to both OpenRouter providers](/epic-7-four-new-oauth-flows/issues/03-openrouter-pkce-oauth.md) (#183).
+* **Creation**: Established [Issue 04: Port the Radius gateway OAuth flow: discovery, browser PKCE, and device code](/epic-7-four-new-oauth-flows/issues/04-radius-gateway-oauth.md) (#184).
+* **Creation**: Established [Issue 05: Offer every registered OAuth provider in pi-ai login, using each flow's login label](/epic-7-four-new-oauth-flows/issues/05-cli-login-new-flows.md) (#185).
+* **Creation**: Established [Issue 06: Document the four new flows in docs/auth.md and disposition their files in docs/PORTING.md](/epic-7-four-new-oauth-flows/issues/06-auth-docs-and-porting.md) (#186).
