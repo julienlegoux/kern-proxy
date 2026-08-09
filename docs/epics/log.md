@@ -31,3 +31,15 @@
 * **Creation**: Established [Issue 04: Regenerate the embedded model catalog from upstream 936aff00](/epic-3-catalog-schema-and-export-tooling/issues/04-regenerate-model-catalog.md) (#144).
 * **Creation**: Established [Issue 05: Regenerate the image catalog and cover its decode path](/epic-3-catalog-schema-and-export-tooling/issues/05-regenerate-image-catalog.md) (#145).
 * **Creation**: Established [Issue 06: Honor MaxRetries and MaxRetryDelay in the OpenRouter images adapter](/epic-3-catalog-schema-and-export-tooling/issues/06-images-adapter-retry.md) (#146).
+* **Creation**: Established [Issue 01: Port constrained-sampling.ts as a shared grammar package](/epic-4-openai-family-adapters/issues/01-constrained-sampling-core.md) (#147).
+* **Creation**: Established [Issue 02: Honor Fetch and SamplingParams in the four OpenAI-family adapters](/epic-4-openai-family-adapters/issues/02-fetch-and-sampling-params.md) (#148).
+* **Creation**: Established [Issue 03: openai-completions — emit and stream grammar custom tools](/epic-4-openai-family-adapters/issues/03-completions-grammar-custom-tools.md) (#149).
+* **Creation**: Established [Issue 04: openai-completions — baseten thinking format and thinking_token_budget](/epic-4-openai-family-adapters/issues/04-completions-thinking-formats.md) (#150).
+* **Creation**: Established [Issue 05: openai-completions — Kimi deferred tools, finish-reason inference, and tool call ids](/epic-4-openai-family-adapters/issues/05-completions-deferred-tools-and-finish-reason.md) (#151).
+* **Creation**: Established [Issue 06: Shared responses core — grammar custom tools and tool-result output](/epic-4-openai-family-adapters/issues/06-responses-shared-grammar-and-tool-results.md) (#152).
+* **Creation**: Established [Issue 07: Shared responses core — tool namespaces and deferred tool loading](/epic-4-openai-family-adapters/issues/07-responses-shared-namespace-and-deferred-tools.md) (#153).
+* **Creation**: Established [Issue 08: Shared responses core — custom tool-call streaming, reasoning backfill, stop reasons](/epic-4-openai-family-adapters/issues/08-responses-shared-stream-decode.md) (#154).
+* **Creation**: Established [Issue 09: openai-responses — compat resolution, session affinity, and tool wiring](/epic-4-openai-family-adapters/issues/09-openai-responses-compat-and-wiring.md) (#155).
+* **Creation**: Established [Issue 10: azure-openai-responses — grammar tools and the pending stop reason](/epic-4-openai-family-adapters/issues/10-azure-responses-wiring.md) (#156).
+* **Creation**: Established [Issue 11: openai-codex-responses — request body tools, end_turn and stop-reason guards](/epic-4-openai-family-adapters/issues/11-codex-request-body-and-stop-reasons.md) (#157).
+* **Creation**: Established [Issue 12: openai-codex-responses — session ids, UUIDv7, and the continuation retry](/epic-4-openai-family-adapters/issues/12-codex-session-ids-and-continuation-retry.md) (#158).
