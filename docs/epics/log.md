@@ -43,3 +43,14 @@
 * **Creation**: Established [Issue 10: azure-openai-responses — grammar tools and the pending stop reason](/epic-4-openai-family-adapters/issues/10-azure-responses-wiring.md) (#156).
 * **Creation**: Established [Issue 11: openai-codex-responses — request body tools, end_turn and stop-reason guards](/epic-4-openai-family-adapters/issues/11-codex-request-body-and-stop-reasons.md) (#157).
 * **Creation**: Established [Issue 12: openai-codex-responses — session ids, UUIDv7, and the continuation retry](/epic-4-openai-family-adapters/issues/12-codex-session-ids-and-continuation-retry.md) (#158).
+* **Creation**: Established [Issue 01: Close the Copilot dynamic-headers gap](/epic-5-remaining-adapters/issues/01-copilot-dynamic-headers.md) (#159).
+* **Creation**: Established [Issue 02: anthropic — pending and raw stop reasons, prefilled content blocks, and nullable message_delta usage](/epic-5-remaining-adapters/issues/02-anthropic-stream-lifecycle.md) (#160).
+* **Creation**: Established [Issue 03: anthropic — strict tool schemas and signature-only thinking blocks](/epic-5-remaining-adapters/issues/03-anthropic-strict-tools-and-signed-thinking.md) (#161).
+* **Creation**: Established [Issue 04: anthropic — deferred tools via defer_loading and tool_reference blocks](/epic-5-remaining-adapters/issues/04-anthropic-deferred-tools.md) (#162).
+* **Creation**: Established [Issue 05: google-shared — Gemini 3 tool-call ids, signature-bearing empty blocks, and the VALIDATED function-calling mode](/epic-5-remaining-adapters/issues/05-google-shared-converters.md) (#163).
+* **Creation**: Established [Issue 06: google + vertex — pending and raw stop reasons, toolConfig wiring, and the max thinking level](/epic-5-remaining-adapters/issues/06-google-and-vertex-stream-and-params.md) (#164).
+* **Creation**: Established [Issue 07: mistral — pending and raw stop reasons with provider-stopped error text, and strict tool sampling](/epic-5-remaining-adapters/issues/07-mistral-stop-reasons-and-strict-tools.md) (#165).
+* **Creation**: Established [Issue 08: mistral — request-shape and header parity with the SDK-free upstream client](/epic-5-remaining-adapters/issues/08-mistral-wire-and-header-parity.md) (#166).
+* **Creation**: Established [Issue 09: bedrock — pending and raw stop reasons, strict tool schemas, and the Claude 5 model matrix](/epic-5-remaining-adapters/issues/09-bedrock-stop-reasons-strict-tools-and-claude-5.md) (#167).
+* **Creation**: Established [Issue 10: bedrock — profile precedence over ambient keys, apiKey as a bearer token, and the response-failure diagnostic](/epic-5-remaining-adapters/issues/10-bedrock-credentials-and-diagnostics.md) (#168).
+* **Creation**: Established [Issue 11: cloudflare-stream — classify upstream's dispatch-time base-URL resolution and give it a Go home](/epic-5-remaining-adapters/issues/11-cloudflare-stream-classification.md) (#169).
