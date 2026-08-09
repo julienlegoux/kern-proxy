@@ -11,3 +11,5 @@
 * **Creation**: Established [Epic 7: Four new OAuth flows](/epic-7-four-new-oauth-flows/EPIC_7.md).
 * **Creation**: Established [Epic 8: pi-messages and radius](/epic-8-pi-messages-and-radius/EPIC_8.md).
 * **Creation**: Established [Epic 9: Classifier audit, disposition sweep, and release](/epic-9-classifier-audit-and-release/EPIC_9.md).
+* **Creation**: Established [Issue 01: Bump the go directive from 1.25.0 to 1.26](/epic-1-repository-hygiene/issues/01-bump-go-directive-to-1-26.md) (#127).
+* **Creation**: Established [Issue 02: Move the module path to github.com/kern-ia/kern-link](/epic-1-repository-hygiene/issues/02-move-module-path-to-kern-ia.md) (#128).
