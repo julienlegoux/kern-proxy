@@ -71,3 +71,8 @@
 * **Creation**: Established [Issue 04: Port the Radius gateway OAuth flow: discovery, browser PKCE, and device code](/epic-7-four-new-oauth-flows/issues/04-radius-gateway-oauth.md) (#184).
 * **Creation**: Established [Issue 05: Offer every registered OAuth provider in pi-ai login, using each flow's login label](/epic-7-four-new-oauth-flows/issues/05-cli-login-new-flows.md) (#185).
 * **Creation**: Established [Issue 06: Document the four new flows in docs/auth.md and disposition their files in docs/PORTING.md](/epic-7-four-new-oauth-flows/issues/06-auth-docs-and-porting.md) (#186).
+* **Creation**: Established [Issue 01: Open the pi-messages package with its wire event union and the converter onto ai.Event](/epic-8-pi-messages-and-radius/issues/01-pimessages-wire-and-converter.md) (#187).
+* **Creation**: Established [Issue 02: Stream pi-messages over net/http — request, options, error mapping, and the Stream entry points](/epic-8-pi-messages-and-radius/issues/02-pimessages-stream-entry.md) (#188).
+* **Creation**: Established [Issue 03: Port radius-config — the gateway catalog types, their sanitizer, and the gateway-config fetch](/epic-8-pi-messages-and-radius/issues/03-radius-gateway-config.md) (#189).
+* **Creation**: Established [Issue 04: Bind the radius provider over pi-messages, with its two-phase catalog refresh](/epic-8-pi-messages-and-radius/issues/04-radius-provider-binding.md) (#190).
+* **Creation**: Established [Issue 05: Disposition pi-messages and radius in docs/PORTING.md, and document the tenth adapter](/epic-8-pi-messages-and-radius/issues/05-porting-and-docs.md) (#191).
