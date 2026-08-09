@@ -76,3 +76,9 @@
 * **Creation**: Established [Issue 03: Port radius-config — the gateway catalog types, their sanitizer, and the gateway-config fetch](/epic-8-pi-messages-and-radius/issues/03-radius-gateway-config.md) (#189).
 * **Creation**: Established [Issue 04: Bind the radius provider over pi-messages, with its two-phase catalog refresh](/epic-8-pi-messages-and-radius/issues/04-radius-provider-binding.md) (#190).
 * **Creation**: Established [Issue 05: Disposition pi-messages and radius in docs/PORTING.md, and document the tenth adapter](/epic-8-pi-messages-and-radius/issues/05-porting-and-docs.md) (#191).
+* **Creation**: Established [Issue 01: Audit the retry and overflow classifiers against upstream 936aff00 and resync their patterns](/epic-9-classifier-audit-and-release/issues/01-classifier-parity-audit.md) (#192).
+* **Creation**: Established [Issue 02: Settle whether upstream's provider-retry.ts supersedes ai/apis/internal/httpretry](/epic-9-classifier-audit-and-release/issues/02-provider-retry-vs-httpretry.md) (#193).
+* **Creation**: Established [Issue 03: Add upstream/disposition_check.sh and its offline test](/epic-9-classifier-audit-and-release/issues/03-disposition-checker.md) (#194).
+* **Creation**: Established [Issue 04: Disposition every in-range upstream file in docs/PORTING.md and drop the vX.Y.Z-go.N convention](/epic-9-classifier-audit-and-release/issues/04-disposition-sweep.md) (#195).
+* **Creation**: Established [Issue 05: Bump upstream/UPSTREAM.lock to 936aff00 / 0.84.1 and write the v0.2.0 changelog](/epic-9-classifier-audit-and-release/issues/05-upstream-lock-and-changelog.md) (#196).
+* **Creation**: Established [Issue 06: Cut v0.2.0 — merge develop into main, tag the release, and close #113](/epic-9-classifier-audit-and-release/issues/06-cut-v0-2-0-release.md) (#197).
