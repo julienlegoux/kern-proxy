@@ -152,6 +152,16 @@ go test ./... -race
 Everything runs offline; live provider tests are gated behind environment API
 keys, mirroring upstream.
 
+`-race` needs a C toolchain. Without one — or on a machine whose security policy
+blocks running binaries built into the system temp directory — use:
+
+```sh
+GOTMPDIR=$PWD/.gotmp go test ./...
+```
+
+CI always runs the race detector, so a race-free result is still enforced on
+every push.
+
 ## Upstream & parity
 
 The port targets full functional parity with the upstream TypeScript package.
