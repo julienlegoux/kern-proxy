@@ -7,7 +7,7 @@
 * [Pre-split Epic 2 issues 05 and 08 into reviewable halves](./05-pre-split-epic-2-issues-05-and-08.md) - M, open, [#203](https://github.com/kern-ia/kern-link/issues/203)
 * [Rein in Epic 3's invented scope, route its SPECS.md edits through drift, and reconcile EPIC_3.md with its issues](./06-rein-in-epic-3-invented-scope.md) - M, open, [#204](https://github.com/kern-ia/kern-link/issues/204)
 * [Repair the Epic 4 issue set: provenance, the undeclared cross-epic blockers, and the renamed section heading](./07-repair-the-epic-4-issue-set.md) - S, open, [#205](https://github.com/kern-ia/kern-link/issues/205)
-* [Reconcile EPIC_5.md with its issues, and settle the five criteria that pass whichever way the implementer decides](./08-reconcile-epic-5-with-its-issues.md) - M, open, [#206](https://github.com/kern-ia/kern-link/issues/206)
+* [Reconcile EPIC_5.md with its issues, and settle the five criteria that pass whichever way the implementer decides](./08-reconcile-epic-5-with-its-issues.md) - M, in-progress, [#206](https://github.com/kern-ia/kern-link/issues/206)
 * [Amend EPIC_6.md to absorb the work its issues build, and close Epic 6's ownership and dependency gaps](./09-amend-epic-6-and-close-its-gaps.md) - M, open, [#207](https://github.com/kern-ia/kern-link/issues/207)
 * [Repair the Epic 7 issues: the postForm contract, the callbackHost rename, and the picker order](./10-repair-the-epic-7-issue-set.md) - M, open, [#208](https://github.com/kern-ia/kern-link/issues/208)
 * [Repair the Epic 8 issues: provenance on ported tests, the unsatisfiable grep, and the two missing scope files](./11-repair-the-epic-8-issue-set.md) - S, open, [#209](https://github.com/kern-ia/kern-link/issues/209)
