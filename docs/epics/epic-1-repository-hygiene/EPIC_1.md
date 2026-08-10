@@ -3,7 +3,7 @@ type: Epic
 title: "Repository hygiene"
 description: "Move the module path to github.com/kern-ia/kern-link and bump the go directive to 1.26, before any sync work opens branches against the old path."
 tags: [epic]
-timestamp: 2026-08-09T03:55:05Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 1
 slug: repository-hygiene
 status: open
@@ -31,7 +31,10 @@ conflict once per branch.
 - Bump the `go` directive from 1.25.0 to 1.26, to align with the other Kern
   packages. CI pins from `go-version-file: go.mod`, so the directive carries the
   workflow with it.
-- Commit as `refactor!: move module path to github.com/kern-ia/kern-link`.
+- Commit the module-path move as
+  `refactor!: move module path to github.com/kern-ia/kern-link`; the go-directive
+  bump lands first and alone, in its own PR
+  ([issue 01](/epic-1-repository-hygiene/issues/01-bump-go-directive-to-1-26.md)).
 
 ## Out of scope
 
@@ -47,11 +50,20 @@ conflict once per branch.
 
 1. `go.mod` declares `module github.com/kern-ia/kern-link` and `go 1.26`.
 2. No reference to `github.com/julienlegoux/kern-link` remains anywhere in the
-   tree, except in historical CHANGELOG entries for already-released versions.
+   tree, except in historical CHANGELOG entries for already-released versions
+   and in `docs/planning/` and `docs/epics/`, whose records exist to state the
+   old path being migrated — rewriting them would erase the decision they
+   record. [Issue 02](/epic-1-repository-hygiene/issues/02-move-module-path-to-kern-ia.md)
+   forced this amendment.
 3. CI is green: `go test ./... -race -v`, `bash upstream/sync_test.sh`, and
    `golangci-lint` (pinned v2.12.2).
-4. The change lands as a single `refactor!:` commit-scoped PR, merged into
-   `develop` before any other epic in this program opens a branch.
+4. The epic ships as two PRs, each merged into `develop` before any other epic
+   in this program opens a branch: the go-directive bump first and alone, then
+   the module-path move under a `refactor!:`-scoped commit.
+   [Issue 01](/epic-1-repository-hygiene/issues/01-bump-go-directive-to-1-26.md)
+   forced the split — a toolchain bump can surface real failures that must not
+   arrive tangled in a 170-file mechanical diff where nobody can tell signal
+   from noise.
 
 ## Dependencies
 
