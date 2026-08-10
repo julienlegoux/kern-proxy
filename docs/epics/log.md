@@ -2,6 +2,7 @@
 
 ## 2026-08-10
 
+* **Status**: [Issue 01: Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md) (#199) moved to `in-progress` on branch `issue-199-epic-4-core-type-contracts`.
 * **Creation**: Established [Epic 0: Plan remediation](/epic-0-plan-remediation/EPIC_0.md).
   Consumed reports 1-9 (`docs/REPORT_1.md`-`docs/REPORT_9.md`): 97 findings extracted,
   0 dropped as stale, 0 `won't-fix`, 0 drift, 97 grouped into 17 repairs. Plan repairs
