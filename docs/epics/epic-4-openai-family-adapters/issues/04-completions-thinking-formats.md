@@ -3,7 +3,7 @@ type: Issue
 title: "openai-completions: baseten thinking format, thinking_token_budget, and qwen effort mapping"
 description: "Add the baseten chat_template_args branch, the vLLM thinking_token_budget cap, and thinkingLevelMap resolution on the qwen and baseten reasoning-effort paths."
 tags: [epic-4]
-timestamp: 2026-08-09T05:17:46Z
+timestamp: 2026-08-10T09:20:00Z
 epic: 4
 issue: 04
 slug: completions-thinking-formats
@@ -33,7 +33,7 @@ conflict line-for-line:
    `Compat.SupportsThinkingTokenBudget` and independent of thinking format
    ("the same server can serve zai, qwen or chat-template models"). Budgets
    default to `minimal: 1024, low: 2048, medium: 8192, high: 16384`, overridable
-   by `StreamOptions.ThinkingBudgets`, then clamped to
+   by `StreamOptions.OpenAIThinkingBudgets`, then clamped to
    `ceiling - MIN_ANSWER_TOKENS` where the ceiling is `max_tokens`, else
    `max_completion_tokens`, else `model.maxTokens`. A budget of `0` or less is
    not sent. Upstream's comment explains why the clamp exists — reasoning and
@@ -65,12 +65,20 @@ both `chat_template_kwargs` and `chat_template_args`.
     routing block).
   - `MIN_ANSWER_TOKENS` — port upstream's constant with its value and its
     comment; do not invent a different name.
-- `ai.ThinkingBudgets` already exists (`ai/options.go:325-326`); the defaults
-  above are the adapter's, applied per level with the caller's map overlaid
-  field by field (upstream spreads `...options.thinkingBudgets` over the
-  defaults, so an override of one level leaves the others at their default —
-  a Go struct of pointers or an explicit per-field merge, not a wholesale
-  replace).
+- The caller-side override is `StreamOptions.OpenAIThinkingBudgets
+  *ai.ThinkingBudgets`, declared by
+  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  and mirroring `BedrockThinkingBudgets` (`ai/options.go:276-278`). The
+  `ai.ThinkingBudgets` **type** exists today, but the only field of that type on
+  the caller path is `SimpleStreamOptions.ThinkingBudgets` (`:325-326`), which
+  `buildParams(model, chat, opts *ai.StreamOptions)`
+  (`ai/apis/openaicompletions/openaicompletions.go:340`) never sees — read
+  `OpenAIThinkingBudgets`, not that one. The defaults above are the adapter's,
+  applied per level with the caller's map overlaid field by field (upstream
+  spreads `...options.thinkingBudgets` over the defaults at
+  `packages/ai/src/api/openai-completions.ts:858`, so an override of one level
+  leaves the others at their default — a Go struct of pointers or an explicit
+  per-field merge, not a wholesale replace).
 - Port `test/openai-completions-thinking-token-budget.test.ts` (+124) and the
   baseten cases of `test/baseten-models.test.ts` that exercise the wire shape
   (the provider *binding* itself is
@@ -107,7 +115,7 @@ both `chat_template_kwargs` and `chat_template_args`.
 - [ ] `TestThinkingTokenBudgetOmittedWhenNonPositive` — a ceiling at or below
       `MIN_ANSWER_TOKENS` emits no `thinking_token_budget` key at all.
 - [ ] `TestThinkingTokenBudgetHonorsPerLevelOverride` — overriding only `high`
-      via `StreamOptions.ThinkingBudgets` leaves `low` at its default in a second
+      via `StreamOptions.OpenAIThinkingBudgets` leaves `low` at its default in a second
       request.
 - [ ] `TestThinkingTokenBudgetIndependentOfThinkingFormat` — the budget is sent
       for a `qwen`-format model as well as a `chat-template` one, given the
@@ -129,7 +137,9 @@ both `chat_template_kwargs` and `chat_template_args`.
   `resolveChatTemplateKwargValue`.
 - `ai/apis/openaicompletions/thinking_test.go` (420 lines) and
   `compat_wiring_test.go` (234) — the existing coverage this extends.
-- `ai/options.go:325-326` — `ThinkingBudgets`.
+- `ai/options.go:276-278` — `BedrockThinkingBudgets`, the precedent
+  `OpenAIThinkingBudgets` copies; `:325-326` — `SimpleStreamOptions.ThinkingBudgets`,
+  the field this adapter must **not** read.
 - `ai/model.go` — `ThinkingFormat` values and the compat struct.
 - Upstream: `src/api/openai-completions.ts` `buildParams` /
   `buildChatTemplateValues` at `936aff00`;
@@ -138,6 +148,9 @@ both `chat_template_kwargs` and `chat_template_args`.
 ## Dependencies
 
 - **Blocked by**: [Epic 2 issue 04](/epic-2-core-types-and-models-contracts/issues/04-compat-flags-and-bedrock-compat.md).
+- **Blocked by**: [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  (`OpenAIThinkingBudgets` on `ai.StreamOptions`). Cross-epic, so `depends_on`
+  cannot carry it — it holds intra-epic numbers only.
 - **Blocks**: None.
 
 ## PR size note

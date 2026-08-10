@@ -3,7 +3,7 @@ type: Issue
 title: "openai-responses: compat resolution, session affinity, explicit prompt cache, and tool wiring"
 description: "Resolve the five new responses compat flags with OpenRouter session-affinity detection, wire grammar and deferred tools into the request, and add explicit prompt-cache mode, tool_choice and the xai reasoning include."
 tags: [epic-4]
-timestamp: 2026-08-09T05:17:46Z
+timestamp: 2026-08-10T09:20:00Z
 epic: 4
 issue: 09
 slug: openai-responses-compat-and-wiring
@@ -42,7 +42,12 @@ which is the shape of this change: provider sniffing turns into resolved compat.
 - **Explicit prompt cache** — `cacheRetention == "none"` plus
   `supportsExplicitPromptCacheMode` sends
   `prompt_cache_options: {mode: "explicit"}`.
-- Smaller riders: `tool_choice` passthrough; `reasoningEffort` accepts `max`;
+- Smaller riders: `tool_choice` passthrough from
+  `ai.StreamOptions.OpenAIToolChoice` (declared as `any` by
+  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md);
+  upstream types it `ResponseCreateParamsStreaming["tool_choice"]`,
+  `packages/ai/src/api/openai-responses.ts:96` at `936aff00`);
+  `reasoningEffort` accepts `max`;
   `include: ["reasoning.encrypted_content"]` for the `xai` provider; the message
   starts at `StopReason` `pending`, a stream ending still `pending` errors with
   `OpenAI Responses stream ended without a stop reason`, and the
@@ -58,9 +63,11 @@ which is the shape of this change: provider sniffing turns into resolved compat.
     `supportsLongCacheRetention`.
   - `buildHeaders` (`:479`) — the three-way session-affinity branch.
   - `buildParams` (`:326`) — grammar map construction, the deferred-tool split
-    and mode, `ConvertTools` options, `tool_choice`, `prompt_cache_options`, and
-    the `xai` include.
-  - `wireRequest` (`:309`) — `tool_choice`, `prompt_cache_options`, `include`.
+    and mode, `ConvertTools` options, `tool_choice` from
+    `opts.OpenAIToolChoice`, `prompt_cache_options`, and the `xai` include.
+  - `wireRequest` (`:309`) — `tool_choice` as a free-form value (the wire field
+    takes whatever `OpenAIToolChoice` holds, unmodified),
+    `prompt_cache_options`, `include`.
   - `applyReasoning` (`:401`) / `mappedThinkingLevel` (`:443`) — accept `max`.
   - `run` (`:74`) — initialize `output.StopReason` to `ai.StopReasonPending`,
     add the `pending` guard, and propagate `output.ErrorMessage` in the failure
@@ -103,8 +110,9 @@ which is the shape of this change: provider sniffing turns into resolved compat.
 - [ ] `TestToolSearchModeSelectedWhenOnlyToolSearchSupported` — the mode falls
       through to `tool-search` correctly, and to off when neither flag is set
       (all tools immediate, no injection).
-- [ ] `TestToolChoicePassedThrough` — an arbitrary tool-choice value round-trips
-      into the body unchanged.
+- [ ] `TestToolChoicePassedThrough` — an arbitrary value set on
+      `ai.StreamOptions.OpenAIToolChoice` (a bare string *and* a nested object)
+      round-trips into the body's `tool_choice` unchanged; unset omits the key.
 - [ ] `TestXaiIncludesEncryptedReasoning` — provider `xai` with a reasoning model
       sends `"include":["reasoning.encrypted_content"]`; another provider does
       not.
@@ -137,7 +145,10 @@ which is the shape of this change: provider sniffing turns into resolved compat.
   [07](/epic-4-openai-family-adapters/issues/07-responses-shared-namespace-and-deferred-tools.md),
   [08](/epic-4-openai-family-adapters/issues/08-responses-shared-stream-decode.md);
   [Epic 2 issue 04](/epic-2-core-types-and-models-contracts/issues/04-compat-flags-and-bedrock-compat.md)
-  and [issue 11](/epic-2-core-types-and-models-contracts/issues/11-deferred-tools-split.md).
+  and [issue 11](/epic-2-core-types-and-models-contracts/issues/11-deferred-tools-split.md);
+  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  (`OpenAIToolChoice` on `ai.StreamOptions`). The Epic 2 edges live in prose
+  because `depends_on` holds intra-epic numbers only.
 - **Blocks**: None.
 
 ## PR size note

@@ -3,7 +3,7 @@ type: Issue
 title: "Port constrained-sampling.ts as a shared grammar package, with Tool.ConstrainedSampling"
 description: "Add the GrammarFormat / GrammarVariants / ConstrainedSamplingConfig types on ai.Tool and port upstream's grammar resolution and JSON-delta buffer, with its 229-line test."
 tags: [epic-4]
-timestamp: 2026-08-09T05:17:46Z
+timestamp: 2026-08-10T09:20:00Z
 epic: 4
 issue: 01
 slug: constrained-sampling-core
@@ -40,15 +40,22 @@ It provides five exported symbols:
   synthesizes JSON deltas (`{"prop":"` … `"}`) from a provider's raw grammar
   output so a custom tool call streams like an ordinary JSON one.
 
-**Correction to this epic's framing.** The epic body and
-[decision 12](../../../planning/scope/12-constrained-sampling.md) both say
-`ConstrainedSamplingConfig` "lands in `ai.StreamOptions`, continuing the
-established per-adapter-options deviation". That was written before the upstream
-shape was read. At `936aff00` the field is
-`Tool.constrainedSampling?: false | ConstrainedSamplingConfig` (`src/types.ts`) —
-per **tool**, not per request. So it goes on `ai.Tool` and **no deviation is
-needed at all**; `StreamOptions` is not touched. Say so in the PR body and in
-`docs/PORTING.md` so the next reader does not re-derive it.
+**Where the config lands — settled, not open.** `ConstrainedSamplingConfig` goes
+on `ai.Tool`; `ai.StreamOptions` is not touched. Upstream at `936aff00` declares
+`constrainedSampling?: false | ConstrainedSamplingConfig` on the `Tool` interface
+(`packages/ai/src/types.ts:506`, inside `:501-507`; the config type is
+`:492-500`), and `StreamOptions` (`:175-219`) has no such field — the
+configuration is per **tool**, not per request, so **no deviation is needed at
+all**.
+
+[EPIC_4.md](/epic-4-openai-family-adapters/EPIC_4.md),
+[decision 12](../../../planning/scope/12-constrained-sampling.md) and
+`SCOPE.md`'s milestone-4 bullet each said "lands in `ai.StreamOptions`,
+continuing the established per-adapter-options deviation" — written before the
+upstream shape was read, and all three were amended on 2026-08-10 (Epic 0 issue
+01) to match this. Nothing here contradicts the epic any more. Repeat the
+placement in the PR body and in `docs/PORTING.md` so the next reader does not
+re-derive it.
 
 ## Scope
 
