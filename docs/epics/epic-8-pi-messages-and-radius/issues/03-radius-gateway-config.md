@@ -3,7 +3,7 @@ type: Issue
 title: "Port radius-config: the gateway catalog types, their sanitizer, and the gateway-config fetch"
 description: "Port src/providers/radius-config.ts as ai/providers/radius_config.go — the RadiusGatewayConfig shape, a sanitizer that drops incomplete models rather than zero-filling them, credential-carried catalogs, and the network fetch of /v1/config with its failure paths."
 tags: [epic-8]
-timestamp: 2026-08-09T14:45:00Z
+timestamp: 2026-08-10T14:00:00Z
 epic: 8
 issue: 03
 slug: radius-gateway-config
@@ -149,7 +149,11 @@ not happen is two constants naming the same host.
       table for the sanitizer's input→output matrix, which is exactly where
       `docs/planning/CONVENTIONS.md` allows one.
 - [ ] `// Ports: packages/ai/src/providers/radius-config.ts` after the
-      `package` clause.
+      `package` clause on `radius_config.go`. `radius_config_test.go` carries
+      **no** header — upstream ships no test for this file (`packages/ai/test`
+      has only `pi-messages` and `radius-oauth`), so this coverage is
+      original, and `docs/planning/CONVENTIONS.md:63-66` makes that absence
+      meaningful.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

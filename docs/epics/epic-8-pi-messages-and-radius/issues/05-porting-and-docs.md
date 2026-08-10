@@ -3,7 +3,7 @@ type: Issue
 title: "Disposition pi-messages and radius in docs/PORTING.md, and document the tenth adapter"
 description: "Add the mapping rows and deviations for pi-messages.ts, pi-messages.lazy.ts, radius.ts and radius-config.ts, give radius its auth-doc entries, and update every place that still counts nine adapters and 35 providers."
 tags: [epic-8]
-timestamp: 2026-08-09T14:45:00Z
+timestamp: 2026-08-10T14:00:00Z
 epic: 8
 issue: 05
 slug: porting-and-docs
@@ -76,6 +76,12 @@ assuming 36.
   adapters" line. SPECS is a planning-bundle doc describing the code as mapped;
   updating it here keeps the next epic from planning against a stale package
   map. Touch only the lines this epic invalidates.
+- `docs/planning/index.md:13` — the bundle-root bullet that copies
+  `SPECS.md:4`'s description verbatim, including "across 35 providers … nine
+  wire adapters over net/http"; update alongside `SPECS.md`.
+- `docs/usage.md:213` — "catalog (~35 providers)". This epic's `## Out of
+  scope` excludes only Radius examples in `docs/usage.md`, not the provider
+  count, so the count still updates here.
 
 ## Out of scope
 
@@ -107,10 +113,13 @@ assuming 36.
       revocation risk described at `:131-161`.
 - [ ] `docs/architecture.md`'s adapter diagram lists ten packages including
       `pimessages`.
-- [ ] No file under `docs/`, `README.md` or `ai/doc.go` still claims nine wire
-      adapters; `grep -rn "nine wire adapters\|35 providers" docs/ README.md ai/doc.go`
-      returns nothing stale (the provider count matches
-      `len(providers.Providers())`).
+- [ ] No file this issue owns still claims nine wire adapters or 35 providers:
+      `grep -rn "nine wire adapters\|35 providers" README.md ai/doc.go
+      docs/architecture.md docs/auth.md docs/usage.md docs/planning/SPECS.md
+      docs/planning/index.md` returns nothing (the provider count matches
+      `len(providers.Providers())`). `docs/planning/scope/` and `docs/epics/`
+      describe the repo as it was when the plan was written; they are
+      historical and exempt from this sweep.
 - [ ] `docs/planning/SPECS.md`'s package map and adapter-count line match the
       code after this epic.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
@@ -121,10 +130,11 @@ assuming 36.
 
 ## Relevant files / areas
 
-- `docs/PORTING.md:20-60` — the file-mapping table, including the
-  `src/api/*.lazy.ts` row (`:39`), the `src/auth/helpers.ts` row (`:48`) that
+- `docs/PORTING.md:21-64` — the file-mapping table, including the
+  `src/api/*.lazy.ts` row (`:38`), the `src/auth/helpers.ts` row (`:42`) that
   already records `lazyOAuth`'s absence, and the `src/providers/*.ts` row
-  (`:59`) with its "~35 bindings" count.
+  (`:57`) with its "~35 bindings" count (`:48` is `anthropic-messages`, `:59`
+  is `env-api-keys.ts`).
 - `docs/auth.md:34-49` the env-var table, `:76` the codex-only note, `:91-130`
   the OAuth CLI section, `:131-161` the subscription-risk section.
 - `docs/architecture.md:22-23` — the adapter list.
