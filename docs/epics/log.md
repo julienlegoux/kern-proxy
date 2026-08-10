@@ -6,6 +6,21 @@
   Consumed reports 1-9 (`docs/REPORT_1.md`-`docs/REPORT_9.md`): 97 findings extracted,
   0 dropped as stale, 0 `won't-fix`, 0 drift, 97 grouped into 17 repairs. Plan repairs
   only - no code fixes, since all nine reports review planning artifacts.
+* **Creation**: Established [Issue 01: Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md) (#199).
+* **Creation**: Established [Issue 02: Adopt the six orphaned scope items, or record each as out of scope with a reason](/epic-0-plan-remediation/issues/02-adopt-the-orphaned-scope-items.md) (#200).
+* **Creation**: Established [Issue 03: Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type](/epic-0-plan-remediation/issues/03-repair-the-epic-1-issue-set.md) (#201).
+* **Creation**: Established [Issue 04: Repair the Epic 2 issue set: the criterion Go cannot satisfy, the missing edge, and the duplicated ownership](/epic-0-plan-remediation/issues/04-repair-the-epic-2-issue-set.md) (#202).
+* **Creation**: Established [Issue 05: Pre-split Epic 2 issues 05 and 08 into reviewable halves](/epic-0-plan-remediation/issues/05-pre-split-epic-2-issues-05-and-08.md) (#203).
+* **Creation**: Established [Issue 06: Rein in Epic 3's invented scope, route its SPECS.md edits through drift, and reconcile EPIC_3.md with its issues](/epic-0-plan-remediation/issues/06-rein-in-epic-3-invented-scope.md) (#204).
+* **Creation**: Established [Issue 07: Repair the Epic 4 issue set: provenance, the undeclared cross-epic blockers, and the renamed section heading](/epic-0-plan-remediation/issues/07-repair-the-epic-4-issue-set.md) (#205).
+* **Creation**: Established [Issue 08: Reconcile EPIC_5.md with its issues, and settle the five criteria that pass whichever way the implementer decides](/epic-0-plan-remediation/issues/08-reconcile-epic-5-with-its-issues.md) (#206).
+* **Creation**: Established [Issue 09: Amend EPIC_6.md to absorb the work its issues build, and close Epic 6's ownership and dependency gaps](/epic-0-plan-remediation/issues/09-amend-epic-6-and-close-its-gaps.md) (#207).
+* **Creation**: Established [Issue 10: Repair the Epic 7 issues: the postForm contract, the callbackHost rename, and the picker order](/epic-0-plan-remediation/issues/10-repair-the-epic-7-issue-set.md) (#208).
+* **Creation**: Established [Issue 11: Repair the Epic 8 issues: provenance on ported tests, the unsatisfiable grep, and the two missing scope files](/epic-0-plan-remediation/issues/11-repair-the-epic-8-issue-set.md) (#209).
+* **Creation**: Established [Issue 12: Repair the Epic 9 issue set: the checker's file set, the classifier row count, and the release escape hatch](/epic-0-plan-remediation/issues/12-repair-the-epic-9-issue-set.md) (#210).
+* **Creation**: Established [Issue 13: Rewrite the PR size note in every issue against its own band, and correct the mis-declared sizes](/epic-0-plan-remediation/issues/13-rewrite-the-pr-size-notes.md) (#211).
+* **Creation**: Established [Issue 14: Normalize the in-bundle link form and the depends_on representation, and record the branch conventions once per epic](/epic-0-plan-remediation/issues/14-normalize-links-depends-on-and-branch-notes.md) (#212).
+* **Creation**: Established [Issue 15: Reconcile GitHub state with the files, and account for all 97 findings](/epic-0-plan-remediation/issues/15-reconcile-github-state-with-the-files.md) (#213).
 
 ## 2026-08-09
 
