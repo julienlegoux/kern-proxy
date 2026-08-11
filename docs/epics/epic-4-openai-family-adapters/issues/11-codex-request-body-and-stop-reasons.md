@@ -3,7 +3,7 @@ type: Issue
 title: "openai-codex-responses: grammar and deferred tools in the request body, end_turn and stop-reason guards"
 description: "Wire Codex onto the updated shared responses core, add tool_choice, and record end_turn plus the pending/error stop-reason guards on every transport."
 tags: [epic-4]
-timestamp: 2026-08-10T09:20:00Z
+timestamp: 2026-08-11T15:00:00Z
 epic: 4
 issue: 11
 slug: codex-request-body-and-stop-reasons
@@ -67,6 +67,7 @@ contract tightens.
   `test/openai-codex-stream.test.ts` (+778 upstream — this PR takes the half
   about request shape and stream termination; issue 12 takes the session/
   transport half).
+- Keep the `// Ports:` header's symbol list current.
 
 ## Out of scope
 
@@ -135,9 +136,12 @@ contract tightens.
 - **Blocked by**: issues [06](/epic-4-openai-family-adapters/issues/06-responses-shared-grammar-and-tool-results.md),
   [07](/epic-4-openai-family-adapters/issues/07-responses-shared-namespace-and-deferred-tools.md),
   [08](/epic-4-openai-family-adapters/issues/08-responses-shared-stream-decode.md);
-  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
-  (`OpenAIToolChoice` on `ai.StreamOptions`) — cross-epic, so it is stated here
-  rather than in `depends_on`, which holds intra-epic numbers only.
+  [Epic 2 issue 02](/epic-2-core-types-and-models-contracts/issues/02-message-model-deferred-fields.md)
+  (`EndTurn`), [issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  (`OpenAIToolChoice` on `ai.StreamOptions`), and
+  [issue 11](/epic-2-core-types-and-models-contracts/issues/11-deferred-tools-split.md)
+  (`SplitDeferredTools`) — cross-epic, so stated here rather than in
+  `depends_on`, which holds intra-epic numbers only.
 - **Blocks**: [Issue 12](/epic-4-openai-family-adapters/issues/12-codex-session-ids-and-continuation-retry.md).
 
 ## PR size note

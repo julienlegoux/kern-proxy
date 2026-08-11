@@ -3,7 +3,7 @@ type: Issue
 title: "openai-responses: compat resolution, session affinity, explicit prompt cache, and tool wiring"
 description: "Resolve the five new responses compat flags with OpenRouter session-affinity detection, wire grammar and deferred tools into the request, and add explicit prompt-cache mode, tool_choice and the xai reasoning include."
 tags: [epic-4]
-timestamp: 2026-08-10T09:20:00Z
+timestamp: 2026-08-11T15:00:00Z
 epic: 4
 issue: 09
 slug: openai-responses-compat-and-wiring
@@ -76,6 +76,7 @@ which is the shape of this change: provider sniffing turns into resolved compat.
   test work; translate to discrete named Go tests, offline `httptest`.
 - `docs/PORTING.md` — if provider sniffing moved into catalog-driven compat, the
   `openai-responses.ts` row's parenthetical should say so.
+- Keep the `// Ports:` header's symbol list current.
 
 ## Out of scope
 
