@@ -3,7 +3,7 @@ type: Issue
 title: "Port utils/deferred-tools.ts as the deferred-tool split, with the upstream test"
 description: "Add SplitDeferredTools, which partitions a context's tools into immediate and transcript-loaded sets, and port upstream's test for it."
 tags: [epic-2]
-timestamp: 2026-08-09T04:31:17Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 11
 slug: deferred-tools-split
@@ -121,5 +121,8 @@ capability in full rather than shipping inert types.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. The function is ~60 lines; the ported test is the bulk.
+`M` — ~300 changed lines: `SplitDeferredTools` itself is ~60 lines including the
+explicit order slice that keeps `immediate` deterministic; the bulk is porting
+upstream's 21 KB `deferred-tools.test.ts` into six named Go tests, one of which
+asserts byte-identical ordering across 100 runs. Split past ~500; the seam is
+the ported test cases, though they are the reason the PR exists.

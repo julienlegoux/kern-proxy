@@ -3,7 +3,7 @@ type: Issue
 title: "Add ModelsRequestTransforms, case-insensitive header merging, and drop the AuthModel export"
 description: "Let Models-level callers rewrite fully assembled headers before dispatch, fix header override to be case-insensitive, and remove the AuthModel export upstream deleted."
 tags: [epic-2]
-timestamp: 2026-08-11T13:10:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 09
 slug: models-request-transforms
@@ -137,5 +137,9 @@ Separately, `models.ts` stopped re-exporting `AuthModel`
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~300 changed lines: `applyAuth` (`ai/provider.go:239-297`) changes in
+three ways at once, the case-insensitive `mergeHeaders` helper is extracted out
+of it, the transform threads through the `Stream`/`Complete`/`StreamSimple`/
+`CompleteSimple` quartet, and five named tests plus the `AuthModel` removal
+decision follow. Split past ~500; the seam is the `AuthModel` removal, the only
+part of this PR not welded to `applyAuth`.

@@ -3,11 +3,11 @@ type: Issue
 title: "Port models-store.ts as ai.ModelsStore, and map both new core modules in PORTING.md"
 description: "Add the persistent per-provider model-catalog store interface with its in-memory implementation, and record the Go mapping chosen for models-store.ts and model-catalog.ts."
 tags: [epic-2]
-timestamp: 2026-08-11T13:10:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 07
 slug: models-store
-size: S
+size: M
 status: open
 gh_issue: 135
 resource: https://github.com/kern-ia/kern-link/issues/135
@@ -141,5 +141,10 @@ reasoning. Verify that reading before writing it down.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. Expected here: ~150 including tests.
+`M` — ~250 changed lines, re-labelled from `S` on REPORT_2's recommendation:
+`ai/modelsstore.go` is a whole new file carrying `ModelsStoreEntry`, a
+three-method interface, and an `InMemoryModelsStore` with per-provider locking
+plus a deep copy on both read and write — `ai/credentialstore.go`, the shape it
+mirrors, is 72 lines before any copy logic. Six named tests, the
+`CreateModelsOptions` wiring and two `docs/PORTING.md` rows put it past the old
+"~150 including tests" estimate. Split past ~500.

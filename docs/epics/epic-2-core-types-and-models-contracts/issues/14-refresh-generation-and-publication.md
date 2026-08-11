@@ -3,7 +3,7 @@ type: Issue
 title: "Generation-check ModelsPublication so a superseded refresh returns false and mutates nothing"
 description: "Port the generation-counter and per-provider publication serialization behind Models.Refresh's publish(), plus in-flight cancellation, so setProvider/deleteProvider/clearProviders correctly supersede a running refresh."
 tags: [epic-2]
-timestamp: 2026-08-11T16:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 14
 slug: refresh-generation-and-publication
@@ -105,8 +105,10 @@ down.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. **Sized `M`**: a generation counter, a cancel-context map, and
-per-provider publication serialization, each under the existing mutex — real
-concurrency work with `-race`-sensitive tests, but no new public types beyond
-what issue 08 already declared.
+`M` — ~250 changed lines: a per-provider generation counter, a
+`context.CancelFunc` map, and serialized publication per provider, all under
+`modelsImpl`'s existing mutex, plus the `SetProvider`/`DeleteProvider`/
+`ClearProviders` wiring and three `-race`-sensitive concurrency tests. Real
+concurrency work, but no new public types beyond what issue 08 already declared.
+Split past ~500; the seam is cancellation reporting (`Aborted: true`) versus
+generation checking.

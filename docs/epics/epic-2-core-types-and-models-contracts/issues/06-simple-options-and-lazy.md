@@ -3,7 +3,7 @@ type: Issue
 title: "Update simple-options and lazy to 0.84.1"
 description: "Carry the new request knobs through BuildBaseOptions, export the min-answer-token constant, and make LazyStream forward the inner stream's result."
 tags: [epic-2]
-timestamp: 2026-08-11T16:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 06
 slug: simple-options-and-lazy
@@ -116,5 +116,8 @@ completed `outer`. Upstream now propagates the result explicitly.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. Expected here: well under 200.
+`S` — well under 200 changed lines: `BuildBaseOptions` carries one new field and
+merges one map, `minOutputTokens` becomes an exported constant used in one more
+place, and `ai/lazy.go` is 52 lines in total, of which this touches only the
+pump's terminal `End` call. The four named tests are the bulk of the diff.
+Split past ~200.

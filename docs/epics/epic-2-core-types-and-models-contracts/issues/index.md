@@ -6,7 +6,7 @@
 * [Extend Compat with the 0.84.1 flags, BedrockCompat, and SessionAffinityFormat](./04-compat-flags-and-bedrock-compat.md) - M, open, [#132](https://github.com/kern-ia/kern-link/issues/132)
 * [Introduce ProviderRequestOptions as the shared request base, and rewrite the affected StreamOptions literals](./05-provider-request-options.md) - L, open, [#133](https://github.com/kern-ia/kern-link/issues/133)
 * [Update simple-options and lazy to 0.84.1](./06-simple-options-and-lazy.md) - S, open, [#134](https://github.com/kern-ia/kern-link/issues/134)
-* [Port models-store.ts as ai.ModelsStore, and map both new core modules in PORTING.md](./07-models-store.md) - S, open, [#135](https://github.com/kern-ia/kern-link/issues/135)
+* [Port models-store.ts as ai.ModelsStore, and map both new core modules in PORTING.md](./07-models-store.md) - M, open, [#135](https://github.com/kern-ia/kern-link/issues/135)
 * [Port the Models refresh contract: the two-phase refresh, ModelsPublication types, and the provider overlay](./08-models-refresh-contract.md) - L, open, [#136](https://github.com/kern-ia/kern-link/issues/136)
 * [Add ModelsRequestTransforms, case-insensitive header merging, and drop the AuthModel export](./09-models-request-transforms.md) - M, open, [#137](https://github.com/kern-ia/kern-link/issues/137)
 * [Dispatch deferred responses through ProviderStreams, Provider, and Models](./10-deferred-response-dispatch.md) - M, open, [#138](https://github.com/kern-ia/kern-link/issues/138)
