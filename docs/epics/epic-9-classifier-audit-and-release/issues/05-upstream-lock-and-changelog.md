@@ -3,7 +3,7 @@ type: Issue
 title: "Bump upstream/UPSTREAM.lock to 936aff00 / 0.84.1 and write the v0.2.0 changelog"
 description: "Advance the pin once, at the end, and enumerate every break of the nine-epic program in a Keep a Changelog 0.2.0 entry."
 tags: [epic-9]
-timestamp: 2026-08-09T16:30:00Z
+timestamp: 2026-08-11T15:10:00Z
 epic: 9
 issue: 05
 slug: upstream-lock-and-changelog
@@ -66,7 +66,16 @@ place a reader sees them all at once.
   ([issue 04](/epic-9-classifier-audit-and-release/issues/04-disposition-sweep.md)).
 - Move anything sitting under `## [Unreleased]` that ships in 0.2.0 into the new
   section, and keep the link-reference style the file already uses at its foot
-  if it has one.
+  if it has one — it does (`CHANGELOG.md:63-65`). Add
+  `[0.2.0]: https://github.com/kern-ia/kern-link/compare/v0.1.1...v0.2.0` in
+  the same form as `[0.1.1]`. **Do not** also refresh `[Unreleased]` and
+  `[0.1.1]` off the old `julienlegoux` org here —
+  [Epic 1 issue 02](/epic-1-repository-hygiene/issues/02-move-module-path-to-kern-ia.md)
+  already moves those exact two lines (`CHANGELOG.md:63-65`, first bullet
+  under `## Scope`), and Epic 9 depends transitively on every epic in the
+  program (`EPIC_9.md`, `## Dependencies`), so by the time this issue runs the
+  footer already reads `kern-ia/kern-link` — re-touching it here would either
+  no-op or, worse, conflict with what Epic 1 already shipped.
 
 ## Out of scope
 
@@ -93,6 +102,10 @@ place a reader sees them all at once.
       by at least one bullet, and each of the breaks listed under Scope appears.
 - [ ] The section names the upstream sync target (`0.84.1`, `936aff00`).
 - [ ] Nothing that ships in 0.2.0 is still parked under `## [Unreleased]`.
+- [ ] `CHANGELOG.md`'s link-reference footer carries a `[0.2.0]` compare link
+      in the same form as `[0.1.1]`, and `[Unreleased]` / `[0.1.1]` already
+      read `kern-ia/kern-link` — Epic 1 issue 02's move, verified rather than
+      redone.
 - [ ] Every bullet describes the *effect on a consumer* (what breaks, what to
       change), not the edit that produced it.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green

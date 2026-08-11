@@ -3,7 +3,7 @@ type: Issue
 title: "Audit the retry and overflow classifiers against upstream 936aff00 and resync their patterns"
 description: "Produce the pattern-by-pattern parity table for ai/retry.go and ai/overflow.go, port every upstream pattern change in range, and cover each one in the two table-driven test files."
 tags: [epic-9]
-timestamp: 2026-08-09T16:30:00Z
+timestamp: 2026-08-11T15:10:00Z
 epic: 9
 issue: 01
 slug: classifier-parity-audit
@@ -47,7 +47,12 @@ pattern delta ported, each with a test case.
   per pattern: upstream pattern (with `file:line` at `936aff00`), its Go
   counterpart (`ai/retry.go:<line>` / `ai/overflow.go:<line>`), a status of
   `same` / `adapted` / `go-only` / `upstream-only`, and a justification for
-  every status that is not `same`.
+  every status that is not `same`. It stays in the consumer-facing `docs/`
+  bundle rather than moving to `docs/planning/` — a deliberate choice, not an
+  oversight: `docs/PORTING.md` is an equally dev-facing artifact already
+  registered at `docs/index.md:14`, so `docs/planning/mapping/01-planning-bundle-nesting.md:69-74`'s
+  dev-process/consumer split is read here as applying to planning documents,
+  not to porting-audit docs that travel with the porting map they cross-link.
 - The table covers every pattern group, not just the two obvious lists:
   - `nonRetryableProviderLimitErrorPattern` (`ai/retry.go:16-33`)
   - `retryableStatusCodePatterns` (`ai/retry.go:41-48`)
@@ -57,6 +62,11 @@ pattern delta ported, each with a test case.
   - the three non-text detection modes in `IsContextOverflow`
     (`ai/overflow.go:55-87`) — the `contextWindow > 0` guards and the `0.99`
     length-stop threshold are behavior too, and upstream may have moved them.
+  - This is a deliberate extension of `EPIC_9.md`'s "every regex in
+    `ai/retry.go` and `ai/overflow.go`" (`:26-30`, `:55-57`) to three modes
+    that carry no regex at all — defensible because they carry the same
+    silent-regression risk the audit exists to mitigate, stated here
+    explicitly rather than left implied.
 - Port every upstream pattern added, changed, or removed in range into the Go
   vars, keeping the file conventions: grouped patterns with a comment above each
   group explaining what family it covers (`retry.go`), and a trailing
@@ -90,10 +100,16 @@ pattern delta ported, each with a test case.
 ## Acceptance criteria / Definition of done
 
 - [ ] `docs/classifier-parity.md` exists with OKF frontmatter and a table whose
-      rows cover **every** regex in the six groups listed under Scope — the row
-      count is at least
-      `2 + 6 + 6 + 34 + 24 + 3` as those groups stand today, and no Go pattern
-      is missing from it.
+      rows cover **every** regex in the six groups listed under Scope, each
+      appearing exactly once. The row count is a property, not a fixed number
+      — it equals the sum of the six groups' entry counts in `ai/retry.go` and
+      `ai/overflow.go`, re-counted at this PR's base commit — **72** as the
+      groups stand today (`8 + 6 + 28 + 24 + 3 + 3`, counted directly from
+      `nonRetryableProviderLimitErrorPattern`, `retryableStatusCodePatterns`,
+      `transientProviderErrorPatterns`, `overflowPatterns`,
+      `nonOverflowPatterns`, and `IsContextOverflow`'s three detection modes —
+      not the unreachable 75 (`2 + 6 + 6 + 34 + 24 + 3`) this criterion
+      previously asserted, which matched none of the six groups' real counts).
 - [ ] Every upstream pattern present in `packages/ai/src/utils/retry.ts` and
       `packages/ai/src/utils/overflow.ts` at `936aff00` appears in the table
       exactly once, with a status of `same`, `adapted`, or
@@ -113,9 +129,12 @@ pattern delta ported, each with a test case.
       stay separate, because `IsTransientProviderErrorText` is applied to raw
       HTTP bodies (`:118-132`).
 - [ ] `IsNonRetryableProviderLimitError` still wins over the transient
-      classification in both `IsRetryableAssistantError` (`ai/retry.go:145-148`)
-      and `httpretry.IsRetryable`, with a test asserting a quota message that
-      also matches `rate.?limit` is classified terminal.
+      classification in `IsRetryableAssistantError` (`ai/retry.go:145-148`),
+      with a test asserting a quota message that also matches `rate.?limit` is
+      classified terminal. The equivalent guarantee for `httpretry.IsRetryable`
+      is out of scope here (`:76-78`) — it is
+      [issue 02](/epic-9-classifier-audit-and-release/issues/02-provider-retry-vs-httpretry.md)'s
+      acceptance criterion (`:110-112`), asserted there and not duplicated.
 - [ ] `docs/index.md` lists the new doc; `docs/log.md` has an entry for it;
       `docs/PORTING.md`'s two classifier rows link to it.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green

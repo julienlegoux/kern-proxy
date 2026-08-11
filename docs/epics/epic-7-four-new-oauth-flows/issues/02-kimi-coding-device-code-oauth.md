@@ -3,7 +3,7 @@ type: Issue
 title: "Port the Kimi Code device-code OAuth flow with its retrying refresh, and bind it to kimi-coding"
 description: "Port src/auth/oauth/kimi-coding.ts as ai/auth/oauth/kimicoding.go — device authorization against a host-overridable endpoint, a bearer-header ToAuth, and a refresh that retries 429/5xx with exponential backoff."
 tags: [epic-7]
-timestamp: 2026-08-09T13:40:00Z
+timestamp: 2026-08-11T13:00:00Z
 epic: 7
 issue: 02
 slug: kimi-coding-device-code-oauth
@@ -118,10 +118,9 @@ a provider id, and this is not one.
 - Any change to `ai/apis/anthropic` for the bearer header. `ToAuth` returning
   `ModelAuth.Headers` is already how Copilot works
   (`ai/auth/oauth/copilot.go`); the adapter needs nothing.
-- Widening `postForm` (from [issue 01](/epic-7-four-new-oauth-flows/issues/01-xai-device-code-oauth.md)).
-  If Kimi needs the raw response *text* for its `[: <body>]` error suffixes and
-  `postForm` only returns a decoded map, extend it there in a small, separate
-  commit and say so — do not fork a second helper.
+- Widening `postForm` further. [Issue 01](/epic-7-four-new-oauth-flows/issues/01-xai-device-code-oauth.md)
+  already returns the raw response body alongside the decoded map, which is
+  what this issue's `[: <body>]` error suffixes need — reuse it as-is.
 
 ## Acceptance criteria / Definition of done
 
@@ -165,7 +164,9 @@ a provider id, and this is not one.
 - [ ] Tests are offline, stdlib-only, no `t.Parallel()`, no build tags,
       discrete named functions.
 - [ ] `// Ports: packages/ai/src/auth/oauth/kimi-coding.ts` header on
-      `kimicoding.go`.
+      `kimicoding.go`, and
+      `// Ports: packages/ai/test/kimi-coding-oauth.test.ts` on
+      `kimicoding_test.go`.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

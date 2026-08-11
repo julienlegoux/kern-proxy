@@ -3,7 +3,7 @@ type: Epic
 title: "Classifier audit, disposition sweep, and release"
 description: "Audit the retry and overflow classifiers against upstream, dispose of all 232 files in range, bump the upstream lock, and ship v0.2.0."
 tags: [epic]
-timestamp: 2026-08-09T03:55:05Z
+timestamp: 2026-08-11T15:10:00Z
 epic: 9
 slug: classifier-audit-and-release
 status: open
@@ -29,11 +29,19 @@ into a released **v0.2.0** with an upstream lock that says so.
   `ai/overflow.go` with its upstream counterpart at `936aff00`, every difference
   justified. `retry_test.go` and `overflow_test.go` are already table-driven.
 - Settle whether upstream's new `utils/provider-retry.ts` supersedes
-  `ai/apis/internal/httpretry` or coexists with it. If they diverge, that is a
-  `docs/planning/DRIFT.md` entry, not a silent difference.
+  `ai/apis/internal/httpretry` or coexists with it. Settled in writing either
+  way — as code where the behaviors converge, or as a drift record promoted to
+  `docs/planning/DRIFT.md` at epic close where they diverge deliberately.
 - **Disposition sweep**: every one of the **232** files in range is either
   ported or recorded as a deviation in `docs/PORTING.md`. No file left in a
   third, unaccounted state.
+- **Disposition checker** (`upstream/disposition_check.sh` and its offline
+  test, wired into `.github/workflows/test.yml`): a mechanical arbiter for the
+  disposition-sweep criterion above, added because a 232-row table cannot be
+  verified complete by inspection. An assumption beyond this epic's original
+  scope, authorized here by Epic 0's plan-remediation triage
+  (`docs/epics/epic-0-plan-remediation/EPIC_0.md`, `## Notes`), which decided
+  to keep it rather than leave the completion gate a judgement call.
 - Remove the unused `vX.Y.Z-go.N` tagging convention from `docs/PORTING.md`; it
   contradicts the SemVer line the CHANGELOG maintains and was never used.
 - Bump `upstream/UPSTREAM.lock` to `commit=936aff00…` / `version=0.84.1`.
@@ -55,8 +63,9 @@ into a released **v0.2.0** with an upstream lock that says so.
 1. The classifier audit table exists, pairing every regex in `ai/retry.go` and
    `ai/overflow.go` with its upstream counterpart at `936aff00`, with every
    difference justified.
-2. The `provider-retry.ts` vs `ai/apis/internal/httpretry` question is settled in
-   writing — as code, or as a `docs/planning/DRIFT.md` entry if they diverge.
+2. The `provider-retry.ts` vs `ai/apis/internal/httpretry` question is settled
+   in writing — as code, or as a drift record promoted to
+   `docs/planning/DRIFT.md` at epic close.
 3. All **232** files in range are dispositioned in `docs/PORTING.md`: ported, or
    a deviation with a reason.
 4. `upstream/UPSTREAM.lock` reads `commit=936aff00918de1187f085f123c2812d8f2d67745`
@@ -101,3 +110,17 @@ Transitively, every epic in the program.
 - Project-wide: `develop` is the integration trunk and one `develop → main`
   merge closes the program; the race detector's verdict only ever arrives from
   CI.
+- **Amended by [epic-0 issue 12](/epic-0-plan-remediation/issues/12-repair-the-epic-9-issue-set.md).**
+  The disposition-checker's candidate set moved from a whole-tree enumeration
+  to the in-range diff (`issue 03`); its assumption-beyond-this-epic status is
+  now stated and authorized above; the classifier row-count criterion was
+  corrected from an unreachable 75 to the property it should have stated
+  (`issue 01`); a should-have-been-ported finding is now a release blocker
+  rather than an open follow-up (`issues 04`, `06`); AC 2's wording above no
+  longer implies this epic writes `docs/planning/DRIFT.md` directly; the
+  `httpretry.IsRetryable` guarantee is asserted by exactly one issue now
+  (`issue 02`); `docs/classifier-parity.md`'s placement in the consumer-facing
+  `docs/` bundle is confirmed explicit (`issue 01`); and `issue 05`'s
+  `CHANGELOG.md` scope now names the missing `[0.2.0]` footer link (not an
+  org-link refresh — Epic 1 issue 02 already owns that, a premise the epic-0
+  issue got wrong; see its PR body).

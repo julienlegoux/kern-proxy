@@ -3,7 +3,7 @@ type: Issue
 title: "Spike: price tools/export-catalog against upstream 936aff00 and record the finding"
 description: "Verify whether tools/export-catalog can run against the frozen upstream revision at all, and write the finding down before the rest of the epic is planned against it."
 tags: [epic-3]
-timestamp: 2026-08-09T04:52:00Z
+timestamp: 2026-08-11T14:20:00Z
 epic: 3
 issue: 01
 slug: export-catalog-spike
@@ -79,8 +79,15 @@ against a real checkout and correct the record where it turns out to be wrong:
 - Post the finding as a comment on the epic's tracking issue
   [#120](https://github.com/kern-ia/kern-link/issues/120), and update
   `EPIC_3.md`'s `## Notes` with the one-line outcome.
-- Where the finding contradicts issues 02–05 as drafted, **edit those issue
-  files** (and their GitHub bodies) rather than leaving them wrong.
+- Where the finding contradicts issues 02–05 as drafted, **record the
+  contradiction in the drift record** — the claim, what is true instead, and
+  which issue it invalidates — and say the same in the #120 comment. Editing
+  those issue files is *not* part of this PR: a spike whose definition of done
+  includes rewriting four successors has no bound, and issue 02 already carries
+  "where the record contradicts this issue, the record wins", so the finding
+  reaches its readers without the edit. If the finding invalidates an issue
+  outright rather than adjusting it, open a follow-up issue to re-plan issues
+  02–05 and link it from the record.
 
 ## Out of scope
 
@@ -116,7 +123,13 @@ against a real checkout and correct the record where it turns out to be wrong:
 - [ ] `EPIC_3.md`'s `## Notes` carries the one-line outcome and a refreshed
       `timestamp`.
 - [ ] Every claim in the "Expected finding" list above is marked confirmed or
-      corrected in the record; any correction is propagated into issues 02–05.
+      corrected in the record, and each correction names the issue among 02–05 it
+      bears on. No sibling issue file and no GitHub issue body other than #120 is
+      touched by this PR: `git diff --name-only` lists nothing under
+      `docs/epics/epic-3-catalog-schema-and-export-tooling/issues/`.
+- [ ] If any correction invalidates an issue rather than adjusting it, a
+      follow-up issue to re-plan issues 02–05 exists and is linked from the drift
+      record.
 - [ ] CI green: `go test ./... -race -v`, `bash upstream/sync_test.sh`,
       `golangci-lint` v2.12.2. (This PR changes no Go code, so this is a
       regression check, not new coverage.)
@@ -125,9 +138,9 @@ against a real checkout and correct the record where it turns out to be wrong:
 
 ## Relevant files / areas
 
-- `tools/export-catalog/export-catalog.ts` (58 lines) — `:39-40` the two
+- `tools/export-catalog/export-catalog.ts` (58 lines) — `:40-41` the two
   `await import(...)` calls that are the subject of this spike; `:1-14` the doc
-  comment whose byte-stability claim is under test; `:23` honors
+  comment whose byte-stability claim is under test; `:22` honors
   `UPSTREAM_CLONE_DIR`.
 - `upstream/sync.sh:25-27` — the clone/reuse logic and the
   `UPSTREAM_CLONE_DIR` default (`upstream/.upstream-clone`).
@@ -137,8 +150,9 @@ against a real checkout and correct the record where it turns out to be wrong:
   step that says catalog changes are "re-run `tools/export-catalog`…; no Go code
   changes") — both become wrong if the expected finding holds; note that here,
   fix them in issue 02.
-- `docs/planning/SPECS.md` — "The model catalog is not hand-maintained" and the
-  `tools/export-catalog` description under "Stack".
+- Read-only: `docs/planning/SPECS.md` — "The model catalog is not
+  hand-maintained" and the `tools/export-catalog` description under "Stack". The
+  spike records contradictions in its drift record; it does not edit them.
 - Upstream at `936aff00`: `.gitignore`, `packages/ai/package.json` (`scripts`
   block), `packages/ai/scripts/generate-models.ts`,
   `packages/ai/scripts/model-data.ts`, `packages/ai/src/model-catalog.ts`,
@@ -148,7 +162,12 @@ against a real checkout and correct the record where it turns out to be wrong:
 
 - **Blocked by**: None. This is the first issue of the epic by design.
 - **Blocks**: [Issue 02](/epic-3-catalog-schema-and-export-tooling/issues/02-export-catalog-json-input.md),
-  and transitively issues 03–05. Issue 06 is independent of it.
+  and — through issue 02, and through its own `depends_on: [1]` sequencing edge —
+  issues 03, 04 and 05. The two images issues,
+  [06](/epic-3-catalog-schema-and-export-tooling/issues/06-images-adapter-retry.md)
+  and [07](/epic-3-catalog-schema-and-export-tooling/issues/07-images-options-base-and-auth-overrides.md)
+  (#218), are independent of it: they touch no catalog data and no export
+  tooling.
 
 ## PR size note
 

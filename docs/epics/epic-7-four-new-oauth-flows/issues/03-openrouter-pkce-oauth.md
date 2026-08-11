@@ -3,7 +3,7 @@ type: Issue
 title: "Port the OpenRouter PKCE OAuth flow and bind it to both OpenRouter providers"
 description: "Port src/auth/oauth/openrouter.ts as ai/auth/oauth/openrouter.go — a one-shot loopback callback on an ephemeral port raced against a manual-code prompt, exchanging the code for a permanent API key — and wire it into the text and image OpenRouter bindings."
 tags: [epic-7]
-timestamp: 2026-08-09T13:40:00Z
+timestamp: 2026-08-11T13:00:00Z
 epic: 7
 issue: 03
 slug: openrouter-pkce-oauth
@@ -37,8 +37,8 @@ worth stating in the code, because both look like bugs otherwise:
 The login itself is the callback-vs-manual race the Anthropic flow already
 runs, with one structural difference that decides how much can be reused:
 **the token exchange happens inside the callback handler**, so the browser
-gets a real success or failure page (`oauthSuccessHtml` /
-`oauthErrorHtml` with the exchange error), and a second request to the same
+gets a real success or failure page (`oauthSuccessHTML` /
+`oauthErrorHTML` with the exchange error), and a second request to the same
 callback URL is answered `409` (`This OAuth callback has already been used.`)
 rather than starting a second exchange. `ai/auth/oauth/callback.go`'s
 `CallbackServer` delivers a `code`/`state` pair and lets the *caller* exchange
@@ -126,7 +126,12 @@ flight, and copy its resolved shape rather than inventing a third.
   credential resolves for both; the two bindings share the `openrouter`
   credential-store key, so this is what makes one login serve both surfaces.
 - `ai/auth/oauth/anthropic.go` — rename `anthropicCallbackHost` to
-  `callbackHost` (mechanical; update its doc comment to name both callers).
+  `callbackHost` (mechanical; the function already has two callers before this
+  issue — `ai/auth/oauth/anthropic.go:105` and `ai/auth/oauth/codex.go:515` —
+  and three after; update its doc comment to name all callers: `anthropic.go:105`,
+  `codex.go:515`, and the new `openrouter.go`).
+- `ai/auth/oauth/codex.go` — update its `callbackHost()` call site for the
+  rename; no other change (mechanical, same commit as the `anthropic.go` rename).
 - `ai/auth/oauth/openrouter_test.go` (new) — the port of
   `test/openrouter-oauth.test.ts` (322 lines).
 
@@ -188,7 +193,9 @@ flight, and copy its resolved shape rather than inventing a third.
 - [ ] Tests are offline, stdlib-only, no `t.Parallel()`, no build tags,
       discrete named functions. No test binds a fixed port.
 - [ ] `// Ports: packages/ai/src/auth/oauth/openrouter.ts` header on
-      `openrouter.go`.
+      `openrouter.go`, and
+      `// Ports: packages/ai/test/openrouter-oauth.test.ts` on
+      `openrouter_test.go`.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.
@@ -204,7 +211,8 @@ flight, and copy its resolved shape rather than inventing a third.
   every callback response uses.
 - `ai/auth/oauth/pkce.go` — `GeneratePKCE()`.
 - `ai/auth/oauth/anthropic.go:44` `anthropicCallbackHost` (renamed here),
-  `:53` `parseAuthorizationInput` (the colliding name).
+  `:53` `parseAuthorizationInput` (the colliding name);
+  `ai/auth/oauth/codex.go:515` — the rename's second caller.
 - `ai/auth/oauth/token.go:29` `PostJSON` — close to the exchange's needs, but
   it errors on non-2xx and discards the parsed body.
 - `ai/auth.go:52-58` `OAuthCredential`, `:180-207` `AuthPrompt` incl.
@@ -222,8 +230,11 @@ flight, and copy its resolved shape rather than inventing a third.
   flow copies.
 - **Blocks**: [Issue 05](/epic-7-four-new-oauth-flows/issues/05-cli-login-new-flows.md),
   [issue 06](/epic-7-four-new-oauth-flows/issues/06-auth-docs-and-porting.md).
-- Touches `ai/auth/oauth/anthropic.go` (the `callbackHost` rename) — sequence
-  against epic 6 issue 08, which rewrites that file's login body.
+- Touches `ai/auth/oauth/anthropic.go` and `ai/auth/oauth/codex.go` (the
+  `callbackHost` rename and its second call site) — sequence against
+  [epic 6 issue 08](/epic-6-auth-core-and-env-api-key-bindings/issues/08-anthropic-codex-login-race.md),
+  which rewrites **both** files' login bodies (`:21-23`), not just
+  `anthropic.go`'s.
 
 ## PR size note
 

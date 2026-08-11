@@ -1,9 +1,9 @@
 ---
 type: Issue
 title: "Honor MaxRetries and MaxRetryDelay in the OpenRouter images adapter"
-description: "Port upstream's retryProviderRequest wrapping of the images request by making the shared httpretry loop reachable from ai/images, with offline httptest coverage."
+description: "Port upstream's retryProviderRequest wrapping of the images request by reaching the shared httpretry loop from ai/images through a thin ai/apis shim, with offline httptest coverage."
 tags: [epic-3]
-timestamp: 2026-08-11T12:30:00Z
+timestamp: 2026-08-11T14:20:00Z
 epic: 3
 issue: 06
 slug: images-adapter-retry
@@ -34,60 +34,93 @@ up front because they shape the PR:
 
 1. **Package visibility.** `ai/apis/internal/httpretry` is importable only from
    within the tree rooted at `ai/apis/`. `ai/images` is outside it, so the
-   import is a compile error, not a style preference. Moving the package to
-   `ai/internal/httpretry` makes it reachable from every package under `ai/`
-   including `ai/images`, with no import cycle: it imports `ai`, and `ai` does
-   not import it.
+   import is a compile error, not a style preference. **The package does not
+   move.** [Epic 0](/epic-0-plan-remediation/EPIC_0.md) decided that, and
+   [EPIC_3.md](/epic-3-catalog-schema-and-export-tooling/EPIC_3.md)'s `## Notes`
+   records it: relocating a shared internal package while epics 4 and 5 rewrite
+   its four consumers buys nothing that waiting does not, and
+   [CONVENTIONS.md](../../../planning/CONVENTIONS.md) (`:22-26`) names
+   `ai/apis/internal/httpretry` as part of the decided package layout. Reach the
+   loop instead through a **thin exported shim in the existing `ai/apis`
+   package** (`package apis`, already at `ai/apis/simpleopts.go` /
+   `transform.go`): `ai/apis` is rooted at `ai/apis`, so it may import the
+   internal package, and `ai/images` may import `ai/apis`. No cycle — `ai/apis`
+   imports `ai` and does not import `ai/images`, and `ai` does not import either.
 2. **Config coupling.** `httpretry.Config.Opts` is a `*ai.StreamOptions`
    (`httpretry.go:60-76`), used for `MaxRetries`, `MaxRetryDelay`, `Timeout`
-   and `OnResponse`. `ai/images.Options` is a separate type with the same four
-   concerns. Widen `Config` to carry those four explicitly and have the text
-   adapters pass them from their `StreamOptions`, rather than teaching a
-   shared helper about two option types.
+   and `OnResponse` — and `Config.Model` is an `*ai.Model`, where the images
+   callback wants an `*images.Model`. The shim absorbs the mismatch: it takes
+   the four knobs explicitly plus a model-free
+   `OnResponse func(ctx, ai.ProviderResponse) error` (the images adapter closes
+   over its own model), and builds the `httpretry.Config` behind them.
+   `httpretry` itself needs no change; if the shim cannot be written without one,
+   that change must be **additive**, and every text-adapter call site and retry
+   test must stay byte-identical.
 
-**A stale premise, corrected.**
-[Decision 14](../../../planning/scope/14-images-surface.md) and
-[SPECS.md](../../../planning/SPECS.md) both state that `ai/images` has "exactly
-one live smoke test", which is where the epic's acceptance criterion 5 comes
-from. That is no longer true: `ai/images/openrouter_test.go` already carries
-five offline `httptest` tests (`:18`, `:80`, `:108`, `:122`, `:142`) plus
-`TestGenerateImagesOpenRouter_LiveSmoke` (`:171`). The criterion still stands
-and this PR still satisfies it — offline coverage for every adapter change is
-the house rule either way — but plan the work against the tests that exist, and
-correct the claim in SPECS.md as part of this PR.
+**A stale premise, corrected — and routed through drift, not through an edit.**
+[Decision 14](../../../planning/scope/14-images-surface.md) states that
+`ai/images` has "exactly one live smoke test" (`:11`, `:54-57`, `:70-72`), which
+is where the epic's acceptance criterion 5 comes from. That is no longer true:
+`ai/images/openrouter_test.go` carries **six offline tests** — four driving an
+`httptest` server (`:18`, `:80`, `:122`, `:142`) and two needing no server
+(`:108`, `:165`) — beside `TestGenerateImagesOpenRouter_LiveSmoke` (`:171`).
+The criterion still stands and this PR still satisfies it — offline coverage for
+every adapter change is the house rule either way — but plan the work against
+the tests that exist, and record the stale decision text as a **drift record**
+(below) instead of editing `docs/planning/` inside this PR.
+
+`docs/planning/SPECS.md:301` is **not** part of that correction: it says only
+that eight adapters plus `ai/images/openrouter_test.go` carry a gated live
+smoke, which is true and stays as it is.
 
 ## Scope
 
-- Move `ai/apis/internal/httpretry` → `ai/internal/httpretry`, updating the
-  package doc comment (which currently says "every raw-`net/http` adapter under
-  `ai/apis`") and all importers: `ai/apis/anthropic`, `ai/apis/azure`,
-  `ai/apis/bedrock`, `ai/apis/codex`, and their retry tests.
-- Widen `httpretry.Config` to take `MaxRetries *int`, `MaxRetryDelay
-  *time.Duration`, `Timeout time.Duration` and an `OnResponse` callback
-  directly, replacing the `Opts *ai.StreamOptions` field. Keep `Model` for the
-  callback. Text adapters pass the same values they pass today; behavior for
-  them must not change.
+- Add the shim to the existing `ai/apis` package — one new file, e.g.
+  `ai/apis/retry.go` — exporting a `Do` that takes an `httpretry.Request`-shaped
+  request plus `MaxRetries *int`, `MaxRetryDelay *time.Duration`,
+  `Timeout time.Duration`, a `ParseError` hook and a model-free
+  `OnResponse func(ctx context.Context, response ai.ProviderResponse) error`, and
+  forwards to `httpretry.Do`. **`ai/apis/internal/httpretry` does not move and
+  its importers are not touched**: `ai/apis/anthropic`, `ai/apis/azure`,
+  `ai/apis/bedrock` and `ai/apis/codex` keep importing it directly, and their
+  retry tests are untouched by this PR.
 - Rewrite `generateImagesOpenRouter`'s transport (`ai/images/openrouter.go:204-291`)
-  to build an `httpretry.Request` and call `httpretry.Do`, mapping
-  `Options.MaxRetries` / `Options.MaxRetryDelay` / `Options.Timeout` onto the
-  new `Config` and moving the `OnResponse` callback into it.
+  to call that shim instead of `client.Do`, mapping `Options.MaxRetries` /
+  `Options.MaxRetryDelay` / `Options.Timeout` onto it and moving the `OnResponse`
+  callback into it.
 - Preserve every existing behavior of the adapter: the
   `"No API key for provider: %s"` text, `OnPayload` replacement, the
   `abortAwareErrorResult` context-cancelled → `StopReasonAborted` mapping, the
   non-2xx error text from `openRouterImagesHTTPStatusError`, and the data-URL
   parsing of returned images.
 - Add offline `httptest` coverage for the new retry path (below).
+- Write a **drift record** at
+  `docs/epics/epic-3-catalog-schema-and-export-tooling/drift/06-images-live-smoke-claim.md`
+  (format in the pipeline interfaces) for decision 14's "exactly one live smoke
+  test" claim: what was decided, what `ai/images/openrouter_test.go` actually
+  holds with the command that shows it, and a revisit trigger. `close-epic`
+  promotes it to `docs/planning/DRIFT.md`, where the user dispositions it. Do
+  **not** edit `docs/planning/` in this PR.
 
 ## Out of scope
 
+- **Relocating `ai/apis/internal/httpretry`.** Decided against for this program
+  by [Epic 0](/epic-0-plan-remediation/EPIC_0.md) and recorded in
+  [EPIC_3.md](/epic-3-catalog-schema-and-export-tooling/EPIC_3.md)'s `## Notes`.
+  This PR adds a shim beside the package; it does not move it, does not rename
+  it, and changes no text-adapter import.
+- **Any edit to `docs/planning/SPECS.md` or `docs/planning/CONVENTIONS.md`.**
+  `CONVENTIONS.md:22-26` keeps naming `ai/apis/internal/httpretry` because that
+  is still where the package lives, and `SPECS.md:73`'s package-map row and
+  `:301`'s smoke-test sentence both stay true. Decision 14's stale claim goes in
+  the drift record, not into a planning-doc diff.
 - **Whether upstream's `utils/provider-retry.ts` supersedes
   `ai/apis/internal/httpretry`.** That is
   [Epic 9](/epic-9-classifier-audit-and-release/EPIC_9.md)'s explicit question
   ([decision 07](../../../planning/scope/07-classifier-error-text-sync.md)).
-  This PR moves and parameterizes the existing helper; it does not re-derive it
-  from upstream.
+  This PR wraps the existing helper; it does not re-derive it from upstream.
 - The **clamp-vs-throw** difference on a server-requested delay above the cap:
-  kern-link's `capRetryDelay` (`httpretry.go:296-303`) clamps, upstream's
+  kern-link's `capRetryDelay` (`httpretry.go:296-302`) clamps, upstream's
   `validateServerRetryDelayMs` throws. Pre-existing, applies to every adapter,
   and belongs to the same epic 9 reconciliation. Do not change it here.
 - `fetch` injection into the images client —
@@ -129,23 +162,28 @@ correct the claim in SPECS.md as part of this PR.
 - [ ] `TestGenerateImagesOpenRouter_AbortDuringRetryBackoffReturnsAborted` — a
       context cancelled between attempts yields `StopReasonAborted`, not
       `StopReasonError`.
-- [ ] All five existing offline tests in `ai/images/openrouter_test.go` still
+- [ ] All six existing offline tests in `ai/images/openrouter_test.go` still
       pass unchanged, and `TestGenerateImagesOpenRouter_LiveSmoke` still skips
       without `OPENROUTER_API_KEY`.
-- [ ] The four text adapters' retry tests (`ai/apis/anthropic/anthropic_retry_test.go`,
-      `ai/apis/azure/azure_retry_test.go`, `ai/apis/bedrock/retry_test.go`,
-      and the codex retry tests) pass unchanged apart from the import path — the
-      move and the `Config` widening are behavior-preserving for them.
+- [ ] `git diff --name-only` lists no file under `ai/apis/anthropic`,
+      `ai/apis/azure`, `ai/apis/bedrock`, `ai/apis/codex` or
+      `ai/apis/internal/httpretry`, and
+      `git grep -n 'ai/apis/internal/httpretry' -- '*.go'` still resolves for all
+      four text adapters — the shim is additive, so their retry tests are not
+      merely still green, they are untouched.
 - [ ] No test sleeps on a real backoff: every retry test shrinks
       `httpretry.BaseDelay` and restores it with `t.Cleanup`.
-- [ ] `docs/planning/SPECS.md` — the "Testing infrastructure" claim about
-      `ai/images/openrouter_test.go` being a live-only smoke is corrected, and
-      the `ai/apis/internal/httpretry` row in the package map is updated to the
-      new path.
+- [ ] `git diff --name-only` lists nothing under `docs/planning/`; the drift
+      record at
+      `docs/epics/epic-3-catalog-schema-and-export-tooling/drift/06-images-live-smoke-claim.md`
+      exists, has valid frontmatter, names decision 14's line, and has its
+      **Disposition** and **Revisit when** fields filled with a concrete trigger.
 - [ ] `docs/PORTING.md` — the mapping row for the images adapter reflects the
-      retry behavior; `ai/internal/httpretry/httpretry.go` still carries **no**
-      `// Ports:` header (it is original code, and its absence is meaningful per
-      [CONVENTIONS.md](../../../planning/CONVENTIONS.md)).
+      retry behavior; `ai/apis/internal/httpretry/httpretry.go` still carries
+      **no** `// Ports:` header (it is original code, and its absence is
+      meaningful per
+      [CONVENTIONS.md](../../../planning/CONVENTIONS.md)), and the new
+      `ai/apis` shim file takes none either, for the same reason.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2).
@@ -161,16 +199,22 @@ correct the claim in SPECS.md as part of this PR.
   `abortAwareErrorResult` / `openRouterImagesHTTPStatusError`.
 - `ai/images/types.go:96-102` — `Timeout`, `MaxRetries`, `MaxRetryDelay`, all
   currently unread.
-- `ai/images/openrouter_test.go:18-170` — the five existing offline tests to
-  keep green; `:171-201` the live smoke.
-- `ai/apis/internal/httpretry/httpretry.go` — `:1-13` package doc, `:36-45`
-  `DefaultMaxRetries` / `BaseDelay`, `:49-76` `Request` / `Config`, `:89-168`
-  `Do`, `:249-303` `IsRetryable` / `RetryAfterDelay` / `capRetryDelay`.
-- Importers to update: `ai/apis/anthropic/anthropic.go:24`,
-  `ai/apis/azure/azure.go:22`, `ai/apis/bedrock/client.go:27`,
-  `ai/apis/codex/codex.go:34`, plus the retry tests beside each.
-- `docs/planning/SPECS.md` (package map, "Testing infrastructure"),
-  `docs/PORTING.md`.
+- `ai/images/openrouter_test.go:18-170` — the six existing offline tests to keep
+  green (`:18`, `:80`, `:108`, `:122`, `:142`, `:165`); `:171-201` the live
+  smoke.
+- `ai/apis/internal/httpretry/httpretry.go` (302 lines) — `:1-13` package doc,
+  `:36-45` `DefaultMaxRetries` / `BaseDelay`, `:49-76` `Request` / `Config`,
+  `:89-168` `Do`, `:249-302` `IsRetryable` / `RetryAfterDelay` /
+  `capRetryDelay`. **Read and wrapped, not edited.**
+- `ai/apis/simpleopts.go`, `ai/apis/transform.go` — the existing `package apis`
+  the shim joins; it imports `ai` only, so `ai/images` can import it without a
+  cycle.
+- Read-only: `docs/planning/CONVENTIONS.md:22-26` (the decided home of
+  `ai/apis/internal/httpretry`), `docs/planning/SPECS.md:73` (package-map row)
+  and `:301` (the gated-smoke sentence),
+  `docs/planning/scope/14-images-surface.md:11`, `:54-57`, `:70-72` (the stale
+  "exactly one live smoke test" claim the drift record names).
+- `docs/PORTING.md` — the images-adapter mapping row.
 - Upstream at `936aff00`: `packages/ai/src/api/openrouter-images.ts:56-82`
   (the `retryProviderRequest` wrapping), `packages/ai/src/utils/provider-retry.ts`.
 
@@ -183,12 +227,15 @@ correct the claim in SPECS.md as part of this PR.
   (#218) — it injects `Options.Fetch` into the retry loop this PR introduces, so
   it rebases on this one. Note for
   [Epic 9](/epic-9-classifier-audit-and-release/EPIC_9.md):
-  the `provider-retry.ts` reconciliation it owns will be against
-  `ai/internal/httpretry` after this PR, not `ai/apis/internal/httpretry`.
+  the `provider-retry.ts` reconciliation it owns is against
+  `ai/apis/internal/httpretry`, at that path, before and after this PR.
 
 ## PR size note
 
 Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. The package move is mechanical but touches ten files — if the `Config`
-widening turns out to change text-adapter behavior anywhere, split that half out
-rather than growing this PR.
+PR. Three files carry the change — the new `ai/apis` shim,
+`ai/images/openrouter.go`, and `ai/images/openrouter_test.go` — plus the drift
+record. If the shim turns out to need a change inside
+`ai/apis/internal/httpretry` after all, that change lands additively and its
+effect on the four text adapters is proved by their retry tests staying
+untouched, not by re-running them after an edit.

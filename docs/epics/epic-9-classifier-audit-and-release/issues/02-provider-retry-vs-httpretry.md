@@ -3,7 +3,7 @@ type: Issue
 title: "Settle whether upstream's provider-retry.ts supersedes ai/apis/internal/httpretry"
 description: "Compare upstream's new request-level retry helper against the Go port's own httpretry package, port what is portable, and record the rest as a drift record rather than a silent difference."
 tags: [epic-9]
-timestamp: 2026-08-09T16:30:00Z
+timestamp: 2026-08-11T15:10:00Z
 epic: 9
 issue: 02
 slug: provider-retry-vs-httpretry
@@ -31,6 +31,14 @@ semantics, or may reveal upstream doing something the Go loop gets wrong. The
 epic's requirement is that the answer is **written down** — as code if the
 behaviors should converge, as a drift record if they diverge deliberately.
 Either way, no silent difference survives this issue.
+
+`ai/apis/internal/httpretry` itself is **not relocated** for this program —
+[epic-0 issue 06](/epic-0-plan-remediation/issues/06-rein-in-epic-3-invented-scope.md)
+hands this reconciliation here explicitly, having scoped Epic 3 issue 06 down
+to the OpenRouter images adapter and confirmed the package stays where
+`CONVENTIONS.md:22-26` puts it. This issue is the accepting side of that
+hand-off: it settles `provider-retry.ts` against `httpretry.go` in place,
+without moving the package.
 
 ## Scope
 

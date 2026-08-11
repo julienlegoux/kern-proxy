@@ -3,7 +3,7 @@ type: Issue
 title: "Cut v0.2.0: merge develop into main, tag the release, and close #113"
 description: "The program's closing act — the develop-to-main release PR, the v0.2.0 tag and GitHub release on a green commit, and the umbrella tracking issue closed."
 tags: [epic-9]
-timestamp: 2026-08-09T16:30:00Z
+timestamp: 2026-08-11T15:10:00Z
 epic: 9
 issue: 06
 slug: cut-v0-2-0-release
@@ -41,6 +41,12 @@ it as one.
 - Confirm `develop` is the complete program: every epic's milestone closed or
   its remaining issues explicitly dispositioned, and
   `gh pr list --state open --base develop` empty of program work.
+- Confirm no open GitHub issue is a should-have-been-ported follow-up left by
+  [issue 04](/epic-9-classifier-audit-and-release/issues/04-disposition-sweep.md)'s
+  disposition sweep. `SCOPE.md:65-78` rules out postponement as a deviation
+  ground by name; a `docs/PORTING.md` row honestly recording "should be
+  ported, not yet done" is allowed to exist, but the follow-up it points at
+  may not still be open when this tag is cut.
 - Verify the three gates on the tip of `develop` before merging —
   `go test ./... -race -v`, `bash upstream/sync_test.sh`, and `golangci-lint`
   v2.12.2 — via the CI run on the commit, not locally (`-race` needs a C
@@ -68,6 +74,10 @@ it as one.
 
 ## Acceptance criteria / Definition of done
 
+- [ ] No open GitHub issue is a should-have-been-ported follow-up from issue
+      04's disposition sweep — checked against the issues that PR opened, not
+      by memory. If one is still open, this issue stops and waits rather than
+      tagging with a known-postponed deviation.
 - [ ] A `develop → main` PR exists and is merged with a merge commit:
       `git log main --merges -1 --format=%s` names it, and `main`'s history
       shows no squash or rebase of `develop`'s commits.

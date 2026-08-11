@@ -3,7 +3,7 @@ type: Issue
 title: "Port the Radius gateway OAuth flow: discovery, browser PKCE, and device code"
 description: "Port src/auth/oauth/radius.ts as ai/auth/oauth/radius.go — a gateway-parameterised strategy factory whose login prompts between a browser PKCE flow on port 1456 and an RFC 8628 device flow, both against the gateway's own token endpoint."
 tags: [epic-7]
-timestamp: 2026-08-09T13:40:00Z
+timestamp: 2026-08-11T13:00:00Z
 epic: 7
 issue: 04
 slug: radius-gateway-oauth
@@ -219,7 +219,8 @@ flow half.
       tags, discrete named functions except the one table above.
 - [ ] `// Ports: packages/ai/src/auth/oauth/radius.ts` header on `radius.go`,
       naming `normalizeRadiusGatewayUrl`'s upstream home
-      (`src/providers/radius-config.ts`) as a partial second source.
+      (`src/providers/radius-config.ts`) as a partial second source, and
+      `// Ports: packages/ai/test/radius-oauth.test.ts` on `radius_test.go`.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.
