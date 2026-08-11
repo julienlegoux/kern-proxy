@@ -45,6 +45,8 @@
 * **Completed**: [Issue 14: Normalize the in-bundle link form and the depends_on representation, and record the branch conventions once per epic](/epic-0-plan-remediation/issues/14-normalize-links-depends-on-and-branch-notes.md) (#212) moved to `done` — [PR #230](https://github.com/kern-ia/kern-link/pull/230) merged into `develop` 2026-08-11.
 * **Started**: [Issue 15: Reconcile GitHub state with the files, and account for all 97 findings](/epic-0-plan-remediation/issues/15-reconcile-github-state-with-the-files.md) (#213) moved to `in-progress` on branch `issue-213-reconcile-github-state-with-the-files`.
 * **PR opened**: [Issue 15: Reconcile GitHub state with the files, and account for all 97 findings](/epic-0-plan-remediation/issues/15-reconcile-github-state-with-the-files.md) (#213) moved to `pr-open` — [PR #231](https://github.com/kern-ia/kern-link/pull/231), targeting `develop`. Restores the ten Epic 4 issue titles, regenerates all 99 program issue bodies onto absolute GitHub URLs, and writes the 97-finding ledger into `EPIC_0.md`'s `## Notes`.
+* **Completed**: [Issue 15: Reconcile GitHub state with the files, and account for all 97 findings](/epic-0-plan-remediation/issues/15-reconcile-github-state-with-the-files.md) (#213) moved to `done` — [PR #231](https://github.com/kern-ia/kern-link/pull/231) merged into `develop` 2026-08-11.
+* **Closed**: [Epic 0: Plan remediation](/epic-0-plan-remediation/EPIC_0.md) (#198) closed — all 15 issues `done` and merged into `develop`, milestone 27 closed. No drift was recorded: the epic repaired the plan only, so nothing was promoted to `docs/planning/DRIFT.md`. Epic 0 is retired; Epic 1 is unblocked.
 
 ## 2026-08-10
 
