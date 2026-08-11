@@ -1,5 +1,9 @@
 # Log
 
+## 2026-08-11
+
+* **PR opened**: [Issue 03: Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type](/epic-0-plan-remediation/issues/03-repair-the-epic-1-issue-set.md) (#201) — [PR #215](https://github.com/kern-ia/kern-link/pull/215).
+
 ## 2026-08-10
 
 * **Creation**: Established [Epic 0: Plan remediation](/epic-0-plan-remediation/EPIC_0.md).

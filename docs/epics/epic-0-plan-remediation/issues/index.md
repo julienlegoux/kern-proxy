@@ -2,7 +2,7 @@
 
 * [Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](./01-epic-4-core-type-contracts.md) - M, open, [#199](https://github.com/kern-ia/kern-link/issues/199)
 * [Adopt the six orphaned scope items, or record each as out of scope with a reason](./02-adopt-the-orphaned-scope-items.md) - M, open, [#200](https://github.com/kern-ia/kern-link/issues/200)
-* [Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type](./03-repair-the-epic-1-issue-set.md) - S, in-progress, [#201](https://github.com/kern-ia/kern-link/issues/201)
+* [Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type](./03-repair-the-epic-1-issue-set.md) - S, pr-open, [#201](https://github.com/kern-ia/kern-link/issues/201), [PR #215](https://github.com/kern-ia/kern-link/pull/215)
 * [Repair the Epic 2 issue set: the criterion Go cannot satisfy, the missing edge, and the duplicated ownership](./04-repair-the-epic-2-issue-set.md) - M, open, [#202](https://github.com/kern-ia/kern-link/issues/202)
 * [Pre-split Epic 2 issues 05 and 08 into reviewable halves](./05-pre-split-epic-2-issues-05-and-08.md) - M, open, [#203](https://github.com/kern-ia/kern-link/issues/203)
 * [Rein in Epic 3's invented scope, route its SPECS.md edits through drift, and reconcile EPIC_3.md with its issues](./06-rein-in-epic-3-invented-scope.md) - M, open, [#204](https://github.com/kern-ia/kern-link/issues/204)
