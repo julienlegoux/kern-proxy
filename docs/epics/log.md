@@ -14,6 +14,7 @@
 * **PR opened**: [Issue 02: Adopt the six orphaned scope items, or record each as out of scope with a reason](/epic-0-plan-remediation/issues/02-adopt-the-orphaned-scope-items.md) (#200) moved to `pr-open` — [PR #219](https://github.com/kern-ia/kern-link/pull/219), targeting `develop`.
 * **Completed**: [Issue 02: Adopt the six orphaned scope items, or record each as out of scope with a reason](/epic-0-plan-remediation/issues/02-adopt-the-orphaned-scope-items.md) (#200) moved to `done` — [PR #219](https://github.com/kern-ia/kern-link/pull/219) merged into `develop` 2026-08-11.
 * **Started**: [Issue 06: Rein in Epic 3's invented scope, route its SPECS.md edits through drift, and reconcile EPIC_3.md with its issues](/epic-0-plan-remediation/issues/06-rein-in-epic-3-invented-scope.md) (#204) moved to `in-progress` on branch `issue-204-rein-in-epic-3-invented-scope`.
+* **PR opened**: [Issue 06: Rein in Epic 3's invented scope, route its SPECS.md edits through drift, and reconcile EPIC_3.md with its issues](/epic-0-plan-remediation/issues/06-rein-in-epic-3-invented-scope.md) (#204) moved to `pr-open` — [PR #223](https://github.com/kern-ia/kern-link/pull/223), targeting `develop`.
 
 ## 2026-08-10
 
