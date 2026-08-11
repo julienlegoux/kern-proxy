@@ -3,13 +3,14 @@ type: Issue
 title: "Repair the Epic 2 issue set: the criterion Go cannot satisfy, the missing edge, and the duplicated ownership"
 description: "Rewrite Epic 2 issue 05's impossible embedded-field criterion and issue 03's blast radius, declare the 09→10 dependency, and de-duplicate the merge test and the deep-copy gap."
 tags: [epic-0]
-timestamp: 2026-08-10T03:10:00Z
+timestamp: 2026-08-11T16:10:00Z
 epic: 0
 issue: 04
 slug: repair-the-epic-2-issue-set
 size: M
-status: open
+status: done
 gh_issue: 202
+gh_pr: 222
 resource: https://github.com/kern-ia/kern-link/issues/202
 depends_on: [2]
 ---

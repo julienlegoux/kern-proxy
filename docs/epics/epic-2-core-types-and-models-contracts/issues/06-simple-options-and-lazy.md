@@ -3,7 +3,7 @@ type: Issue
 title: "Update simple-options and lazy to 0.84.1"
 description: "Carry the new request knobs through BuildBaseOptions, export the min-answer-token constant, and make LazyStream forward the inner stream's result."
 tags: [epic-2]
-timestamp: 2026-08-09T04:31:17Z
+timestamp: 2026-08-11T13:10:00Z
 epic: 2
 issue: 06
 slug: simple-options-and-lazy
@@ -71,9 +71,10 @@ completed `outer`. Upstream now propagates the result explicitly.
 
 ## Acceptance criteria / Definition of done
 
-- [ ] `TestBuildBaseOptionsMergesSamplingParams` — model-level and
-      request-level maps merge with request keys winning, and the model's own
-      map is not mutated (assert the model map after the call).
+- [ ] `TestBuildBaseOptionsMergesSamplingParams` — the sole assertion of
+      `SamplingParams` merge precedence in this epic: request-level keys
+      override model-level keys, and the model's own map is not mutated
+      (assert the model map after the call).
 - [ ] `TestBuildBaseOptionsCarriesFetch` — a non-nil `Fetch` on
       `SimpleStreamOptions` reaches the returned `StreamOptions`.
 - [ ] `ai.MinAnswerTokens` is exported and used by `AdjustMaxTokensForThinking`;
