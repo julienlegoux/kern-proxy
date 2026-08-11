@@ -3,7 +3,7 @@ type: Issue
 title: "Add ModelsRequestTransforms, case-insensitive header merging, and drop the AuthModel export"
 description: "Let Models-level callers rewrite fully assembled headers before dispatch, fix header override to be case-insensitive, and remove the AuthModel export upstream deleted."
 tags: [epic-2]
-timestamp: 2026-08-09T04:31:17Z
+timestamp: 2026-08-11T13:10:00Z
 epic: 2
 issue: 09
 slug: models-request-transforms
@@ -131,7 +131,9 @@ Separately, `models.ts` stopped re-exporting `AuthModel`
 - **Blocked by**: [Issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md),
   [Issue 08](/epic-2-core-types-and-models-contracts/issues/08-models-refresh-contract.md)
   (both rewrite regions of `ai/provider.go` this PR edits).
-- **Blocks**: Nothing inside this epic.
+- **Blocks**: [Issue 10](/epic-2-core-types-and-models-contracts/issues/10-deferred-response-dispatch.md)
+  — issue 10's `Models`-level deferred option variants carry
+  `ModelsRequestTransforms` in whatever shape this issue settles on.
 
 ## PR size note
 

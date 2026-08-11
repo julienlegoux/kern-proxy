@@ -3,7 +3,7 @@ type: Issue
 title: "Port tiered model pricing: ModelCostRates, ModelCostTier, and tier selection in CalculateCost"
 description: "Split ModelCost into rates plus optional request-wide tiers and make CalculateCost pick the highest matching input-token tier, without breaking the currently embedded catalog."
 tags: [epic-2]
-timestamp: 2026-08-09T04:31:17Z
+timestamp: 2026-08-11T13:10:00Z
 epic: 2
 issue: 03
 slug: tiered-model-cost
@@ -61,6 +61,23 @@ sync, so it ships as its own PR with its own arithmetic tests.
   directly.
 - Preserve the existing 1h-cache-write behavior exactly: it is asserted by
   `ai/cost_test.go` and by upstream's `anthropic-cache-write-1h-cost.test.ts`.
+- **Rewrite the existing keyed `ModelCost` composite literals.** The same Go
+  rule as `StreamOptions` applies: embedding `ModelCostRates` into `ModelCost`
+  breaks any composite literal that keys `Input`, `Output`, `CacheRead` or
+  `CacheWrite` directly — Go promotes embedded fields for selectors, not for
+  composite-literal keys. `grep -rn "ModelCost{" --include=*.go .` returns
+  **12** occurrences across **twelve** files today (re-derive at the PR's base
+  commit): `ai/apis/anthropic/anthropic_test.go:944`,
+  `ai/apis/bedrock/stream_test.go:186`, `ai/apis/codex/stream_test.go:335`,
+  `ai/apis/openairesponses/stream_test.go:281`,
+  `ai/catalog/fireworks_test.go:46`, `ai/catalog/together_test.go:48`,
+  `ai/cost_test.go:16`, `ai/example_stream_test.go:116`,
+  `ai/images/openrouter_test.go:43`, `ai/providers/faux/faux.go:242`,
+  `ai/providers/openrouter.go:113`, `ai/providers/vercel_ai_gateway.go:117`.
+  Eleven of the twelve are keyed and need the mechanical rewrite to
+  `ai.ModelCost{ModelCostRates: ai.ModelCostRates{Input: …}}`;
+  `ai/providers/faux/faux.go:242` is the zero-value literal `ai.ModelCost{}`,
+  which compiles unchanged either way.
 
 ## Out of scope
 
@@ -89,6 +106,14 @@ sync, so it ships as its own PR with its own arithmetic tests.
       1h cache writes uses the *selected tier's* input rate.
 - [ ] `TestModelCostMarshalsFlat` — `json.Marshal` of a `ModelCost` with no
       tiers emits exactly the four rate keys and no `tiers` key.
+- [ ] Every keyed `ai.ModelCost{...}` composite literal listed in `## Scope` is
+      rewritten to key the embedded `ModelCostRates` explicitly;
+      `ai/providers/faux/faux.go:242`'s zero-value literal is left as-is.
+- [ ] `ModelsStoreEntry`'s deep copy (`ai/modelsstore.go`, from
+      [issue 07](/epic-2-core-types-and-models-contracts/issues/07-models-store.md))
+      and `TestInMemoryModelsStoreReadReturnsCopy` are extended to clone
+      `Model.Cost.Tiers`, the slice this PR adds — mutating a tier on a model
+      returned by `Read` must not change stored state.
 - [ ] Every existing catalog test stays green with the embedded data unchanged:
       `GOTMPDIR=$PWD/.gotmp go test ./ai/catalog/...`.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
@@ -109,6 +134,12 @@ sync, so it ships as its own PR with its own arithmetic tests.
   embedded catalog that must keep decoding; `go:embed data` validates at load.
 - `ai/estimate.go` — reads usage, not cost; check it does not need a tier-aware
   path before assuming it doesn't.
+- `ai/modelsstore.go` — from
+  [issue 07](/epic-2-core-types-and-models-contracts/issues/07-models-store.md);
+  its `ModelsStoreEntry` deep copy must clone the new `Tiers` slice.
+- The eight `_test.go` files plus `ai/providers/faux/faux.go`,
+  `ai/providers/openrouter.go` and `ai/providers/vercel_ai_gateway.go` carrying
+  `ai.ModelCost{...}` literals, listed in `## Scope`.
 - Upstream: `src/types.ts` (`ModelCost*`) and `src/models.ts` (`calculateCost`)
   at `936aff00`.
 
