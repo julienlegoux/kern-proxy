@@ -3,7 +3,7 @@ type: Issue
 title: "Introduce ProviderRequestOptions as the shared request base, with fetch injection and samplingParams"
 description: "Refactor ai/options.go so transport, auth, and lifecycle knobs live in one reusable base that StreamOptions and the deferred options extend, add the fetch and samplingParams knobs, and record the telemetry deviation."
 tags: [epic-2]
-timestamp: 2026-08-11T12:30:00Z
+timestamp: 2026-08-11T13:10:00Z
 epic: 2
 issue: 05
 slug: provider-request-options
@@ -58,6 +58,20 @@ they thread through the same struct: `fetch` (an injectable HTTP client) and
     callbacks against `ImagesModel`. Go's `OnPayload`/`OnResponse` already take
     `*Model`; whether to generify, duplicate, or leave images alone is an
     implementer call — **record it in `docs/PORTING.md`'s deviations either way.**
+- **Rewrite the existing keyed composite literals.** Go promotes embedded fields
+  for **selectors** (`opts.APIKey` keeps compiling after the split) but not for
+  **composite-literal keys**, so every `StreamOptions{...}` literal that keys
+  `APIKey`, `Env`, `Headers`, `Timeout`, `MaxRetries`, `MaxRetryDelay`,
+  `OnPayload` or `OnResponse` directly stops compiling the moment those fields
+  move onto the embedded `ProviderRequestOptions`. `grep -rn "StreamOptions{"
+  --include=*.go .` finds 328 opening braces today; checking each literal's full
+  body (not just its opening line — a same-line-only filter undercounts to 218,
+  because 36 literals key a moved field on a later line) against those field
+  names gives **248** that need the mechanical rewrite. Re-derive both numbers
+  at the PR's base commit. Rewrite each to
+  `ai.StreamOptions{ProviderRequestOptions: ai.ProviderRequestOptions{APIKey: "k", ...}}`,
+  keeping any streaming-only field (e.g. `Temperature`) as a sibling top-level
+  key in the same literal.
 - **The two OpenAI-family flat-merge fields Epic 4 waits on.** Declare both on
   `StreamOptions`, in the existing
   `--- openai-completions / openai-responses ---` block beside `ReasoningEffort`
@@ -115,12 +129,12 @@ they thread through the same struct: `fetch` (an injectable HTTP client) and
 
 ## Out of scope
 
-- **Adapter behavior.** Nine adapter packages read `StreamOptions` fields. This
-  PR makes whatever mechanical edits keep them compiling — field promotion
-  through an embedded struct usually means none — and changes no adapter
-  behavior. Honoring `Fetch` and `SamplingParams` on the wire is
-  [Epic 4](/epic-4-openai-family-adapters/EPIC_4.md) and
-  [Epic 5](/epic-5-remaining-adapters/EPIC_5.md).
+- **Adapter behavior.** Nine adapter packages read `StreamOptions` fields.
+  Embedded-field promotion keeps their **selector** reads (`opts.APIKey`)
+  compiling unchanged; only the keyed composite literals in `## Scope` need the
+  mechanical rewrite. This PR changes no adapter behavior. Honoring `Fetch` and
+  `SamplingParams` on the wire is [Epic 4](/epic-4-openai-family-adapters/EPIC_4.md)
+  and [Epic 5](/epic-5-remaining-adapters/EPIC_5.md).
 - **`ai/images`.** Upstream reshaped `ImagesOptions` onto the same base
   (`packages/ai/src/types.ts:293-299` at `936aff00`), but this PR does **not**
   touch `ai/images` — unconditionally. The earlier "touch it only if the
@@ -144,17 +158,25 @@ they thread through the same struct: `fetch` (an injectable HTTP client) and
       `ai.DeferredFetchOptions`, and `ai.DeferredCancelOptions`; no transport
       field is declared twice
       (`grep -c "MaxRetryDelay \*time.Duration" ai/options.go` returns `1`).
-- [ ] Existing call sites still compile without churn: a caller writing
-      `&ai.StreamOptions{APIKey: "k", Timeout: time.Second}` keeps working
-      (embedded-field promotion), and a test asserts it.
+- [ ] Field *access* is unchanged by promotion: a caller reading `opts.APIKey`
+      still compiles after the split, proved by a test.
+- [ ] Every keyed `StreamOptions` composite literal identified in `## Scope`
+      (**248** lines, re-derived at the PR's base commit) is mechanically
+      rewritten to key the embedded struct explicitly:
+      `ai.StreamOptions{ProviderRequestOptions: ai.ProviderRequestOptions{...}}`.
+      No acceptance criterion in this epic claims the literals survive the
+      split unchanged.
 - [ ] `TestFetchFunctionOverridesTransport` — an adapter-agnostic test in `ai`
       proving a non-nil `Fetch` is what a request goes through, and that nil
       falls back to the default client. If no seam in `ai` can prove it without
       adapter work, the criterion is instead a compile-time assertion plus an
       explicit note in the PR body that behavior lands in epic 4 — do not
       silently drop it.
-- [ ] `TestSamplingParamsPerRequestOverridesModel` — merge precedence is
-      asserted at whichever layer this PR places it.
+- [ ] `TestModelMarshalsSamplingParams` — a `Model` with `SamplingParams` set
+      round-trips through `json.Marshal`/`Unmarshal`, and the key is omitted
+      entirely when unset. Merge precedence itself is
+      [issue 06](/epic-2-core-types-and-models-contracts/issues/06-simple-options-and-lazy.md)'s
+      `TestBuildBaseOptionsMergesSamplingParams`, the sole test asserting it.
 - [ ] `ai.StreamOptions` declares `OpenAIToolChoice any` and
       `OpenAIThinkingBudgets *ThinkingBudgets`
       (`grep -n 'OpenAIToolChoice\|OpenAIThinkingBudgets' ai/options.go` returns
@@ -162,6 +184,11 @@ they thread through the same struct: `fetch` (an injectable HTTP client) and
       them yet.
 - [ ] `docs/PORTING.md` records **two** entries: the `telemetryContext`
       non-port, and the `TModel` generic decision.
+- [ ] `ModelsStoreEntry`'s deep copy (`ai/modelsstore.go`, from
+      [issue 07](/epic-2-core-types-and-models-contracts/issues/07-models-store.md))
+      and `TestInMemoryModelsStoreReadReturnsCopy` are extended to clone
+      `Model.SamplingParams`, the map this PR adds — mutating a returned model's
+      sampling params must not change stored state.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2).
@@ -177,6 +204,9 @@ they thread through the same struct: `fetch` (an injectable HTTP client) and
   (`EffectiveCacheRetention`, `EffectiveMaxRetryDelay`), `:319-343`
   `SimpleStreamOptions`, `StreamFunc`, `ProviderStreams`.
 - `ai/model.go:54-71` — `Model`, which gains `SamplingParams`.
+- `ai/modelsstore.go` — from
+  [issue 07](/epic-2-core-types-and-models-contracts/issues/07-models-store.md);
+  its `ModelsStoreEntry` deep copy must clone the new `SamplingParams` map.
 - `ai/apis/simpleopts.go:31` `BuildBaseOptions` — constructs a `StreamOptions`
   field by field; it will need the new fields wired in
   ([issue 06](/epic-2-core-types-and-models-contracts/issues/06-simple-options-and-lazy.md)),

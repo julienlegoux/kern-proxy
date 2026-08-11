@@ -3,7 +3,7 @@ type: Issue
 title: "Port models-store.ts as ai.ModelsStore, and map both new core modules in PORTING.md"
 description: "Add the persistent per-provider model-catalog store interface with its in-memory implementation, and record the Go mapping chosen for models-store.ts and model-catalog.ts."
 tags: [epic-2]
-timestamp: 2026-08-09T04:31:17Z
+timestamp: 2026-08-11T13:10:00Z
 epic: 2
 issue: 07
 slug: models-store
@@ -87,6 +87,14 @@ reasoning. Verify that reading before writing it down.
   one at this revision; adding a persistent one is new capability, not parity.
 - Any change to `ai/catalog` — the embedded build-time catalog is a different
   thing from this runtime store, and epic 3 owns it.
+- **Deep-copying fields this PR doesn't add.**
+  `TestInMemoryModelsStoreReadReturnsCopy` proves the copy is deep for
+  everything `ModelsStoreEntry` and `Model` carry as of this PR.
+  [Issue 03](/epic-2-core-types-and-models-contracts/issues/03-tiered-model-cost.md)
+  and [issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  each add a field to `Model` afterward (`Cost.Tiers`, `SamplingParams`) that
+  the copy must also clone; extending the copy and this test when they land is
+  their criterion, not this one's.
 
 ## Acceptance criteria / Definition of done
 

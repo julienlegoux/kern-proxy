@@ -3,7 +3,7 @@ type: Issue
 title: "openai-responses shared: tool namespaces and transcript-loaded deferred tools"
 description: "Replay ToolCall.namespace when the model can accept it, and re-announce transcript-loaded tools as additional_tools or as a synthetic tool_search call/output pair."
 tags: [epic-4]
-timestamp: 2026-08-09T05:17:46Z
+timestamp: 2026-08-11T15:00:00Z
 epic: 4
 issue: 07
 slug: responses-shared-namespace-and-deferred-tools
@@ -75,6 +75,7 @@ and 11 wire it.
 - Port `test/openai-responses-namespace.test.ts` (+224 new) and the deferred-tool
   cases of `test/deferred-tools.test.ts` that exercise the responses transcript
   shape.
+- Keep the `// Ports:` header's symbol list current.
 
 ## Out of scope
 
@@ -110,6 +111,9 @@ and 11 wire it.
 - [ ] `TestPiToolLoadIDMatchesUpstreamHash` — one fixed `(toolCallId, names)`
       pair produces the exact id upstream produces (compute it once from
       upstream's `shortHash` and pin it).
+- [ ] `docs/PORTING.md`: the `openai-responses-shared.ts` row stays `ported`,
+      unchanged — this PR adds symbols to an already-ported file without
+      altering its disposition or its parenthetical.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

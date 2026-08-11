@@ -3,7 +3,7 @@ type: Issue
 title: "openai-codex-responses: cache-derived session ids, UUIDv7 request ids, and the missing-continuation retry"
 description: "Derive one clamped cache session id and use it everywhere, port utils/uuid.ts as the request-id source, retry once on previous_response_not_found, and record the connection-cache changes with no Go counterpart."
 tags: [epic-4]
-timestamp: 2026-08-11T12:30:00Z
+timestamp: 2026-08-11T15:00:00Z
 epic: 4
 issue: 12
 slug: codex-session-ids-and-continuation-retry
@@ -64,8 +64,8 @@ Two things ride along:
     them for the request body's cache key, the SSE headers (`buildHeaders`,
     `:360`), the WebSocket request id (`codexSessionID` else `ai.UUIDv7()`), the
     fallback check (`codexWebSocketFallbackActive`, `websocket.go:119`), the
-    failure recorder (`codexRecordWebSocketFailure`, `:164`) and the SSE-fallback
-    recorder (`:151`).
+    failure recorder (`codexRecordWebSocketFailure`, `websocket.go:164`) and the
+    SSE-fallback recorder (`websocket.go:151`).
   - `attemptCodexWebSocketOrFallback` (`:196`) — the one-shot
     `previous_response_not_found` retry, ordered **before** the existing
     connection-limit retry, and skipped when the context is already cancelled.
@@ -82,7 +82,10 @@ Two things ride along:
   counterpart** (below), so the next sync does not read their absence as an
   oversight.
 
-## Out of scope, recorded rather than ported
+## Out of scope
+
+Two upstream changes have no Go counterpart and are recorded rather than
+ported:
 
 - **The account-keyed connection cache.** Upstream changed
   `websocketSessionCache` from `Map<sessionId, entry>` to

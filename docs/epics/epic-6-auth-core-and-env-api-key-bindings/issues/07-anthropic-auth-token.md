@@ -3,7 +3,7 @@ type: Issue
 title: "Anthropic: resolve ANTHROPIC_AUTH_TOKEN as a bearer header ahead of the API-key envs"
 description: "Replace the Anthropic binding's generic env-key strategy with upstream's dedicated resolver, which sends ANTHROPIC_AUTH_TOKEN as Authorization: Bearer instead of as an x-api-key."
 tags: [epic-6]
-timestamp: 2026-08-09T10:24:00Z
+timestamp: 2026-08-11T13:05:00Z
 epic: 6
 issue: 07
 slug: anthropic-auth-token
@@ -127,6 +127,9 @@ distribution and is the reason it stays defensible; the row itself is
       `Authorization: Bearer t` and **no** `x-api-key` header. This is the
       end-to-end claim; without it the resolver could be right and the request
       still wrong.
+- [ ] Every case in upstream's `test/anthropic-auth-token.test.ts` (new, 187
+      lines) is represented by a Go test in this PR or explicitly dispositioned
+      in the PR body.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

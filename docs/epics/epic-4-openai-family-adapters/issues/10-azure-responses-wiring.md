@@ -3,7 +3,7 @@ type: Issue
 title: "azure-openai-responses: grammar tools, strict resolution, and the pending stop reason"
 description: "Wire Azure onto the updated shared responses core — grammar tool properties, compat-driven strict mode, the pending start state and real error messages — and port the reasoning-replay coverage."
 tags: [epic-4]
-timestamp: 2026-08-09T05:17:46Z
+timestamp: 2026-08-11T15:00:00Z
 epic: 4
 issue: 10
 slug: azure-responses-wiring
@@ -100,7 +100,11 @@ reasoning-signature backfill through the Azure entry point.
 ## Dependencies
 
 - **Blocked by**: issues [06](/epic-4-openai-family-adapters/issues/06-responses-shared-grammar-and-tool-results.md)
-  and [08](/epic-4-openai-family-adapters/issues/08-responses-shared-stream-decode.md).
+  and [08](/epic-4-openai-family-adapters/issues/08-responses-shared-stream-decode.md);
+  [Epic 2 issue 04](/epic-2-core-types-and-models-contracts/issues/04-compat-flags-and-bedrock-compat.md)
+  (`supportsOpenAIGrammarTools` / `supportsStrictMode`, read from
+  `model.compat` at `:24-29`). Cross-epic, so it is stated here rather than in
+  `depends_on`, which holds intra-epic numbers only.
 - **Blocks**: None.
 
 ## PR size note
