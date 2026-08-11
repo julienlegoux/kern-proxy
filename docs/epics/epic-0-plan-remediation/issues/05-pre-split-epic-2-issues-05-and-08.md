@@ -3,13 +3,14 @@ type: Issue
 title: "Pre-split Epic 2 issues 05 and 08 into reviewable halves"
 description: "Cut the two Epic 2 issues that concede their own size ceiling into four, so the split is made now against the plan rather than mid-PR at the point of no return."
 tags: [epic-0]
-timestamp: 2026-08-11T16:10:00Z
+timestamp: 2026-08-11T16:40:00Z
 epic: 0
 issue: 05
 slug: pre-split-epic-2-issues-05-and-08
 size: M
-status: in-progress
+status: pr-open
 gh_issue: 203
+gh_pr: 228
 resource: https://github.com/kern-ia/kern-link/issues/203
 depends_on: [4]
 ---
