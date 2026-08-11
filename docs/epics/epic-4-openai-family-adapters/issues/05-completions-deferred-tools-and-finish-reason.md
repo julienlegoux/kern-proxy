@@ -3,7 +3,7 @@ type: Issue
 title: "openai-completions: Kimi deferred tools, finish-reason inference, and item-unique tool call ids"
 description: "Withhold transcript-loaded tools and re-announce them in a Kimi system message, infer the stop reason when a provider omits finish_reason, record rawStopReason, and stop collapsing distinct tool calls onto one id."
 tags: [epic-4]
-timestamp: 2026-08-10T09:20:00Z
+timestamp: 2026-08-11T15:00:00Z
 epic: 4
 issue: 05
 slug: completions-deferred-tools-and-finish-reason
@@ -87,6 +87,7 @@ four hand-listed shapes.
 - Tests: port `test/openai-completions-raw-stop-reason.test.ts` (+79) and the
   relevant halves of `test/openai-completions-tool-choice.test.ts` (+218) and
   `test/deferred-tools.test.ts`; offline `httptest` only.
+- Keep the `// Ports:` header's symbol list current.
 
 ## Out of scope
 
@@ -126,6 +127,9 @@ four hand-listed shapes.
       `call_id` but differing in `item_id` normalize to **different** ids; a
       composite whose joined form exceeds 40 chars normalizes to
       `<prefix>_<8 hex>` of total length ≤ 40 and is stable across runs.
+- [ ] `docs/PORTING.md`: the `openai-completions.ts` row stays `ported`, unchanged
+      — this PR adds symbols to an already-ported file without altering its
+      disposition or its parenthetical.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

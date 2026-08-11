@@ -3,13 +3,14 @@ type: Issue
 title: "Repair the Epic 4 issue set: provenance, the undeclared cross-epic blockers, and the renamed section heading"
 description: "Restore Epic 4's // Ports: and docs/PORTING.md requirement to issues 05, 07 and 08, declare the three missing cross-epic blockers, and fix the renamed heading and the two wrong file citations."
 tags: [epic-0]
-timestamp: 2026-08-10T03:10:00Z
+timestamp: 2026-08-11T15:30:00Z
 epic: 0
 issue: 07
 slug: repair-the-epic-4-issue-set
 size: S
-status: open
+status: pr-open
 gh_issue: 205
+gh_pr: 220
 resource: https://github.com/kern-ia/kern-link/issues/205
 depends_on: [1, 2]
 ---

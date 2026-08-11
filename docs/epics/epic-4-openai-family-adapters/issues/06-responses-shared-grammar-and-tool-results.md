@@ -3,7 +3,7 @@ type: Issue
 title: "openai-responses shared: grammar custom tools and the tool-result output refactor"
 description: "Teach the shared responses converters the custom_tool_call / custom_tool_call_output wire shapes, the defer_loading flag, and one unified tool-result output builder."
 tags: [epic-4]
-timestamp: 2026-08-09T05:17:46Z
+timestamp: 2026-08-11T15:00:00Z
 epic: 4
 issue: 06
 slug: responses-shared-grammar-and-tool-results
@@ -77,6 +77,7 @@ Three things change:
 - `docs/PORTING.md` — the `openai-responses-shared.ts` row's parenthetical still
   says "converters exported for the Azure and Codex variants"; extend it if the
   exported surface grows.
+- Keep the `// Ports:` header's symbol list current.
 
 ## Out of scope
 

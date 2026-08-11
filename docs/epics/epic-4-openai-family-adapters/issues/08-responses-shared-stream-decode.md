@@ -3,7 +3,7 @@ type: Issue
 title: "openai-responses shared: custom tool-call streaming, reasoning backfill, and stop-reason mapping"
 description: "Decode custom_tool_call input deltas into JSON tool-call deltas, backfill encrypted reasoning signatures at completion, split incomplete responses by reason, and account cache-write tokens."
 tags: [epic-4]
-timestamp: 2026-08-09T05:17:46Z
+timestamp: 2026-08-11T15:00:00Z
 epic: 4
 issue: 08
 slug: responses-shared-stream-decode
@@ -79,6 +79,7 @@ stream that ends still `pending` as an error; that entry-point half is in issues
 - Port `test/openai-responses-terminal-event.test.ts` (+135) and the reasoning /
   usage cases of `test/openai-responses-reasoning-replay-e2e.test.ts` and
   `test/openai-responses-partial-json-cleanup.test.ts`.
+- Keep the `// Ports:` header's symbol list current.
 
 ## Out of scope
 
@@ -120,6 +121,9 @@ stream that ends still `pending` as an error; that entry-point half is in issues
       `input: 50, cacheRead: 30, cacheWrite: 20`; an over-counting payload
       (`cached + cache_write > input_tokens`) floors `input` at 0 rather than
       going negative.
+- [ ] `docs/PORTING.md`: the `openai-responses-shared.ts` row stays `ported`,
+      unchanged — this PR adds symbols to an already-ported file without
+      altering its disposition or its parenthetical.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

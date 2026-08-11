@@ -3,7 +3,7 @@ type: Issue
 title: "openai-completions: emit and stream grammar custom tools"
 description: "Send grammar-constrained tools as type:\"custom\" chat-completions tools, replay them on the request side, and reassemble their streamed raw input into JSON tool-call deltas."
 tags: [epic-4]
-timestamp: 2026-08-09T05:17:46Z
+timestamp: 2026-08-11T15:00:00Z
 epic: 4
 issue: 03
 slug: completions-grammar-custom-tools
@@ -138,7 +138,12 @@ path.
 
 ## Dependencies
 
-- **Blocked by**: [Issue 01](/epic-4-openai-family-adapters/issues/01-constrained-sampling-core.md).
+- **Blocked by**: [Issue 01](/epic-4-openai-family-adapters/issues/01-constrained-sampling-core.md);
+  [Epic 2 issue 04](/epic-2-core-types-and-models-contracts/issues/04-compat-flags-and-bedrock-compat.md)
+  (`SupportsOpenAIGrammarTools`, called at `run` via
+  `grammar.InputProperties(chat.Tools, compat.SupportsOpenAIGrammarTools)`).
+  Cross-epic, so it is stated here rather than in `depends_on`, which holds
+  intra-epic numbers only.
 - **Blocks**: [Issue 05](/epic-4-openai-family-adapters/issues/05-completions-deferred-tools-and-finish-reason.md)
   (same `buildParams`/`convertTools` call sites).
 
