@@ -3,7 +3,7 @@ type: Issue
 title: "Bind the radius provider over pi-messages, with its two-phase catalog refresh"
 description: "Port src/providers/radius.ts as ai/providers/radius.go — a gateway-parameterised binding with env-API-key and OAuth auth, no static catalog, and a refresh that restores the stored catalog before it ever touches the network."
 tags: [epic-8]
-timestamp: 2026-08-10T14:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 8
 issue: 04
 slug: radius-provider-binding
@@ -207,5 +207,9 @@ kern-link constructs `ai.OAuthAuth` directly (`docs/PORTING.md`, the
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening
-the PR.
+`M` — ~450 changed lines: an 82-line upstream binding whose four-phase
+`RefreshModels` carries most of the weight, ten named tests, and the two
+`ai/providers/providers_test.go:94-113` assertions this binding invalidates —
+the provider count and the every-provider-has-models check radius is the first
+exemption to. Split past ~500, and the seam is the binding with its defaults
+and auth first, the refresh phases and their tests second.

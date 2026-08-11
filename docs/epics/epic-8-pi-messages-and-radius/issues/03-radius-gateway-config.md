@@ -3,7 +3,7 @@ type: Issue
 title: "Port radius-config: the gateway catalog types, their sanitizer, and the gateway-config fetch"
 description: "Port src/providers/radius-config.ts as ai/providers/radius_config.go — the RadiusGatewayConfig shape, a sanitizer that drops incomplete models rather than zero-filling them, credential-carried catalogs, and the network fetch of /v1/config with its failure paths."
 tags: [epic-8]
-timestamp: 2026-08-10T14:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 8
 issue: 03
 slug: radius-gateway-config
@@ -192,5 +192,10 @@ not happen is two constants naming the same host.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening
-the PR.
+`M` — ~450 changed lines: upstream's `radius-config.ts` is only 96 TS lines,
+but the port runs longer than its source because every required field becomes a
+pointer in an intermediate struct so a missing `contextWindow` drops the model
+instead of zero-filling it, and because the eight named tests plus the
+sanitizer's input→output table are all original coverage (upstream ships no
+test for this file). Split past ~500, and the seam is the types and sanitizer
+first, `loadRadiusGatewayConfig` and its network cases second.

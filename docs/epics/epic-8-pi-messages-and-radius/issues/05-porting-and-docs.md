@@ -3,7 +3,7 @@ type: Issue
 title: "Disposition pi-messages and radius in docs/PORTING.md, and document the tenth adapter"
 description: "Add the mapping rows and deviations for pi-messages.ts, pi-messages.lazy.ts, radius.ts and radius-config.ts, give radius its auth-doc entries, and update every place that still counts nine adapters and 35 providers."
 tags: [epic-8]
-timestamp: 2026-08-10T14:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 8
 issue: 05
 slug: porting-and-docs
@@ -156,5 +156,9 @@ assuming 36.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening
-the PR.
+`S` — ~150 changed lines: it touches eight files, but only five
+`docs/PORTING.md` rows and one `docs/auth.md` paragraph plus a `RADIUS_API_KEY`
+row are new prose; the rest are one- or two-line count and enumeration fixes
+(`docs/architecture.md:22-23`, `ai/doc.go:2`, `README.md:7`,
+`docs/planning/SPECS.md`, `docs/planning/index.md:13`, `docs/usage.md:213`).
+Split past ~200.

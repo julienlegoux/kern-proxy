@@ -3,7 +3,7 @@ type: Issue
 title: "Document the four new flows in docs/auth.md and disposition their files in docs/PORTING.md"
 description: "Extend docs/auth.md's OAuth table and its terms-of-service section with a per-flow treatment for radius, openrouter, kimi-coding and xai, and give each ported file its row in docs/PORTING.md."
 tags: [epic-7]
-timestamp: 2026-08-11T13:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 7
 issue: 06
 slug: auth-docs-and-porting
@@ -183,5 +183,8 @@ paths first guarantees a conflict and, worse, a table that is half-migrated.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`S` — ~180 changed lines, documentation only: four rows on `docs/auth.md`'s
+OAuth table, four short per-flow treatments in the terms-of-service section
+(`:117-163`), two `README.md` lines, and nine `docs/PORTING.md` rows — four
+flow files, four test files, and the partial `radius-config.ts`. No code
+changes at all, by its own "Out of scope". Split past ~200.

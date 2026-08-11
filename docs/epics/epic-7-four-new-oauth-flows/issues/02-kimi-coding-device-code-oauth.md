@@ -3,11 +3,11 @@ type: Issue
 title: "Port the Kimi Code device-code OAuth flow with its retrying refresh, and bind it to kimi-coding"
 description: "Port src/auth/oauth/kimi-coding.ts as ai/auth/oauth/kimicoding.go — device authorization against a host-overridable endpoint, a bearer-header ToAuth, and a refresh that retries 429/5xx with exponential backoff."
 tags: [epic-7]
-timestamp: 2026-08-11T13:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 7
 issue: 02
 slug: kimi-coding-device-code-oauth
-size: M
+size: L
 status: open
 gh_issue: 182
 resource: https://github.com/kern-ia/kern-link/issues/182
@@ -199,5 +199,10 @@ a provider id, and this is not one.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`L` — ~700 changed lines: 580 upstream lines (`src/auth/oauth/kimi-coding.ts`
+310 plus `test/kimi-coding-oauth.test.ts` 270), plus the four-attempt retrying
+refresh and the `ai/providers/kimi_coding.go` binding, pinned by 11 named
+tests. `L` is the ceiling, not the target: the host override, the
+bearer-header `ToAuth` and the retry rules are three behaviours of one flow
+and splitting them yields half-tested PRs; if it trends past ~1000 the honest
+cut is `refresh` and its four retry tests landing after the device login.

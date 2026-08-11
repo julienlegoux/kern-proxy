@@ -3,11 +3,11 @@ type: Issue
 title: "Stream pi-messages over net/http: request, options, error mapping, and the Stream entry points"
 description: "Complete ai/apis/pimessages with Stream and StreamSimple — the POST to <baseUrl>/messages, the flat per-adapter options, the response-error type with its diagnostic, and the ported upstream test suite."
 tags: [epic-8]
-timestamp: 2026-08-10T14:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 8
 issue: 02
 slug: pimessages-stream-entry
-size: M
+size: L
 status: open
 gh_issue: 188
 resource: https://github.com/kern-ia/kern-link/issues/188
@@ -239,6 +239,10 @@ lifts the backend's error code into the diagnostic without any special-casing.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening
-the PR — the natural cut is `errors.go` plus its diagnostic tests first, the
-request/read loop second.
+`L` — ~600 changed lines: the transport half of the 433-line
+`src/api/pi-messages.ts` across `errors.go` and `stream.go`, the transport and
+error cases of the 248-line `test/pi-messages.test.ts`, 13 named tests, and the
+four-field pi-messages block on `ai.StreamOptions`. `L` is the ceiling, not the
+target: the error type only proves itself through the stream that raises it, and
+if it trends past ~1000 the honest cut is `errors.go` plus its diagnostic tests
+first, the request and read loop second.

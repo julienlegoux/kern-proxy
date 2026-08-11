@@ -3,7 +3,7 @@ type: Issue
 title: "Port the Radius gateway OAuth flow: discovery, browser PKCE, and device code"
 description: "Port src/auth/oauth/radius.ts as ai/auth/oauth/radius.go — a gateway-parameterised strategy factory whose login prompts between a browser PKCE flow on port 1456 and an RFC 8628 device flow, both against the gateway's own token endpoint."
 tags: [epic-7]
-timestamp: 2026-08-11T13:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 7
 issue: 04
 slug: radius-gateway-oauth
@@ -257,5 +257,11 @@ flow half.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR — by test file, not by login method (see "Why this is sized L").
+`L` — ~600–650 changed lines: roughly 350 of flow from 403 upstream lines plus
+250–300 of tests over the 129-line `test/radius-oauth.test.ts`, covering
+discovery, browser PKCE and device code behind one factory. `L` is the
+ceiling, not the target: both login paths share the token request, the
+credential parser, the error type and the factory, so a split by login method
+would rewrite the first PR's `login` (see "Why this is sized L"); if it trends
+past ~1000 the honest cut is by test file — `radius_test.go` and
+`radius_browser_test.go`.
