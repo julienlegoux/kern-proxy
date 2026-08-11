@@ -1,5 +1,9 @@
 # Log
 
+## 2026-08-11
+
+* **PR opened**: [Issue 08: Reconcile EPIC_5.md with its issues, and settle the five criteria that pass whichever way the implementer decides](/epic-0-plan-remediation/issues/08-reconcile-epic-5-with-its-issues.md) (#206) — [PR #217](https://github.com/kern-ia/kern-link/pull/217).
+
 ## 2026-08-10
 
 * **Creation**: Established [Epic 0: Plan remediation](/epic-0-plan-remediation/EPIC_0.md).

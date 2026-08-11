@@ -3,15 +3,16 @@ type: Issue
 title: "Reconcile EPIC_5.md with its issues, and settle the five criteria that pass whichever way the implementer decides"
 description: "Record the Epic 4 dependency seven Epic 5 issues carry, make acceptance criterion 3 checkable, restore the docs/PORTING.md half to seven issues, and collapse the either-way criteria to one expected behaviour each."
 tags: [epic-0]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T00:00:00Z
 epic: 0
 issue: 08
 slug: reconcile-epic-5-with-its-issues
 size: M
-status: in-progress
+status: pr-open
 gh_issue: 206
 resource: https://github.com/kern-ia/kern-link/issues/206
 depends_on: []
+gh_pr: 217
 ---
 
 # Reconcile EPIC_5.md with its issues, and settle the five criteria that pass whichever way the implementer decides
