@@ -3,7 +3,7 @@ type: Issue
 title: "Port radius-config: the gateway catalog types, their sanitizer, and the gateway-config fetch"
 description: "Port src/providers/radius-config.ts as ai/providers/radius_config.go — the RadiusGatewayConfig shape, a sanitizer that drops incomplete models rather than zero-filling them, credential-carried catalogs, and the network fetch of /v1/config with its failure paths."
 tags: [epic-8]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 8
 issue: 03
 slug: radius-gateway-config
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 189
 resource: https://github.com/kern-ia/kern-link/issues/189
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # Port radius-config: the gateway catalog types, their sanitizer, and the gateway-config fetch

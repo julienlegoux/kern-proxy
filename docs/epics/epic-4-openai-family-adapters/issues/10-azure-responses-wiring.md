@@ -3,7 +3,7 @@ type: Issue
 title: "azure-openai-responses: grammar tools, strict resolution, and the pending stop reason"
 description: "Wire Azure onto the updated shared responses core — grammar tool properties, compat-driven strict mode, the pending start state and real error messages — and port the reasoning-replay coverage."
 tags: [epic-4]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 4
 issue: 10
 slug: azure-responses-wiring
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 156
 resource: https://github.com/kern-ia/kern-link/issues/156
-depends_on: [6, 8]
+depends_on: ["06", "08"]
 ---
 
 # azure-openai-responses: grammar tools, strict resolution, and the pending stop reason

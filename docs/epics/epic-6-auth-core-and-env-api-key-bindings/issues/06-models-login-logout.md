@@ -3,7 +3,7 @@ type: Issue
 title: "Add Models.Login, Models.Logout, and the provider-id GetAuth overload, and drive pi-ai login through them"
 description: "Port the mutating half of upstream's Models auth surface — login persists through the credential store, logout deletes, GetAuth answers for a bare provider id — and make cmd/pi-ai use it instead of calling flows directly."
 tags: [epic-6]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 6
 issue: 06
 slug: models-login-logout
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 175
 resource: https://github.com/kern-ia/kern-link/issues/175
-depends_on: [1, 3, 5]
+depends_on: ["01", "03", "05"]
 ---
 
 # Add Models.Login, Models.Logout, and the provider-id GetAuth overload, and drive pi-ai login through them

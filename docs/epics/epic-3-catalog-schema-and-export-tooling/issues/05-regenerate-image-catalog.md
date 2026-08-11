@@ -3,7 +3,7 @@ type: Issue
 title: "Regenerate the image catalog from upstream 936aff00 and cover its decode path"
 description: "Refresh ai/catalog/data/images/openrouter.json to the 42 image models upstream declares at the frozen revision, and prove ai/images decodes every entry."
 tags: [epic-3]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 3
 issue: 05
 slug: regenerate-image-catalog
@@ -11,7 +11,7 @@ size: S
 status: open
 gh_issue: 145
 resource: https://github.com/kern-ia/kern-link/issues/145
-depends_on: [2, 3]
+depends_on: ["02", "03"]
 ---
 
 # Regenerate the image catalog from upstream 936aff00 and cover its decode path

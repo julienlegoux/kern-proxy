@@ -3,7 +3,7 @@ type: Issue
 title: "Reconcile GitHub state with the files, and account for all 97 findings"
 description: "Restore the ten issue titles that dropped their colon, rewrite the bundle-absolute links that 404 inside GitHub bodies, verify the bundle is internally consistent, and record the disposition of every finding."
 tags: [epic-0]
-timestamp: 2026-08-10T03:10:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 0
 issue: 15
 slug: reconcile-github-state-with-the-files
@@ -11,7 +11,7 @@ size: S
 status: open
 gh_issue: 213
 resource: https://github.com/kern-ia/kern-link/issues/213
-depends_on: [13, 14]
+depends_on: ["13", "14"]
 ---
 
 # Reconcile GitHub state with the files, and account for all 97 findings

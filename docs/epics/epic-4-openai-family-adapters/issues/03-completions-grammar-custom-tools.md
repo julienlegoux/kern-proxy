@@ -3,7 +3,7 @@ type: Issue
 title: "openai-completions: emit and stream grammar custom tools"
 description: "Send grammar-constrained tools as type:\"custom\" chat-completions tools, replay them on the request side, and reassemble their streamed raw input into JSON tool-call deltas."
 tags: [epic-4]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 4
 issue: 03
 slug: completions-grammar-custom-tools
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 149
 resource: https://github.com/kern-ia/kern-link/issues/149
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # openai-completions: emit and stream grammar custom tools

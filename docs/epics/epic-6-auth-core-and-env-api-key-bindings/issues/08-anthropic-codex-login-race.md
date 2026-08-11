@@ -3,7 +3,7 @@ type: Issue
 title: "Collapse the anthropic and codex login flows onto upstream's always-racing manual-code prompt"
 description: "Port the moved auth/oauth/anthropic.ts and openai-codex.ts content: the optional manual-code branch and its text-prompt fallback are gone, the manual prompt always races the callback server, and abort cancels the wait."
 tags: [epic-6]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 6
 issue: 08
 slug: anthropic-codex-login-race
@@ -11,7 +11,7 @@ size: L
 status: open
 gh_issue: 177
 resource: https://github.com/kern-ia/kern-link/issues/177
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # Collapse the anthropic and codex login flows onto upstream's always-racing manual-code prompt

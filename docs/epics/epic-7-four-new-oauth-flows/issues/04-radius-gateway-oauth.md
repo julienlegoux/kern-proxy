@@ -3,7 +3,7 @@ type: Issue
 title: "Port the Radius gateway OAuth flow: discovery, browser PKCE, and device code"
 description: "Port src/auth/oauth/radius.ts as ai/auth/oauth/radius.go — a gateway-parameterised strategy factory whose login prompts between a browser PKCE flow on port 1456 and an RFC 8628 device flow, both against the gateway's own token endpoint."
 tags: [epic-7]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 7
 issue: 04
 slug: radius-gateway-oauth
@@ -11,7 +11,7 @@ size: L
 status: open
 gh_issue: 184
 resource: https://github.com/kern-ia/kern-link/issues/184
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # Port the Radius gateway OAuth flow: discovery, browser PKCE, and device code

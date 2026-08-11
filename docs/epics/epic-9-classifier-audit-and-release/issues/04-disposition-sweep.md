@@ -3,7 +3,7 @@ type: Issue
 title: "Disposition every in-range upstream file in docs/PORTING.md and drop the vX.Y.Z-go.N convention"
 description: "Close the porting map over all 232 in-range upstream files until the disposition checker exits zero, reconcile the deviations list with what the program actually shipped, and remove the unused Go tagging convention."
 tags: [epic-9]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 9
 issue: 04
 slug: disposition-sweep
@@ -11,7 +11,7 @@ size: L
 status: open
 gh_issue: 195
 resource: https://github.com/kern-ia/kern-link/issues/195
-depends_on: [1, 2, 3]
+depends_on: ["01", "02", "03"]
 ---
 
 # Disposition every in-range upstream file in docs/PORTING.md and drop the vX.Y.Z-go.N convention

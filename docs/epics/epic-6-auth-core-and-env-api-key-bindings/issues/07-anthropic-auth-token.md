@@ -3,7 +3,7 @@ type: Issue
 title: "Anthropic: resolve ANTHROPIC_AUTH_TOKEN as a bearer header ahead of the API-key envs"
 description: "Replace the Anthropic binding's generic env-key strategy with upstream's dedicated resolver, which sends ANTHROPIC_AUTH_TOKEN as Authorization: Bearer instead of as an x-api-key."
 tags: [epic-6]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 6
 issue: 07
 slug: anthropic-auth-token
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 176
 resource: https://github.com/kern-ia/kern-link/issues/176
-depends_on: [3]
+depends_on: ["03"]
 ---
 
 # Anthropic: resolve ANTHROPIC_AUTH_TOKEN as a bearer header ahead of the API-key envs

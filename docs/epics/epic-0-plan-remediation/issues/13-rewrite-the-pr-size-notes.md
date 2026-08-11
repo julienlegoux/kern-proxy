@@ -12,7 +12,7 @@ status: done
 gh_issue: 211
 gh_pr: 229
 resource: https://github.com/kern-ia/kern-link/issues/211
-depends_on: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+depends_on: ["03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 ---
 
 # Rewrite the PR size note in every issue against its own band, and correct the mis-declared sizes

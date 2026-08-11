@@ -3,7 +3,7 @@ type: Issue
 title: "Point docs/PORTING.md at upstream's src/auth/* paths and disposition the new auth files"
 description: "Rewrite the mapping table's deleted src/utils/oauth/* entries to upstream's current locations, give every new or changed auth file in range a disposition, and bring docs/auth.md's env-key table and resolution-order section back in line with what this epic changed."
 tags: [epic-6]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 6
 issue: 11
 slug: porting-paths-and-dispositions
@@ -11,7 +11,7 @@ size: S
 status: open
 gh_issue: 180
 resource: https://github.com/kern-ia/kern-link/issues/180
-depends_on: [3, 9]
+depends_on: ["03", "09"]
 ---
 
 # Point docs/PORTING.md at upstream's src/auth/* paths and disposition the new auth files

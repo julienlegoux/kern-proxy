@@ -3,7 +3,7 @@ type: Issue
 title: "Offer every registered OAuth provider in pi-ai login, using each flow's login label"
 description: "Replace cmd/pi-ai's hardcoded three-entry login list with one derived from the provider registry's OAuth strategies, add Radius against its default gateway, and show LoginLabel where a flow sets one."
 tags: [epic-7]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 7
 issue: 05
 slug: cli-login-new-flows
@@ -11,7 +11,7 @@ size: S
 status: open
 gh_issue: 185
 resource: https://github.com/kern-ia/kern-link/issues/185
-depends_on: [1, 2, 3, 4]
+depends_on: ["01", "02", "03", "04"]
 ---
 
 # Offer every registered OAuth provider in pi-ai login, using each flow's login label

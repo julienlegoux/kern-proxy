@@ -3,7 +3,7 @@ type: Issue
 title: "Port the Kimi Code device-code OAuth flow with its retrying refresh, and bind it to kimi-coding"
 description: "Port src/auth/oauth/kimi-coding.ts as ai/auth/oauth/kimicoding.go — device authorization against a host-overridable endpoint, a bearer-header ToAuth, and a refresh that retries 429/5xx with exponential backoff."
 tags: [epic-7]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 7
 issue: 02
 slug: kimi-coding-device-code-oauth
@@ -11,7 +11,7 @@ size: L
 status: open
 gh_issue: 182
 resource: https://github.com/kern-ia/kern-link/issues/182
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # Port the Kimi Code device-code OAuth flow with its retrying refresh, and bind it to kimi-coding

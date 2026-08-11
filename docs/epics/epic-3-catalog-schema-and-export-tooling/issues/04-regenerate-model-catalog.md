@@ -3,7 +3,7 @@ type: Issue
 title: "Regenerate the embedded model catalog from upstream 936aff00 (35 to 39 provider files)"
 description: "Run the reworked export tool against the frozen upstream revision, replace ai/catalog/data/models wholesale, and prove the regenerated tree loads and validates."
 tags: [epic-3]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 3
 issue: 04
 slug: regenerate-model-catalog
@@ -11,7 +11,7 @@ size: S
 status: open
 gh_issue: 144
 resource: https://github.com/kern-ia/kern-link/issues/144
-depends_on: [2, 3]
+depends_on: ["02", "03"]
 ---
 
 # Regenerate the embedded model catalog from upstream 936aff00 (35 to 39 provider files)

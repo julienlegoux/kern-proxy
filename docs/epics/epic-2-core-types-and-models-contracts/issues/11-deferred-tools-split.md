@@ -3,7 +3,7 @@ type: Issue
 title: "Port utils/deferred-tools.ts as the deferred-tool split, with the upstream test"
 description: "Add SplitDeferredTools, which partitions a context's tools into immediate and transcript-loaded sets, and port upstream's test for it."
 tags: [epic-2]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 2
 issue: 11
 slug: deferred-tools-split
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 139
 resource: https://github.com/kern-ia/kern-link/issues/139
-depends_on: [2]
+depends_on: ["02"]
 ---
 
 # Port utils/deferred-tools.ts as the deferred-tool split, with the upstream test

@@ -3,7 +3,7 @@ type: Issue
 title: "openai-responses shared: tool namespaces and transcript-loaded deferred tools"
 description: "Replay ToolCall.namespace when the model can accept it, and re-announce transcript-loaded tools as additional_tools or as a synthetic tool_search call/output pair."
 tags: [epic-4]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 4
 issue: 07
 slug: responses-shared-namespace-and-deferred-tools
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 153
 resource: https://github.com/kern-ia/kern-link/issues/153
-depends_on: [6]
+depends_on: ["06"]
 ---
 
 # openai-responses shared: tool namespaces and transcript-loaded deferred tools

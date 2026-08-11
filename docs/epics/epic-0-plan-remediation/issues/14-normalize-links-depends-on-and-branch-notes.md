@@ -11,7 +11,7 @@ size: S
 status: in-progress
 gh_issue: 212
 resource: https://github.com/kern-ia/kern-link/issues/212
-depends_on: [13]
+depends_on: ["13"]
 ---
 
 # Normalize the in-bundle link form and the depends_on representation, and record the branch conventions once per epic

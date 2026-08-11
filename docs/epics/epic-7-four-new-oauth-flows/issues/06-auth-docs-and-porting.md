@@ -3,7 +3,7 @@ type: Issue
 title: "Document the four new flows in docs/auth.md and disposition their files in docs/PORTING.md"
 description: "Extend docs/auth.md's OAuth table and its terms-of-service section with a per-flow treatment for radius, openrouter, kimi-coding and xai, and give each ported file its row in docs/PORTING.md."
 tags: [epic-7]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 7
 issue: 06
 slug: auth-docs-and-porting
@@ -11,7 +11,7 @@ size: S
 status: open
 gh_issue: 186
 resource: https://github.com/kern-ia/kern-link/issues/186
-depends_on: [1, 2, 3, 4, 5]
+depends_on: ["01", "02", "03", "04", "05"]
 ---
 
 # Document the four new flows in docs/auth.md and disposition their files in docs/PORTING.md

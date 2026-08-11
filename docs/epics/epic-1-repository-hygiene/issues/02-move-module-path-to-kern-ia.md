@@ -3,7 +3,7 @@ type: Issue
 title: "Move the module path to github.com/kern-ia/kern-link"
 description: "Rename the Go module path off the personal account onto the kern-ia organisation across go.mod, every import, README, CHANGELOG links and docs — one mechanical breaking PR."
 tags: [epic-1]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 1
 issue: 02
 slug: move-module-path-to-kern-ia
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 128
 resource: https://github.com/kern-ia/kern-link/issues/128
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # Move the module path to github.com/kern-ia/kern-link

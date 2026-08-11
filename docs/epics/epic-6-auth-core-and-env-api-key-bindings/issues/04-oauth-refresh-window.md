@@ -3,7 +3,7 @@ type: Issue
 title: "Refresh OAuth credentials five minutes before expiry, with a MinOAuthValidity override and a bounded refresh"
 description: "Port resolve.ts's new expiry window: refresh when a token expires soon rather than only when expired, honor a caller-requested minimum validity, and cap the refresh call at fifteen seconds."
 tags: [epic-6]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 6
 issue: 04
 slug: oauth-refresh-window
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 173
 resource: https://github.com/kern-ia/kern-link/issues/173
-depends_on: [3]
+depends_on: ["03"]
 ---
 
 # Refresh OAuth credentials five minutes before expiry, with a MinOAuthValidity override and a bounded refresh

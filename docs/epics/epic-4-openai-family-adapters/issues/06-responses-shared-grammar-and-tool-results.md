@@ -3,7 +3,7 @@ type: Issue
 title: "openai-responses shared: grammar custom tools and the tool-result output refactor"
 description: "Teach the shared responses converters the custom_tool_call / custom_tool_call_output wire shapes, the defer_loading flag, and one unified tool-result output builder."
 tags: [epic-4]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 4
 issue: 06
 slug: responses-shared-grammar-and-tool-results
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 152
 resource: https://github.com/kern-ia/kern-link/issues/152
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # openai-responses shared: grammar custom tools and the tool-result output refactor

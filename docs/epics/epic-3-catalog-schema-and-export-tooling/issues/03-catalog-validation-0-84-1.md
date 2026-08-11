@@ -3,7 +3,7 @@ type: Issue
 title: "Bring ai/catalog validation up to the 0.84.1 schema, and make unknown catalog keys fail loudly"
 description: "Extend the per-api compat field map to the 0.84.1 interfaces, add invariants for tiers and the widened thinking levels, and turn silently-dropped catalog keys into a test failure."
 tags: [epic-3]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 3
 issue: 03
 slug: catalog-validation-0-84-1
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 143
 resource: https://github.com/kern-ia/kern-link/issues/143
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # Bring ai/catalog validation up to the 0.84.1 schema, and make unknown catalog keys fail loudly
