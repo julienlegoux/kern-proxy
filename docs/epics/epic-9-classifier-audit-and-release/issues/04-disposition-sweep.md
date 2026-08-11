@@ -3,7 +3,7 @@ type: Issue
 title: "Disposition every in-range upstream file in docs/PORTING.md and drop the vX.Y.Z-go.N convention"
 description: "Close the porting map over all 232 in-range upstream files until the disposition checker exits zero, reconcile the deviations list with what the program actually shipped, and remove the unused Go tagging convention."
 tags: [epic-9]
-timestamp: 2026-08-09T16:30:00Z
+timestamp: 2026-08-11T15:10:00Z
 epic: 9
 issue: 04
 slug: disposition-sweep
@@ -79,7 +79,16 @@ never used, and contradicting the SemVer line the CHANGELOG maintains.
 - Porting anything. If the sweep finds an upstream file that *should* have been
   ported and was not, it does not get ported here — record it as a row with the
   gap stated, and file a follow-up issue. A sweep PR that also writes adapter
-  code is unreviewable, and the parity bar explicitly allows a written exception.
+  code is unreviewable, and the parity bar explicitly allows a written
+  exception — **but not an indefinite one**: `SCOPE.md:65-78` rules out
+  postponement as a deviation ground by name ("a deviation is not a
+  postponement"; admissible grounds are structural non-portability only, never
+  "large" or "hard to test" or "no consumer asked for it"). A
+  should-have-been-ported row therefore cannot carry an open follow-up past
+  this program's release —
+  [issue 06](/epic-9-classifier-audit-and-release/issues/06-cut-v0-2-0-release.md)
+  gates the tag on it. If the follow-up cannot land before the tag, the row's
+  status is `not ported` for an admissible reason instead, not a promise.
 - `upstream/UPSTREAM.lock` and `CHANGELOG.md` —
   [issue 05](/epic-9-classifier-audit-and-release/issues/05-upstream-lock-and-changelog.md).
 - Upstream files outside the range (commits after `936aff00`). The target is
@@ -95,11 +104,23 @@ never used, and contradicting the SemVer line the CHANGELOG maintains.
 - [ ] `bash upstream/disposition_check.sh 936aff00918de1187f085f123c2812d8f2d67745`
       exits **0**, with zero `UNACCOUNTED` and zero `MISSING` lines, and its
       summary line reports the full in-range file count.
-- [ ] The summary's file count is stated in the PR description alongside the
-      epic's expected **232**; if the real count differs, the PR says so and
-      says why rather than silently adopting a different number.
+- [ ] The summary's file count equals the epic's **232**, re-derived at this
+      PR's base commit via
+      `git -C upstream/.upstream-clone diff --name-status 244f1deaf1ae0fc1a242d9df5cddf457cf3d36a7..936aff00918de1187f085f123c2812d8f2d67745 -- packages/ai | wc -l`
+      and stated in the PR description. This is no longer a hedge: since
+      [issue 03](/epic-9-classifier-audit-and-release/issues/03-disposition-checker.md)'s
+      checker enumerates the same in-range diff instead of the whole upstream
+      tree, the checker's summary count and this command's count are the same
+      measurement and must agree exactly.
 - [ ] Every `not ported` row states a reason inline or links a bullet in
-      **Intentional deviations**; no row has an empty or hand-wavy status.
+      **Intentional deviations**; no row has an empty or hand-wavy status. Most
+      reasons are an admissible ground under `SCOPE.md:65-78` — a construct
+      with no meaning in Go. A row whose only honest reason is "should be
+      ported, not yet done" is still recorded that way (the checker only
+      verifies coverage, not admissibility) and names the follow-up issue —
+      but that combination is exactly what
+      [issue 06](/epic-9-classifier-audit-and-release/issues/06-cut-v0-2-0-release.md)'s
+      new criterion blocks the tag on; it does not ship silently.
 - [ ] `grep -n 'go\.N' docs/PORTING.md` returns nothing, and the sync procedure
       instead records that Go tags follow kern-link's own SemVer with the
       upstream version living in `UPSTREAM.lock` and the changelog.
