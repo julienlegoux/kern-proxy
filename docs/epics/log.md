@@ -1,5 +1,9 @@
 # Log
 
+## 2026-08-11
+
+* **Status**: [Issue 01: Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md) (#199) moved to `pr-open` — PR [#216](https://github.com/kern-ia/kern-link/pull/216) targets `develop`.
+
 ## 2026-08-10
 
 * **Status**: [Issue 01: Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md) (#199) moved to `in-progress` on branch `issue-199-epic-4-core-type-contracts`.
