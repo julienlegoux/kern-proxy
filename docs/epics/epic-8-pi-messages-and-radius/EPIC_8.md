@@ -3,7 +3,7 @@ type: Epic
 title: "pi-messages and radius"
 description: "Add pi's own protocol as the tenth ai/apis package and land the radius provider binding, whose gateway config is fetched over the network at provider setup."
 tags: [epic]
-timestamp: 2026-08-09T03:55:05Z
+timestamp: 2026-08-10T14:00:00Z
 epic: 8
 slug: pi-messages-and-radius
 status: open
@@ -46,8 +46,10 @@ They are grouped because radius is the one provider that needs both.
    `936aff00`.
 2. Upstream's 248 lines of pi-messages tests are ported and pass offline.
 3. The radius provider binding resolves, and its gateway-config fetch is
-   deliberately designed — the network call at setup is explicit in the code and
-   covered by an offline `httptest` case, including its failure path.
+   deliberately designed — the network call happens inside the `RefreshModels`
+   pipeline (behind `AllowNetwork`), not at provider construction, and is
+   explicit in the code and covered by an offline `httptest` case, including
+   its failure path.
 4. `// Ports:` headers on every ported file; each dispositioned in
    `docs/PORTING.md`.
 5. CI green: `go test ./... -race -v`, `bash upstream/sync_test.sh`,
@@ -78,3 +80,9 @@ They are grouped because radius is the one provider that needs both.
 - Project-wide, not this epic's own boundary: no new direct dependencies (raw
   `net/http` + `ai/internal/sse`), no logger, tests offline and stdlib-only.
 - Upstream target frozen at `936aff00`.
+- **AC 3's "gateway-config fetch" wording** was amended by
+  [Epic 0 issue 11](/epic-0-plan-remediation/issues/11-repair-the-epic-8-issue-set.md)
+  to say the network call happens inside `RefreshModels` (behind
+  `AllowNetwork`), not at provider construction — issues 03 and 04 already
+  build it that way; the epic file just never said so, and a reviewer checking
+  AC 3 against 04's tests could otherwise read a met criterion as missed.

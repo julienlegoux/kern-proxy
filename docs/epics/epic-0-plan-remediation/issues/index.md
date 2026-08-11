@@ -2,7 +2,7 @@
 
 * [Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](./01-epic-4-core-type-contracts.md) - M, open, [#199](https://github.com/kern-ia/kern-link/issues/199)
 * [Adopt the six orphaned scope items, or record each as out of scope with a reason](./02-adopt-the-orphaned-scope-items.md) - M, open, [#200](https://github.com/kern-ia/kern-link/issues/200)
-* [Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type](./03-repair-the-epic-1-issue-set.md) - S, open, [#201](https://github.com/kern-ia/kern-link/issues/201)
+* [Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type](./03-repair-the-epic-1-issue-set.md) - S, pr-open, [#201](https://github.com/kern-ia/kern-link/issues/201), [PR #215](https://github.com/kern-ia/kern-link/pull/215)
 * [Repair the Epic 2 issue set: the criterion Go cannot satisfy, the missing edge, and the duplicated ownership](./04-repair-the-epic-2-issue-set.md) - M, open, [#202](https://github.com/kern-ia/kern-link/issues/202)
 * [Pre-split Epic 2 issues 05 and 08 into reviewable halves](./05-pre-split-epic-2-issues-05-and-08.md) - M, open, [#203](https://github.com/kern-ia/kern-link/issues/203)
 * [Rein in Epic 3's invented scope, route its SPECS.md edits through drift, and reconcile EPIC_3.md with its issues](./06-rein-in-epic-3-invented-scope.md) - M, open, [#204](https://github.com/kern-ia/kern-link/issues/204)
@@ -10,7 +10,7 @@
 * [Reconcile EPIC_5.md with its issues, and settle the five criteria that pass whichever way the implementer decides](./08-reconcile-epic-5-with-its-issues.md) - M, pr-open, [#206](https://github.com/kern-ia/kern-link/issues/206), [PR #217](https://github.com/kern-ia/kern-link/pull/217)
 * [Amend EPIC_6.md to absorb the work its issues build, and close Epic 6's ownership and dependency gaps](./09-amend-epic-6-and-close-its-gaps.md) - M, open, [#207](https://github.com/kern-ia/kern-link/issues/207)
 * [Repair the Epic 7 issues: the postForm contract, the callbackHost rename, and the picker order](./10-repair-the-epic-7-issue-set.md) - M, open, [#208](https://github.com/kern-ia/kern-link/issues/208)
-* [Repair the Epic 8 issues: provenance on ported tests, the unsatisfiable grep, and the two missing scope files](./11-repair-the-epic-8-issue-set.md) - S, open, [#209](https://github.com/kern-ia/kern-link/issues/209)
+* [Repair the Epic 8 issues: provenance on ported tests, the unsatisfiable grep, and the two missing scope files](./11-repair-the-epic-8-issue-set.md) - S, pr-open, [#209](https://github.com/kern-ia/kern-link/issues/209), PR [#214](https://github.com/kern-ia/kern-link/pull/214)
 * [Repair the Epic 9 issue set: the checker's file set, the classifier row count, and the release escape hatch](./12-repair-the-epic-9-issue-set.md) - M, open, [#210](https://github.com/kern-ia/kern-link/issues/210)
 * [Rewrite the PR size note in every issue against its own band, and correct the mis-declared sizes](./13-rewrite-the-pr-size-notes.md) - M, open, [#211](https://github.com/kern-ia/kern-link/issues/211)
 * [Normalize the in-bundle link form and the depends_on representation, and record the branch conventions once per epic](./14-normalize-links-depends-on-and-branch-notes.md) - S, open, [#212](https://github.com/kern-ia/kern-link/issues/212)

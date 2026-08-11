@@ -3,7 +3,7 @@ type: Issue
 title: "Move the module path to github.com/kern-ia/kern-link"
 description: "Rename the Go module path off the personal account onto the kern-ia organisation across go.mod, every import, README, CHANGELOG links and docs — one mechanical breaking PR."
 tags: [epic-1]
-timestamp: 2026-08-09T04:20:00Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 1
 issue: 02
 slug: move-module-path-to-kern-ia
@@ -43,15 +43,16 @@ in:
 - **157 `.go` files** — every self-import. Highest-density files:
   `ai/providers/*.go` (35 provider bindings, 4–7 refs each),
   `ai/apis/**/*.go`, `cmd/pi-ai/example/main.go`.
-- **`README.md`** (7 refs) — the Test workflow badge URL, the pkg.go.dev badge
-  and link, the `go get` line, the two example imports, the
-  `go run …/cmd/pi-ai login` line.
+- **`README.md`** (7 lines match `grep -c 'julienlegoux/kern-link' README.md`;
+  9 occurrences by `grep -o`, since the two badge lines each carry it twice) —
+  the Test workflow badge URL, the pkg.go.dev badge and link, the `go get`
+  line, the two example imports, the `go run …/cmd/pi-ai login` line.
 - **`docs/usage.md`** (8 refs) and **`docs/auth.md`** (3 refs) — `go get`, the
   package table, example imports, the `go run …/cmd/pi-ai` invocations.
 - **`CHANGELOG.md:63-65`** — the three link-reference URLs at the bottom
   (`[Unreleased]`, `[0.1.1]`, `[0.1.0]`). These are navigation to a repo that has
   already moved, not history.
-- **`CONVENTIONS.md:72-77`** (repo root) — the `## Go module` section currently
+- **`CONVENTIONS.md:71-77`** (repo root) — the `## Go module` section currently
   reads "Current path: `github.com/julienlegoux/kern-link` … do not rename
   unilaterally here". Replace it with the new path and a one-line note that the
   move was decided at org level and executed in this epic; leaving the old
@@ -92,6 +93,9 @@ Commit as `refactor!: move module path to github.com/kern-ia/kern-link`, per the
 ## Acceptance criteria / Definition of done
 
 - [ ] `head -1 go.mod` reads `module github.com/kern-ia/kern-link`.
+- [ ] `grep -c '^go 1\.26$' go.mod` returns `1` — the toolchain bump from
+      [issue 01](/epic-1-repository-hygiene/issues/01-bump-go-directive-to-1-26.md)
+      survived the 170-file rename.
 - [ ] No unintended reference survives:
       `git grep -l 'julienlegoux/kern-link' -- ':!CHANGELOG.md' ':!docs/planning' ':!docs/epics'`
       prints nothing.
@@ -99,6 +103,10 @@ Commit as `refactor!: move module path to github.com/kern-ia/kern-link`, per the
       `git grep -n 'julienlegoux/kern-link' -- CHANGELOG.md` returns only line 20
       (the 0.1.1 historical entry), and every remaining `docs/planning/` and
       `docs/epics/` hit is a decision, scope, log or epic record.
+- [ ] `docs/planning/SPECS.md` carries both fixes:
+      `git grep -n 'julienlegoux/kern-link' -- docs/planning/SPECS.md` prints
+      nothing, and `docs/planning/SPECS.md:22` reads
+      `github.com/kern-ia/kern-link` at Go **1.26**.
 - [ ] `go build ./...` passes and `GOTMPDIR=$PWD/.gotmp go test ./...` passes
       locally (`-race` is CI-only — no local C toolchain).
 - [ ] `gofmt -l .` prints nothing.
@@ -117,11 +125,13 @@ Commit as `refactor!: move module path to github.com/kern-ia/kern-link`, per the
 ## Relevant files / areas
 
 Verified against the tree at `318731c` (`git grep -o 'julienlegoux/kern-link' | wc -l`
-→ **370**, up from the 355 counted when the scope was written — `docs/` grew
-since):
+→ **369** total occurrences, **366** for the `github.com/julienlegoux/kern-link`
+form the rename actually targets; up from the 355 counted when the scope was
+written — `docs/` keeps growing independently of this migration, so re-run the
+command above rather than trusting either number):
 
 - `go.mod:1` — the module line.
-- 157 `.go` files, densest in `ai/providers` (42 files), `ai/apis/bedrock` (14),
+- 157 `.go` files, densest in `ai/providers` (44 files), `ai/apis/bedrock` (14),
   `ai/images` (9), `ai/apis/openaicompletions` (9), `ai/apis/mistral` (9), then
   the remaining `ai/apis/*` adapters, `ai/auth`, `ai/auth/oauth`, `ai/catalog`,
   `ai/internal/*` and `cmd/pi-ai/*`. No `.go` file under `testbed/` or `tools/`

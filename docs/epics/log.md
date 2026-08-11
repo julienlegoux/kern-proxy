@@ -2,6 +2,7 @@
 
 ## 2026-08-11
 
+* **PR opened**: [Issue 03: Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type](/epic-0-plan-remediation/issues/03-repair-the-epic-1-issue-set.md) (#201) — [PR #215](https://github.com/kern-ia/kern-link/pull/215).
 * **PR opened**: [Issue 08: Reconcile EPIC_5.md with its issues, and settle the five criteria that pass whichever way the implementer decides](/epic-0-plan-remediation/issues/08-reconcile-epic-5-with-its-issues.md) (#206) — [PR #217](https://github.com/kern-ia/kern-link/pull/217).
 
 ## 2026-08-10
@@ -25,6 +26,8 @@
 * **Creation**: Established [Issue 13: Rewrite the PR size note in every issue against its own band, and correct the mis-declared sizes](/epic-0-plan-remediation/issues/13-rewrite-the-pr-size-notes.md) (#211).
 * **Creation**: Established [Issue 14: Normalize the in-bundle link form and the depends_on representation, and record the branch conventions once per epic](/epic-0-plan-remediation/issues/14-normalize-links-depends-on-and-branch-notes.md) (#212).
 * **Creation**: Established [Issue 15: Reconcile GitHub state with the files, and account for all 97 findings](/epic-0-plan-remediation/issues/15-reconcile-github-state-with-the-files.md) (#213).
+* **Started**: [Issue 11: Repair the Epic 8 issues: provenance on ported tests, the unsatisfiable grep, and the two missing scope files](/epic-0-plan-remediation/issues/11-repair-the-epic-8-issue-set.md) (#209) moved to in-progress on branch `issue-11-repair-the-epic-8-issue-set`.
+* **PR opened**: [Issue 11: Repair the Epic 8 issues: provenance on ported tests, the unsatisfiable grep, and the two missing scope files](/epic-0-plan-remediation/issues/11-repair-the-epic-8-issue-set.md) (#209) — [PR #214](https://github.com/kern-ia/kern-link/pull/214), targeting `develop`.
 
 ## 2026-08-09
 

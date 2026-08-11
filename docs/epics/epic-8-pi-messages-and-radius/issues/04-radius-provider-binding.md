@@ -3,7 +3,7 @@ type: Issue
 title: "Bind the radius provider over pi-messages, with its two-phase catalog refresh"
 description: "Port src/providers/radius.ts as ai/providers/radius.go — a gateway-parameterised binding with env-API-key and OAuth auth, no static catalog, and a refresh that restores the stored catalog before it ever touches the network."
 tags: [epic-8]
-timestamp: 2026-08-09T14:45:00Z
+timestamp: 2026-08-10T14:00:00Z
 epic: 8
 issue: 04
 slug: radius-provider-binding
@@ -23,6 +23,11 @@ entry in the embedded catalog, so before a refresh it lists nothing. Upstream
 marks the same distinction — `providers/all.ts:50-52` says `BuiltinProvider`
 covers the generated catalog while `KnownProvider` additionally includes
 "purely dynamic providers (e.g. `radius`) that have no static catalog entry".
+
+`EPIC_8.md:31-33` says Radius fetches its gateway config "at provider setup";
+here that means the `RefreshModels` pipeline below, not construction —
+`RadiusProvider` itself makes no network call, matching the project-wide rule
+that construction touches no network.
 
 That single fact breaks an existing test, and it is better to meet it here than
 in CI: `TestBuiltinModelsRegistersEveryProviderWithModels`
@@ -51,17 +56,17 @@ stored catalog still gets their models:
    token, else the api key), re-check cancellation, publish the fetched catalog
    with `persist`.
 
-That maps one-to-one onto the `RefreshModelsContext` /`ModelsPublication`
+That maps one-to-one onto the `RefreshModelsContext`/`ModelsPublication`
 contract [epic 2 issue 08](/epic-2-core-types-and-models-contracts/issues/08-models-refresh-contract.md)
-lands (`Credential`, `Stored`, `Publish`, `AllowNetwork`). **One thing to
-verify before writing code**: that issue describes `FetchModels(ctx, rc)
-([]*Model, error)`, a shape that returns *one* list, while radius publishes
-more than once. If the landed contract exposes `rc.Publish`, use it and follow
-upstream exactly. If it does not, the two-phase behavior cannot be expressed —
-stop, say so in the PR body, and record it as a drift record under
-`docs/epics/epic-8-pi-messages-and-radius/drift/`; do not quietly collapse the
-phases into a single network fetch, which is exactly the offline regression the
-phases exist to prevent.
+lands (`Credential`, `Stored`, `Publish`, `AllowNetwork`): `08:30-35` carries
+`publish(publication): Promise<boolean>` as part of the interface this issue
+ports, and `08:70-72`, `:87` add `RefreshModelsContext` to `ai` and pass it
+into `FetchModels(ctx, rc)` — a shape that returns *one* list per call, which
+is why radius calls `rc.Publish` more than once rather than returning more
+than one list. Use `rc.Publish` and follow upstream exactly. If the landed
+signature differs from this contract by the time this PR is written, report it
+in the PR body rather than quietly collapsing the phases into a single network
+fetch — that is exactly the offline regression the phases exist to prevent.
 
 Auth declares both methods, as upstream does: `RADIUS_API_KEY` through
 `auth.EnvAPIKeyAuth`, and the flow from
