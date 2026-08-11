@@ -26,6 +26,7 @@
 * **Completed**: [Issue 04: Repair the Epic 2 issue set: the criterion Go cannot satisfy, the missing edge, and the duplicated ownership](/epic-0-plan-remediation/issues/04-repair-the-epic-2-issue-set.md) (#202) moved to `done` — [PR #222](https://github.com/kern-ia/kern-link/pull/222) merged into `develop` 2026-08-11.
 * **Completed**: [Issue 06: Rein in Epic 3's invented scope, route its SPECS.md edits through drift, and reconcile EPIC_3.md with its issues](/epic-0-plan-remediation/issues/06-rein-in-epic-3-invented-scope.md) (#204) moved to `done` — [PR #223](https://github.com/kern-ia/kern-link/pull/223) merged into `develop` 2026-08-11.
 * **Started**: [Issue 12: Repair the Epic 9 issue set: the checker's file set, the classifier row count, and the release escape hatch](/epic-0-plan-remediation/issues/12-repair-the-epic-9-issue-set.md) (#210) moved to `in-progress` on branch `issue-12-epic0-epic9-remediation`.
+* **PR opened**: [Issue 12: Repair the Epic 9 issue set: the checker's file set, the classifier row count, and the release escape hatch](/epic-0-plan-remediation/issues/12-repair-the-epic-9-issue-set.md) (#210) moved to `pr-open` — [PR #227](https://github.com/kern-ia/kern-link/pull/227), targeting `develop`.
 
 ## 2026-08-10
 
