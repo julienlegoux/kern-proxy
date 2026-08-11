@@ -3,7 +3,7 @@ type: Issue
 title: "Spike: price tools/export-catalog against upstream 936aff00 and record the finding"
 description: "Verify whether tools/export-catalog can run against the frozen upstream revision at all, and write the finding down before the rest of the epic is planned against it."
 tags: [epic-3]
-timestamp: 2026-08-11T14:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 3
 issue: 01
 slug: export-catalog-spike
@@ -171,5 +171,9 @@ against a real checkout and correct the record where it turns out to be wrong:
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. This one should land well under that — it is a documentation PR.
+`S` — well under 200 changed lines, and all of them under `docs/`: one drift
+record at `drift/01-export-catalog-not-byte-stable.md` plus the one-line outcome
+in `EPIC_3.md`'s `## Notes`. No Go code, no tooling change, no sibling issue
+file. Split past ~200 — if the finding needs more prose than that, the excess is
+the follow-up issue re-planning issues 02–05 that the acceptance criteria
+already provide for.

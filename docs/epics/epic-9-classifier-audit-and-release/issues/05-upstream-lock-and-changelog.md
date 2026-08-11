@@ -3,7 +3,7 @@ type: Issue
 title: "Bump upstream/UPSTREAM.lock to 936aff00 / 0.84.1 and write the v0.2.0 changelog"
 description: "Advance the pin once, at the end, and enumerate every break of the nine-epic program in a Keep a Changelog 0.2.0 entry."
 tags: [epic-9]
-timestamp: 2026-08-11T15:10:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 9
 issue: 05
 slug: upstream-lock-and-changelog
@@ -137,5 +137,9 @@ place a reader sees them all at once.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening
-the PR.
+`M` — ~200 changed lines: two lines in `upstream/UPSTREAM.lock` and one
+link-reference line, plus a `CHANGELOG.md` `## [0.2.0]` section that enumerates
+every break of a nine-epic program — one bullet per consumer-visible effect
+across `### Added` / `### Changed` / `### Removed`, from the eleven listed under
+`## Scope` upward. Split past ~500, though there is nothing here to split: the
+changelog section is one reviewable unit and the lock bump is two lines.

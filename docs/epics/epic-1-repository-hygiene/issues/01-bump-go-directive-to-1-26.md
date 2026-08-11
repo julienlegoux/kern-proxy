@@ -3,7 +3,7 @@ type: Issue
 title: "Bump the go directive from 1.25.0 to 1.26"
 description: "Raise the go.mod language version to 1.26 to align with the other Kern packages, and prove CI is green on the new toolchain before the module-path rename lands."
 tags: [epic-1]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 1
 issue: 01
 slug: bump-go-directive-to-1-26
@@ -93,5 +93,7 @@ signal from noise.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. Expected here: one line.
+`S` — ~1 changed line: `go.mod:3`, `go 1.25.0` → `go 1.26`, with
+`git diff --stat` expected to list that one file and nothing else. Split past
+~200 — which can only happen if CI on 1.26 forces fixes, and a fix large enough
+to approach that belongs in its own PR rather than riding along with the bump.

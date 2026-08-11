@@ -3,7 +3,7 @@ type: Issue
 title: "Move the module path to github.com/kern-ia/kern-link"
 description: "Rename the Go module path off the personal account onto the kern-ia organisation across go.mod, every import, README, CHANGELOG links and docs — one mechanical breaking PR."
 tags: [epic-1]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 1
 issue: 02
 slug: move-module-path-to-kern-ia
@@ -160,12 +160,12 @@ output should not move.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. Expected here: ~370 modified lines across ~170 files, entirely
-search-and-replace.
+`M` — ~370 modified lines across ~170 files (366 occurrences of the
+`github.com/julienlegoux/kern-link` form at `318731c`), entirely
+search-and-replace. Split past ~500.
 
-**This one cannot be split further**, and the ~1000-line rule does not license
-splitting it: an intermediate state where `go.mod` declares the new path while
-imports still name the old one does not compile, and vice versa. Atomicity is a
-build constraint, not a preference. If the diff exceeds expectations, that means
+**This one cannot be split further**, and the band does not license splitting
+it: an intermediate state where `go.mod` declares the new path while imports
+still name the old one does not compile, and vice versa. Atomicity is a build
+constraint, not a preference. If the diff exceeds expectations, that means
 something non-mechanical crept in — remove it rather than splitting the rename.

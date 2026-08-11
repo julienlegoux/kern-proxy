@@ -3,7 +3,7 @@ type: Epic
 title: "Catalog schema and export tooling"
 description: "Price and update tools/export-catalog against the frozen upstream, regenerate the model and image catalogs, and re-validate them — including the images surface that rides on the same tooling."
 tags: [epic]
-timestamp: 2026-08-11T14:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 3
 slug: catalog-schema-and-export-tooling
 status: open
@@ -151,6 +151,16 @@ against `936aff00` at all.
   untouched. Whether upstream's `provider-retry.ts` supersedes the helper at all
   stays with [Epic 9](/epic-9-classifier-audit-and-release/EPIC_9.md), which
   already owns that question.
+- **Generated catalog output does not count toward the PR size bands.**
+  [Epic 0](/epic-0-plan-remediation/EPIC_0.md) decided it: the hand-written rule
+  is the one that measures reviewability. So
+  [issue 04](/epic-3-catalog-schema-and-export-tooling/issues/04-regenerate-model-catalog.md)
+  and
+  [issue 05](/epic-3-catalog-schema-and-export-tooling/issues/05-regenerate-image-catalog.md)
+  are banded on their hand-written lines alone — one test plus a doc paragraph,
+  and one test file — while the regenerated JSON under `ai/catalog/data/**` is
+  reviewed through the shape checks in their acceptance criteria rather than
+  counted.
 - Nothing in this epic makes an edit to `docs/planning/` a merge-blocking
   acceptance criterion. Where an implementation here proves a planning document
   wrong — decision 14's smoke-test claim, decision 05's ordering and its byte-
