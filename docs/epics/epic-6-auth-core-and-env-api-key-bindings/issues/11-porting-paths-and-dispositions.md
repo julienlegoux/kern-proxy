@@ -3,7 +3,7 @@ type: Issue
 title: "Point docs/PORTING.md at upstream's src/auth/* paths and disposition the new auth files"
 description: "Rewrite the mapping table's deleted src/utils/oauth/* entries to upstream's current locations, give every new or changed auth file in range a disposition, and bring docs/auth.md's env-key table and resolution-order section back in line with what this epic changed."
 tags: [epic-6]
-timestamp: 2026-08-11T13:05:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 6
 issue: 11
 slug: porting-paths-and-dispositions
@@ -202,5 +202,10 @@ but `utils/oauth/` can never match again. Leave it or drop it; if you drop it,
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`S` — ~90 changed lines, all markdown: four rewritten and four new
+`docs/PORTING.md` rows plus three Go-shaping deviation entries, and in
+`docs/auth.md` one amended `anthropic` row, four new rows in a
+one-line-per-provider env-key table (`:34-59`), and a ~4-line rewrite of the
+"no silent env fallback" claim (`:22-24`). Re-checked after the Epic 0 hand-off
+of `docs/auth.md` and kept `S`: the added ownership is row-level edits inside
+two files totalling 309 lines, and no Go code. Split past ~200.

@@ -3,7 +3,7 @@ type: Issue
 title: "Copilot: policy-state model fallback for individual accounts, and a disposition for the unported availability calls"
 description: "Port upstream's individual-account fallback to policy.state == enabled when no model reports model_picker_enabled, and settle whether the OAuth-side availability and policy-enable calls stay unported."
 tags: [epic-6]
-timestamp: 2026-08-11T13:05:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 6
 issue: 09
 slug: copilot-model-availability
@@ -176,5 +176,10 @@ undispositioned again.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~380 changed lines: `isSelectableCopilotModel` (`:59-70`) becomes a
+two-list parse gated on base-URL equality, five named tests cover it against
+upstream's `test/github-copilot-oauth.test.ts` (+201 in range), and a
+`docs/PORTING.md` disposition plus the `ai/auth/oauth/copilot.go` `// Ports:`
+header rewrite ride along. Split past ~500, and the seam is the recommended
+`FilterModels` implementation with its two tests — the optional half of the
+issue.

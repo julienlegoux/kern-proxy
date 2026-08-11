@@ -3,7 +3,7 @@ type: Issue
 title: "Bind baseten and the three qwen-token-plan providers"
 description: "Add the four new env-API-key provider bindings upstream shipped in range, each one EnvAPIKeyAuth over the openai-completions adapter, and register them in ai/providers/all.go."
 tags: [epic-6]
-timestamp: 2026-08-11T13:05:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 6
 issue: 10
 slug: env-api-key-bindings
@@ -137,5 +137,8 @@ to prove.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`S` — ~190 changed lines: four new binding files of ~15 lines each, copied in
+shape from `ai/providers/xiaomi_token_plan_cn.go`, four entries in
+`ai/providers/all.go`, and five table-driven tests over the four ids. No
+existing production code changes — the PR is new files plus a registry list.
+Split past ~200.

@@ -3,7 +3,7 @@ type: Issue
 title: "Refresh OAuth credentials five minutes before expiry, with a MinOAuthValidity override and a bounded refresh"
 description: "Port resolve.ts's new expiry window: refresh when a token expires soon rather than only when expired, honor a caller-requested minimum validity, and cap the refresh call at fifteen seconds."
 tags: [epic-6]
-timestamp: 2026-08-11T13:05:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 6
 issue: 04
 slug: oauth-refresh-window
@@ -164,5 +164,9 @@ The 15-second cap is `context.WithTimeout` on the refresh call — not a
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~330 changed lines, and the ratio is unusual: the production change is
+small (two constants, one `AuthResolutionOverrides` field, and the
+`expiresSoon` rewrite of `resolveStoredOAuth`, `ai/resolve.go:141-186`), while
+the seven named tests carry the weight — each stubs `authClock` and a `Refresh`
+counter, including the bounded-refresh and default-vs-explicit asymmetry cases.
+Split past ~500.

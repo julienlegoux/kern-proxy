@@ -3,7 +3,7 @@ type: Issue
 title: "Add CredentialStore.List and CredentialInfo across the in-memory and file stores"
 description: "Port credential-store.ts's new list() enumeration — non-secret credential metadata — onto the CredentialStore interface and both implementations."
 tags: [epic-6]
-timestamp: 2026-08-11T13:05:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 6
 issue: 02
 slug: credential-store-list
@@ -128,5 +128,9 @@ and both implementations change in one compiling PR.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`S` — ~190 changed lines: roughly 65 of production code (a two-field
+`CredentialInfo`, one interface method, and two ~20-line `List` implementations
+across `ai/auth.go`, `ai/credentialstore.go` and `ai/auth/filestore.go`) plus
+the five named tests. Re-checked against REPORT_6's flag and kept `S` because
+nothing is rewritten — `List` reads through the existing `withLock`/`load` path
+and decodes only each entry's `type` tag. Split past ~200.

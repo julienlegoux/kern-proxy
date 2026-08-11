@@ -3,7 +3,7 @@ type: Issue
 title: "Add Models.CheckAuth, Models.GetAvailable, and Provider.FilterModels"
 description: "Port the availability half of upstream's Models auth surface: a side-effect-free per-provider auth check, the models a configured provider can actually serve, and the credential-scoped filter that narrows them."
 tags: [epic-6]
-timestamp: 2026-08-11T13:05:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 6
 issue: 05
 slug: models-availability
@@ -184,5 +184,10 @@ binding's implementation nil.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~470 changed lines: three surfaces land together (`Provider.FilterModels`
+plus its `CreateProviderOptions` field, `Models.CheckAuth`,
+`Models.GetAvailable`), with `checkProviderAuth`'s three-step short-circuit and
+the per-provider fan-out, against nine named tests driven through
+`ai/providers/faux`. That is the top of the band. Split past ~500, and the seam
+is `FilterModels` plus its identity default, which can land before the two
+`Models` methods that consume it.
