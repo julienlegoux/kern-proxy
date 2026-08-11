@@ -3,7 +3,7 @@ type: Issue
 title: "Refresh OAuth credentials five minutes before expiry, with a MinOAuthValidity override and a bounded refresh"
 description: "Port resolve.ts's new expiry window: refresh when a token expires soon rather than only when expired, honor a caller-requested minimum validity, and cap the refresh call at fifteen seconds."
 tags: [epic-6]
-timestamp: 2026-08-09T10:24:00Z
+timestamp: 2026-08-11T13:05:00Z
 epic: 6
 issue: 04
 slug: oauth-refresh-window
@@ -128,6 +128,16 @@ The 15-second cap is `context.WithTimeout` on the refresh call — not a
       caller's context — do not sleep for fifteen seconds.
 - [ ] The doubled margin for Anthropic/Copilot is documented in
       `resolveStoredOAuth`'s comment, naming `docs/PORTING.md:43`.
+- [ ] Every expiry-window case in upstream's `test/oauth-auth.test.ts` (+67/- in
+      range) — the refresh-window, `minOAuthValidityMs` and bounded-refresh
+      scenarios — is represented by a Go test in this PR or explicitly
+      dispositioned in the PR body. This file's types/`Check` cases belong to
+      [issue 01](/epic-6-auth-core-and-env-api-key-bindings/issues/01-auth-contract-surface.md)
+      and its `checkAuth`/`getAvailable` cases to
+      [issue 05](/epic-6-auth-core-and-env-api-key-bindings/issues/05-models-availability.md) —
+      do not duplicate either here.
+- [ ] `ai/resolve.go`'s `// Ports:` header still describes the file after this
+      change.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

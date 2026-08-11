@@ -3,7 +3,7 @@ type: Issue
 title: "Point docs/PORTING.md at upstream's src/auth/* paths and disposition the new auth files"
 description: "Rewrite the mapping table's deleted src/utils/oauth/* entries to upstream's current locations, give every new or changed auth file in range a disposition, and bring docs/auth.md's env-key table and resolution-order section back in line with what this epic changed."
 tags: [epic-6]
-timestamp: 2026-08-11T12:30:00Z
+timestamp: 2026-08-11T13:05:00Z
 epic: 6
 issue: 11
 slug: porting-paths-and-dispositions
@@ -11,7 +11,7 @@ size: S
 status: open
 gh_issue: 180
 resource: https://github.com/kern-ia/kern-link/issues/180
-depends_on: []
+depends_on: [3, 9]
 ---
 
 # Point docs/PORTING.md at upstream's src/auth/* paths and disposition the new auth files
@@ -99,8 +99,13 @@ but `utils/oauth/` can never match again. Leave it or drop it; if you drop it,
     *key*, and a credential that does not carry a given configuration field
     falls through to the environment for that field. Name the fields it applies
     to; do not turn a narrow, deliberate exception into a general one.
-- Check the file for rows this epic's other issues already amended (issues 03,
-  07 and 09 each touch it) and reconcile rather than duplicate. **Land this
+- **Rewrite the `src/env-api-keys.ts` row (`docs/PORTING.md:59`)** — issue 07 is
+  the issue that makes it newly load-bearing (it adds `ANTHROPIC_AUTH_TOKEN` to
+  the map and takes Anthropic out of the shared `envApiKeyAuth` helper), but
+  issue 07 explicitly does not edit `docs/PORTING.md` itself (`07:59-62`); this
+  issue owns that row rewrite instead.
+- Check the file for rows this epic's other issues already amended (issues 03
+  and 09 each touch it) and reconcile rather than duplicate. **Land this
   last.**
 
 ## Out of scope
@@ -156,6 +161,11 @@ but `utils/oauth/` can never match again. Leave it or drop it; if you drop it,
       per-field merge must not state opposite rules.
 - [ ] `bash upstream/sync_test.sh` passes, whether or not the auth bucket regex
       was touched.
+- [ ] `git diff --name-status <epic-base>..HEAD -- ai/auth/` shows no `R`
+      entries — this is `EPIC_6.md`'s acceptance criterion 2 ("no Go package
+      under `ai/auth/` has been moved or renamed"), checked here because this
+      issue lands last and issues 08 and 09 are exactly the PRs where
+      "tidying" `ai/auth/oauth` to match upstream's new layout tempts.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2).
@@ -179,10 +189,15 @@ but `utils/oauth/` can never match again. Leave it or drop it; if you drop it,
 
 ## Dependencies
 
-- **Blocked by**: None mechanically, but it should land **last** in the epic —
-  issues 03, 07 and 09 each amend `docs/PORTING.md`, and this issue reconciles
-  the file as a whole. The `docs/auth.md` half sharpens that: it documents what
-  issues 03, 07 and 10 landed, so all three must be merged before it is written.
+- **Blocked by**: [Issue 03](/epic-6-auth-core-and-env-api-key-bindings/issues/03-provider-scoped-apikey-resolution.md)
+  and [issue 09](/epic-6-auth-core-and-env-api-key-bindings/issues/09-copilot-model-availability.md)
+  — both amend `docs/PORTING.md` directly (issue 07 does not — it only cites
+  the file, see item 8 above), and this issue reconciles the whole table
+  afterward rather than racing either edit.
+- It should still land **last** in the epic beyond that hard dependency: the
+  `docs/auth.md` half documents what issues 03, 07 and 10 landed, so all three
+  must be merged before it is written, even though only 03 and 09 are a true
+  edit conflict on `docs/PORTING.md`.
 - **Blocks**: Nothing.
 
 ## PR size note

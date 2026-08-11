@@ -3,7 +3,7 @@ type: Issue
 title: "Copilot: policy-state model fallback for individual accounts, and a disposition for the unported availability calls"
 description: "Port upstream's individual-account fallback to policy.state == enabled when no model reports model_picker_enabled, and settle whether the OAuth-side availability and policy-enable calls stay unported."
 tags: [epic-6]
-timestamp: 2026-08-09T10:24:00Z
+timestamp: 2026-08-11T13:05:00Z
 epic: 6
 issue: 09
 slug: copilot-model-availability
@@ -141,6 +141,9 @@ undispositioned again.
 - [ ] `docs/PORTING.md` contains no undispositioned upstream symbol from
       `src/auth/oauth/github-copilot.ts`: every unported function is named with
       a reason and a revisit trigger.
+- [ ] Every case in upstream's `test/github-copilot-oauth.test.ts` (+201/- in
+      range) is represented by a Go test in this PR or explicitly dispositioned
+      in the PR body.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.
@@ -168,7 +171,8 @@ undispositioned again.
   (the rename touches `ai/auth/oauth/copilot.go`). If `FilterModels` is
   implemented, also [issue 05](/epic-6-auth-core-and-env-api-key-bindings/issues/05-models-availability.md),
   which declares it.
-- **Blocks**: Nothing.
+- **Blocks**: [Issue 11](/epic-6-auth-core-and-env-api-key-bindings/issues/11-porting-paths-and-dispositions.md)
+  (which amends `docs/PORTING.md` after this issue's `github-copilot.ts` row).
 
 ## PR size note
 

@@ -3,7 +3,7 @@ type: Issue
 title: "Extend the auth contract: AuthCheck, AuthType, subscription metadata, and the info auth event"
 description: "Port auth/types.ts's 0.84.1 additions into ai/auth.go — the availability-check contract, the auth-type discriminator, OAuth subscription metadata, and the info event — and rename AuthLoginCallbacks to AuthInteraction."
 tags: [epic-6]
-timestamp: 2026-08-09T10:24:00Z
+timestamp: 2026-08-11T13:05:00Z
 epic: 6
 issue: 01
 slug: auth-contract-surface
@@ -20,7 +20,7 @@ depends_on: []
 
 `src/auth/types.ts` gained +82/-25 in range, and almost everything downstream in
 this epic depends on the types it added. This issue lands the **type surface
-only**, so the four issues that consume it (05, 06, 08, 09) start from a
+only**, so the five issues that consume it (03, 05, 06, 08, 09) start from a
 compiling contract rather than each inventing its own.
 
 Upstream's additions, and what each is for:
@@ -40,7 +40,7 @@ ported**: `AuthOperationOptions { signal? }` and `ProviderAuthInteraction`'s
 non-optional `signal` both exist because upstream's public auth API took an
 optional `AbortSignal`. Every Go signature in this tree already takes
 `ctx context.Context` as its first argument, which
-[docs/PORTING.md](../../../../docs/PORTING.md)'s "Cancellation" deviation
+[docs/PORTING.md](../../../PORTING.md)'s "Cancellation" deviation
 already covers. Do not add a parallel options struct.
 
 `AuthEvent` is a Go struct with a `Type` discriminator and a flat field set
@@ -123,6 +123,16 @@ comment so its absence does not read as an oversight.
       `packages/ai/src/auth/types.ts` too, since upstream folded
       `OAuthCredentials` in. Fix that line here rather than leaving it dangling
       for [issue 11](/epic-6-auth-core-and-env-api-key-bindings/issues/11-porting-paths-and-dispositions.md)).
+- [ ] Every `types`/`Check`-shaped case in upstream's `test/oauth-auth.test.ts`
+      (+67/- in range) — the ones exercising `AuthType`, `AuthCheck`,
+      `APIKeyAuth.Check`, `OAuthAuth.IsSubscription`/`LoginLabel` and the
+      `AuthLoginCallbacks` → `AuthInteraction` rename — is represented by a Go
+      test in this PR or explicitly dispositioned in the PR body. This file's
+      expiry-window cases belong to
+      [issue 04](/epic-6-auth-core-and-env-api-key-bindings/issues/04-oauth-refresh-window.md)
+      and its `checkAuth`/`getAvailable` cases to
+      [issue 05](/epic-6-auth-core-and-env-api-key-bindings/issues/05-models-availability.md) —
+      do not duplicate either here.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

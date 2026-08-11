@@ -3,7 +3,7 @@ type: Issue
 title: "Add Models.CheckAuth, Models.GetAvailable, and Provider.FilterModels"
 description: "Port the availability half of upstream's Models auth surface: a side-effect-free per-provider auth check, the models a configured provider can actually serve, and the credential-scoped filter that narrows them."
 tags: [epic-6]
-timestamp: 2026-08-09T10:24:00Z
+timestamp: 2026-08-11T13:05:00Z
 epic: 6
 issue: 05
 slug: models-availability
@@ -138,6 +138,13 @@ binding's implementation nil.
       nil.
 - [ ] `TestGetAvailableForOneProvider` — passing a provider id restricts the
       result to that provider; passing `""` covers all.
+- [ ] Every `checkAuth`/`getAvailable` case in upstream's `test/oauth-auth.test.ts`
+      (+67/- in range) is represented by a Go test in this PR or explicitly
+      dispositioned in the PR body. This file's types/`Check` cases belong to
+      [issue 01](/epic-6-auth-core-and-env-api-key-bindings/issues/01-auth-contract-surface.md)
+      and its expiry-window cases to
+      [issue 04](/epic-6-auth-core-and-env-api-key-bindings/issues/04-oauth-refresh-window.md) —
+      do not duplicate either here.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.
@@ -165,7 +172,10 @@ binding's implementation nil.
   (`AuthCheck`, `AuthType`, `APIKeyAuth.Check`),
   [issue 03](/epic-6-auth-core-and-env-api-key-bindings/issues/03-provider-scoped-apikey-resolution.md)
   (`ResolveProviderAuth`'s signature).
-- **Blocks**: [Issue 09](/epic-6-auth-core-and-env-api-key-bindings/issues/09-copilot-model-availability.md)
+- **Blocks**: [Issue 06](/epic-6-auth-core-and-env-api-key-bindings/issues/06-models-login-logout.md)
+  — both issues rewrite the `Models` interface and `modelsImpl` in
+  `ai/provider.go`; land this issue first and have issue 06 rebase onto it.
+  [Issue 09](/epic-6-auth-core-and-env-api-key-bindings/issues/09-copilot-model-availability.md)
   needs `FilterModels` to exist before it can decide whether Copilot implements it.
 - Also touches `ai/provider.go`, which
   [Epic 2 issues 05/08/09](/epic-2-core-types-and-models-contracts/issues/index.md)
