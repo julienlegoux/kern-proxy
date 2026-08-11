@@ -3,13 +3,14 @@ type: Issue
 title: "Repair the Epic 7 issues: the postForm contract, the callbackHost rename, and the picker order"
 description: "Give postForm a signature that can produce the error strings two issues pin, put codex.go in the callbackHost rename's blast radius, fix the login-picker order, and require provenance headers on the four ported test files."
 tags: [epic-0]
-timestamp: 2026-08-10T03:10:00Z
+timestamp: 2026-08-11T13:10:00Z
 epic: 0
 issue: 10
 slug: repair-the-epic-7-issue-set
 size: M
-status: open
+status: pr-open
 gh_issue: 208
+gh_pr: 224
 resource: https://github.com/kern-ia/kern-link/issues/208
 depends_on: [9]
 ---

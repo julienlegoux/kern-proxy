@@ -3,7 +3,7 @@ type: Issue
 title: "Offer every registered OAuth provider in pi-ai login, using each flow's login label"
 description: "Replace cmd/pi-ai's hardcoded three-entry login list with one derived from the provider registry's OAuth strategies, add Radius against its default gateway, and show LoginLabel where a flow sets one."
 tags: [epic-7]
-timestamp: 2026-08-09T13:40:00Z
+timestamp: 2026-08-11T13:00:00Z
 epic: 7
 issue: 05
 slug: cli-login-new-flows
@@ -51,6 +51,14 @@ registry supplies it and this branch should go. Do not invent a gateway flag
 or environment variable to go with it — upstream has neither, and a CLI
 surface this epic invents is a surface epic 8 has to keep.
 
+**This is an assumption against `EPIC_7.md:41-43`**, which puts the `radius`
+provider binding "and its gateway config" in epic 8. `defaultRadiusGateway`
+is a single hardcoded constant, not a gateway configuration surface, and
+`EPIC_7.md:53` (acceptance criterion 4) cannot be met without it — there is no
+other way to offer a working Radius login from this epic alone. Taken because
+the alternative is failing an acceptance criterion this epic owns; recorded
+here so an auditor does not have to re-derive why it is fine.
+
 `LoginLabel` is what the picker shows when a flow sets one
 (`Sign in with SuperGrok or X Premium`, `Sign in with Kimi Code`,
 `Sign in with OpenRouter`), falling back to `Name` for the flows that do not
@@ -71,11 +79,14 @@ say so in the PR body rather than reintroducing the hand-rolled
   - Replace `oauthProviders()`'s literal list with derivation from the
     provider registry (`ai/providers`' `Models()`/provider list — use whatever
     accessor `runLogin`'s caller already has rather than constructing a second
-    registry), filtered on `Auth.OAuth != nil` and sorted by id.
+    registry), filtered on `Auth.OAuth != nil`.
   - Append the Radius entry from `oauth.RadiusOAuth(oauth.RadiusOAuthOptions{
     Name: "Radius", Gateway: defaultRadiusGateway})`, with
     `defaultRadiusGateway = "https://radius.pi.dev"` declared here and a
-    comment naming epic 8 as its removal trigger.
+    comment naming epic 8 as its removal trigger. **Then sort the whole list
+    by id** — appending Radius before sorting, rather than after, is what
+    makes the fix survive epic 8 removing the special case: Radius lands in
+    alphabetical position instead of always last.
   - Picker labels: `LoginLabel` when non-empty, else `Name`. The **id** stays
     what `pi-ai login <id>` accepts and what keys the credential store.
   - The unknown-id error keeps its current shape and now lists what is

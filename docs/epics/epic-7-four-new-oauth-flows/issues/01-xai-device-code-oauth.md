@@ -3,7 +3,7 @@ type: Issue
 title: "Port the xAI device-code OAuth flow and bind it to the xai provider"
 description: "Port src/auth/oauth/xai.ts as ai/auth/oauth/xai.go over the existing device-code poller, add the shared form-POST helper the other three flows reuse, and give the xai binding an OAuth strategy."
 tags: [epic-7]
-timestamp: 2026-08-09T13:40:00Z
+timestamp: 2026-08-11T13:00:00Z
 epic: 7
 issue: 01
 slug: xai-device-code-oauth
@@ -25,8 +25,8 @@ plumbing they all need.
 
 It is a plain RFC 8628 device grant against `https://auth.x.ai`, driven
 entirely by the poller already in `ai/auth/oauth/devicecode.go`
-(`PollDeviceCodeFlow`, ported in epic 12 and already consumed by the Copilot
-and Codex flows). Everything upstream writes around
+(`PollDeviceCodeFlow`, already consumed by the Copilot and Codex flows).
+Everything upstream writes around
 `pollOAuthDeviceCodeFlow` — the pending / `slow_down` / `expired_token` /
 `access_denied` mapping — maps onto `DeviceCodePollResult` one for one.
 
@@ -73,12 +73,15 @@ That doubling is upstream's; do not compensate for it here.
 ## Scope
 
 - `ai/auth/oauth/token.go` — add `postForm(ctx, url string, fields url.Values)
-  (int, map[string]any, error)`: `Accept: application/json`,
+  (int, []byte, map[string]any, error)`: `Accept: application/json`,
   `Content-Type: application/x-www-form-urlencoded`, the existing
-  `postJSONTimeout`, the existing `httpClient` var, and a decoded body on
-  **every** status. A body that is not a JSON object decodes to an empty map,
-  matching upstream's `parsed && typeof parsed === "object" && !Array.isArray`
-  guard. Comment why it exists beside `PostJSON` rather than replacing it.
+  `postJSONTimeout`, the existing `httpClient` var, and the raw response body
+  alongside its decoded form on **every** status — the `[: <body>]` error
+  suffixes [issue 02](/epic-7-four-new-oauth-flows/issues/02-kimi-coding-device-code-oauth.md)
+  pins need the raw bytes, which a decoded-only map cannot recover. A body
+  that is not a JSON object decodes to an empty map, matching upstream's
+  `parsed && typeof parsed === "object" && !Array.isArray` guard. Comment why
+  it exists beside `PostJSON` rather than replacing it.
 - `ai/auth/oauth/xai.go` (new) — `// Ports: packages/ai/src/auth/oauth/xai.ts`:
   - Constants, verbatim from upstream: client id
     `b1a00492-073a-47ea-816f-4c329264a828`; scope
@@ -112,9 +115,10 @@ That doubling is upstream's; do not compensate for it here.
   - `toAuth`: `ai.ModelAuth{APIKey: credential.Access}`.
   - The exported strategy `XaiOAuth *ai.OAuthAuth` with
     `Name: "xAI (Grok/X subscription)"`, `IsSubscription: true`,
-    `LoginLabel: "Sign in with SuperGrok or X Premium"` — the two fields
+    `LoginLabel: "Sign in with SuperGrok or X Premium"` —
     [epic 6 issue 01](/epic-6-auth-core-and-env-api-key-bindings/issues/01-auth-contract-surface.md)
-    lands unused for exactly this.
+    already sets `IsSubscription` on the Anthropic, Copilot and Codex flows;
+    `LoginLabel` is the field it lands unused, for exactly this.
 - `ai/providers/xai.go` — add `OAuth: oauth.XaiOAuth` to the binding's
   `ai.ProviderAuth`, keeping `APIKey` (upstream declares both at `936aff00`).
 - `ai/auth/oauth/xai_test.go` (new) — the port of
@@ -170,14 +174,17 @@ That doubling is upstream's; do not compensate for it here.
 - [ ] `TestXAIProviderDeclaresBothAuthMethods` in `ai/providers` — the binding
       exposes a non-nil `APIKey` **and** a non-nil `OAuth` whose `LoginLabel`
       is `Sign in with SuperGrok or X Premium`.
-- [ ] `postForm` has at least one direct test proving it returns the decoded
-      body on a 4xx instead of erroring — the property the poll state machine
-      depends on.
+- [ ] `postForm` has at least one direct test proving it returns both the raw
+      response bytes and the decoded body on a 4xx instead of erroring — the
+      property the poll state machine and the `[: <body>]` error suffixes
+      [issue 02](/epic-7-four-new-oauth-flows/issues/02-kimi-coding-device-code-oauth.md)
+      pins both depend on.
 - [ ] Every test is offline, stdlib-only (`testing` + `net/http/httptest`), has
       no `t.Parallel()` and no build tag, and is a discrete named function
       (`CONVENTIONS.md`, "Testing").
 - [ ] `// Ports: packages/ai/src/auth/oauth/xai.ts` header on `xai.go`, after
-      the `package` clause.
+      the `package` clause, and `// Ports: packages/ai/test/xai-oauth.test.ts`
+      on `xai_test.go`.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.
@@ -188,7 +195,7 @@ That doubling is upstream's; do not compensate for it here.
 - `ai/auth/oauth/devicecode.go` — `PollDeviceCodeFlow`,
   `DeviceCodePollOptions`, `DeviceCodePollResult`, and the `deviceCodeSleep`
   var tests fast-forward instead of sleeping.
-- `ai/auth/oauth/token.go:24` `httpClient`, `:26` `clock`, `:29` `PostJSON` —
+- `ai/auth/oauth/token.go:22` `httpClient`, `:26` `clock`, `:31` `PostJSON` —
   where `postForm` lands.
 - `ai/auth/oauth/copilot.go:233` — the existing `PollDeviceCodeFlow` call site
   to copy the shape from; `:378` — the `ai.AuthEvent` notify shape.

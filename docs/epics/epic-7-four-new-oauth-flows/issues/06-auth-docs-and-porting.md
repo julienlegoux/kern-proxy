@@ -3,7 +3,7 @@ type: Issue
 title: "Document the four new flows in docs/auth.md and disposition their files in docs/PORTING.md"
 description: "Extend docs/auth.md's OAuth table and its terms-of-service section with a per-flow treatment for radius, openrouter, kimi-coding and xai, and give each ported file its row in docs/PORTING.md."
 tags: [epic-7]
-timestamp: 2026-08-11T12:30:00Z
+timestamp: 2026-08-11T13:00:00Z
 epic: 7
 issue: 06
 slug: auth-docs-and-porting
@@ -141,6 +141,12 @@ paths first guarantees a conflict and, worse, a table that is half-migrated.
       four flow files, and `git grep -l "// Ports: packages/ai/src/auth/oauth"
       ai/auth/oauth` lists all four new Go files — the header and the table
       agreeing is the point.
+- [ ] `git grep -c "// Ports: packages/ai/test/.*-oauth.test.ts" ai/auth/oauth`
+      shows a matching test-file header for each of the four ported test
+      files (`xai_test.go`, `kimicoding_test.go`, `openrouter_test.go`,
+      `radius_test.go`) and a `docs/PORTING.md` row for each — by
+      construction the previous bullet's `src/auth/oauth` grep cannot match a
+      test file, so this is a separate check.
 - [ ] The `radius-config.ts` row names `normalizeRadiusGatewayUrl` as the
       only symbol ported and names epic 8 for the remainder.
 - [ ] No stale claim survives: `grep -n "Three providers support OAuth"

@@ -3,7 +3,7 @@ type: Epic
 title: "Four new OAuth flows"
 description: "Port the radius, openrouter, kimi-coding and xai OAuth flows with their upstream tests, their terms-of-service documentation, and CLI login wiring."
 tags: [epic]
-timestamp: 2026-08-09T03:55:05Z
+timestamp: 2026-08-11T13:00:00Z
 epic: 7
 slug: four-new-oauth-flows
 status: open
@@ -40,7 +40,12 @@ changed" with nothing to change them against.
 
 - The auth core these flows sit on — epic 6.
 - The `radius` **provider binding** and its gateway config, which depend on this
-  epic's radius flow — epic 8.
+  epic's radius flow — epic 8. Exception:
+  [issue 05](/epic-7-four-new-oauth-flows/issues/05-cli-login-new-flows.md)
+  declares a single hardcoded `defaultRadiusGateway` constant in
+  `cmd/pi-ai/oauth.go` — not a configuration surface — so this epic's own
+  acceptance criterion 4 can be met without epic 8; the comment there names
+  epic 8 as its removal trigger.
 - Compatibility shims for the v0.2.0 breaks.
 
 ## Acceptance criteria
@@ -80,4 +85,9 @@ which needs the radius flow.
   logger, tests offline and stdlib-only (`testing` + `net/http/httptest`, no
   `testify`, no build tags, no `t.Parallel()`); live tests gate at runtime with
   `t.Skip`.
+- `## Out of scope`'s radius provider-binding bullet carries one narrow
+  exception, added by [Epic 0 issue 10](/epic-0-plan-remediation/issues/10-repair-the-epic-7-issue-set.md):
+  [issue 05](/epic-7-four-new-oauth-flows/issues/05-cli-login-new-flows.md)
+  declares a single hardcoded gateway constant so acceptance criterion 4 is
+  meetable without epic 8.
 - Upstream target frozen at `936aff00`.
