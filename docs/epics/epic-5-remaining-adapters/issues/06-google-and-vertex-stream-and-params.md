@@ -3,7 +3,7 @@ type: Issue
 title: "google + vertex: pending and raw stop reasons, toolConfig wiring, and the max thinking level"
 description: "Start both Google streams at pending, surface the raw Gemini finish reason in the error text, emit toolConfig from the resolved function-calling mode, and clamp the new max thinking level."
 tags: [epic-5]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 5
 issue: 06
 slug: google-and-vertex-stream-and-params
@@ -164,5 +164,9 @@ same review twice.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~450 changed lines: two +38 upstream diffs whose four hunks apply twice,
+to `google.go` (452 lines) and `vertex.go` (472 lines), plus the once-only
+`stream.go` `RawStopReason` change and eight named tests across two packages.
+Split past ~500, and the seam is the stop-reason lifecycle versus the
+`toolConfig` and thinking-clamp wiring. Splitting Google from Vertex is *not*
+the seam — that is the duplicated review this issue was merged to avoid.

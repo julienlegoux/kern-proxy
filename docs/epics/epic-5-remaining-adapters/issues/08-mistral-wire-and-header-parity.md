@@ -3,7 +3,7 @@ type: Issue
 title: "mistral: request-shape and header parity with the SDK-free upstream client"
 description: "Send prefix and tool-call index on assistant replay, make x-affinity suppression case-insensitive across model and request headers, apply a default request timeout, and stop assuming streamed content parts are non-null."
 tags: [epic-5]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 5
 issue: 08
 slug: mistral-wire-and-header-parity
@@ -198,5 +198,10 @@ entry that replaces the stale reason.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~450 changed lines: four wire and header behaviors plus the `statusError`
+text re-check, spread over `mistral.go`, `messages.go` and `stream.go`, with
+seven named tests and six ported cases from the new 427-line
+`mistral-http-transport.test.ts`. This sits at the top of M rather than in L
+because two of the four behaviors are verification-only. Split past ~500, and
+the seam is the message-shape half (`prefix`, tool-call `index`) versus the
+transport half (case-insensitive `x-affinity`, the 60s timeout, nil-safety).

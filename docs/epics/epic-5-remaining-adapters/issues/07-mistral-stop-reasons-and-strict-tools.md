@@ -3,7 +3,7 @@ type: Issue
 title: "mistral: pending and raw stop reasons with provider-stopped error text, and strict tool sampling"
 description: "Stop silently mapping unknown Mistral finish reasons to stop, start the stream at pending, record the raw finish reason, and resolve per-tool strict JSON-schema sampling."
 tags: [epic-5]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 5
 issue: 07
 slug: mistral-stop-reasons-and-strict-tools
@@ -167,5 +167,9 @@ This issue covers the two behavioral changes:
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~300 changed lines: the epic's largest upstream diff (+423) is misleading
+here, since roughly 300 of those lines are upstream hand-rolling transport
+kern-link already has. The Go work is `mapChatStopReason`'s new return shape,
+`toFunctionTools`' per-tool strict resolution, two decoder hunks and the pending
+guard, plus five named tests and four ported upstream cases. Split past ~500,
+and the seam is stop reasons versus strict tools.

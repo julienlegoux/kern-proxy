@@ -3,11 +3,11 @@ type: Issue
 title: "bedrock: profile precedence over ambient keys, apiKey as a bearer token, and the response-failure diagnostic"
 description: "Let an explicitly configured AWS profile win over ambient access keys, accept options.apiKey as a Bedrock bearer token, and attach a structured bedrock_response_failure diagnostic without touching errorMessage."
 tags: [epic-5]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 5
 issue: 10
 slug: bedrock-credentials-and-diagnostics
-size: M
+size: L
 status: open
 gh_issue: 168
 resource: https://github.com/kern-ia/kern-link/issues/168
@@ -191,5 +191,13 @@ named upstream failure behind them.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`L` — ~600 changed lines: `errors.go` gains three net-new helpers with no Go
+base (`normalizeDiagnosticValue`, `extractBedrockErrorCode`,
+`appendBedrockFailureDiagnostic`), and the ported coverage is 327 lines of
+upstream test — nine `bedrock-error-metadata.test.ts` cases plus three
+`bedrock-credentials.test.ts` cases — behind ten named acceptance criteria, so
+REPORT_5's re-check flag is upheld and this moves up from `M`. `L` is the
+ceiling, not the target: the diagnostic is unobservable until `run` captures the
+response request id before the send, so the builder and its call site have to
+land together; past ~1000 the honest cut is credentials first, diagnostic
+second.
