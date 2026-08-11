@@ -3,7 +3,7 @@ type: Issue
 title: "Bring ai/catalog validation up to the 0.84.1 schema, and make unknown catalog keys fail loudly"
 description: "Extend the per-api compat field map to the 0.84.1 interfaces, add invariants for tiers and the widened thinking levels, and turn silently-dropped catalog keys into a test failure."
 tags: [epic-3]
-timestamp: 2026-08-09T04:52:00Z
+timestamp: 2026-08-11T14:20:00Z
 epic: 3
 issue: 03
 slug: catalog-validation-0-84-1
@@ -46,6 +46,9 @@ regeneration instead, because the load-bearing principle behind that order is
 fails validation at load" — and this validation code is exactly such code.
 Landing it after the data would mean merging a red PR. Same principle, one
 position earlier.
+[EPIC_3.md](/epic-3-catalog-schema-and-export-tooling/EPIC_3.md)'s `## Scope` was
+amended to this order and names this issue as the reason; decision 05 keeps its
+original wording until the planning bundle is next touched.
 
 ## Scope
 
@@ -68,29 +71,43 @@ position earlier.
     sharing the `openai-responses` field set — upstream's `Model<TApi>` at
     `936aff00` widened the responses compat arm to cover all three
     (`src/types.ts:814-818`). Share one set rather than copying it three times.
-- Add a strict-decode sweep: for every `data/models/*.json` and
+- Add a strict-decode sweep — the **one** invariant this issue carries, and the
+  one [EPIC_3.md](/epic-3-catalog-schema-and-export-tooling/EPIC_3.md)'s
+  `## Scope` authorizes by name: for every `data/models/*.json` and
   `data/images/*.json` file, decode with `json.Decoder.DisallowUnknownFields`
   and fail naming the file, the model id, and the unclaimed key. This is a test,
   not a change to `load()` — `load()` stays lenient so a future catalog cannot
   panic a consumer's process at init.
-- Add catalog invariants for the new schema, as tests over the embedded tree:
-  - `ModelCost.Tiers`, when present, has strictly increasing distinct
-    `InputTokensAbove` values, all `> 0`, and non-negative rates
-    (structs from epic 2
-    [issue 03](/epic-2-core-types-and-models-contracts/issues/03-tiered-model-cost.md)).
-  - Every `ThinkingLevelMap` key is a known `ai.ModelThinkingLevel`, including
-    the new `"max"` (epic 2
-    [issue 01](/epic-2-core-types-and-models-contracts/issues/01-widen-stopreason-and-thinkinglevel.md)).
-  - Every entry's `Api` is one of the nine `ai.Api` constants — an unknown api
-    string today decodes fine and then fails much later, at adapter dispatch.
-  - Every entry's `Provider` matches the filename it came from, and its `ID` is
-    unique within that file.
-- Extend the same sweep to the image catalog via `catalog.ImagesData` (raw
+- Extend that same sweep to the image catalog via `catalog.ImagesData` (raw
   bytes, so `ai/catalog` still never imports `ai/images` — see
-  `ai/catalog/images.go:1-8`).
+  `ai/catalog/images.go:1-8`). It is owned here and only here;
+  [issue 05](/epic-3-catalog-schema-and-export-tooling/issues/05-regenerate-image-catalog.md)
+  reuses the helper rather than adding a second sweep.
 
 ## Out of scope
 
+- **The five further catalog invariants this issue used to carry**, moved off
+  the critical path rather than dropped:
+  - `ModelCost.Tiers`, when present, having strictly increasing distinct
+    `InputTokensAbove` values, all `> 0`, with non-negative rates (structs from
+    epic 2
+    [issue 03](/epic-2-core-types-and-models-contracts/issues/03-tiered-model-cost.md)).
+  - Every `ThinkingLevelMap` key being a known `ai.ModelThinkingLevel`,
+    including the new `"max"` (epic 2
+    [issue 01](/epic-2-core-types-and-models-contracts/issues/01-widen-stopreason-and-thinkinglevel.md)).
+  - Every entry's `Api` being one of the nine `ai.Api` constants.
+  - Every entry's `Provider` matching the filename it came from.
+  - Every entry's `ID` being unique within its file.
+
+  They are defensible hardening, but `EPIC_3.md`'s acceptance criteria ask only
+  that the regenerated tree load and validate, and this issue **blocks
+  [issue 04](/epic-3-catalog-schema-and-export-tooling/issues/04-regenerate-model-catalog.md)** —
+  so carrying them here puts optional work on the path that gates the epic's
+  required regeneration. File them as a follow-up issue after the regeneration
+  lands, where they can be written against the real 39-provider tree instead of
+  the 35-file one. The strict-decode guard is the exception and stays, because it
+  is the one that serves the "silent capability drop" risk the epic's `## Notes`
+  are about — and `EPIC_3.md`'s `## Scope` now says so by name.
 - Adding the `ai.Compat` fields themselves — epic 2
   [issue 04](/epic-2-core-types-and-models-contracts/issues/04-compat-flags-and-bedrock-compat.md)
   ships them; this PR only teaches the catalog which api owns which.
@@ -116,17 +133,18 @@ position earlier.
       `azure-openai-responses`, `openai-codex-responses`.
 - [ ] `TestValidateCompatForApi_RejectsFieldsNotOwnedByApi` grows a case for at
       least one newly added flag per api arm.
-- [ ] `TestCatalogRejectsUnknownKeys` — every embedded `data/**/*.json` decodes
-      with `DisallowUnknownFields`; the failure message names file, model id and
-      key. Verify it actually fails by adding a bogus key to a temp copy of one
-      file in the test, not by trusting the happy path.
-- [ ] `TestCatalogTierThresholdsStrictlyIncrease` — passes vacuously against
-      today's tier-free catalog, and is proven to fire against a hand-built
-      `ai.ModelCost` with out-of-order thresholds.
-- [ ] `TestCatalogThinkingLevelKeysKnown` accepts `"max"` and rejects an
-      invented level.
-- [ ] `TestCatalogApiIsKnown` and `TestCatalogProviderMatchesFilename` pass over
-      all 35 currently embedded files.
+- [ ] `TestCatalogRejectsUnknownKeys` — every embedded `data/**/*.json`, models
+      and images alike, decodes with `DisallowUnknownFields`; the failure message
+      names file, model id and key. Verify it actually fails by adding a bogus
+      key to a temp copy of one file in the test, not by trusting the happy path.
+      The images half goes through `catalog.ImagesData`'s raw bytes, and this is
+      the **only** strict-decode sweep over
+      `ai/catalog/data/images/openrouter.json` in the epic — issue 05 reuses the
+      helper this test exposes and adds no second sweep.
+- [ ] No other catalog invariant ships in this PR: `git grep -n
+      'func TestCatalog'` adds exactly `TestCatalogRejectsUnknownKeys` to the
+      existing set. The five deferred invariants are listed in `## Out of scope`
+      and belong to a follow-up that does not gate issue 04.
 - [ ] `git diff --stat ai/catalog/data` is empty in this PR.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./ai/catalog/...` passes; then
       `GOTMPDIR=$PWD/.gotmp go test ./...`; CI green (`go test ./... -race -v`,
@@ -172,7 +190,10 @@ position earlier.
   a declared dependency of this epic.
 - **Blocks**: [Issue 04](/epic-3-catalog-schema-and-export-tooling/issues/04-regenerate-model-catalog.md)
   — the regenerated tree carries the new compat keys and cannot go green before
-  this lands.
+  this lands — and
+  [Issue 05](/epic-3-catalog-schema-and-export-tooling/issues/05-regenerate-image-catalog.md),
+  which declares `depends_on: [2, 3]` and reuses the strict-decode helper this
+  PR exposes.
 
 ## PR size note
 
