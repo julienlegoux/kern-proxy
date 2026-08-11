@@ -3,7 +3,7 @@ type: Issue
 title: "Regenerate the embedded model catalog from upstream 936aff00 (35 to 39 provider files)"
 description: "Run the reworked export tool against the frozen upstream revision, replace ai/catalog/data/models wholesale, and prove the regenerated tree loads and validates."
 tags: [epic-3]
-timestamp: 2026-08-09T04:52:00Z
+timestamp: 2026-08-11T14:20:00Z
 epic: 3
 issue: 04
 slug: regenerate-model-catalog
@@ -48,7 +48,14 @@ generated. Review it as a shape check, not line by line.
   disappeared; none is expected).
 - Record the exact inputs in the PR body so the run is reproducible-ish despite
   the network dependency: upstream SHA, the date of the generator run, and the
-  upstream generator command used.
+  upstream generator command used. **This PR and
+  [issue 05](/epic-3-catalog-schema-and-export-tooling/issues/05-regenerate-image-catalog.md)
+  share one generator run** — the tool writes both trees in a single invocation —
+  so that SHA, date and command are recorded *identically* in both PR bodies. Two
+  different dates in the two bodies means the trees came from two fetches of live
+  third-party data and the pair is inconsistent. Neither PR waits on the other —
+  each commits only its own half of the run, and whichever lands second must not
+  need a second invocation to do it.
 - Add a test asserting the catalog's provider set matches the expected 39, so a
   future regeneration that silently drops a provider fails instead of shrinking
   quietly.
@@ -79,9 +86,16 @@ generated. Review it as a shape check, not line by line.
 - [ ] `TestCatalogProviderSetIsExpected` — `catalog.Providers()` equals that
       39-entry list exactly, failing with the set difference (missing / extra)
       rather than a length mismatch.
-- [ ] Every test issue 03 added passes against the **regenerated** tree, not
-      just the old one: no unknown keys, every `Api` known, every provider
-      matching its filename, tier thresholds ordered, thinking-level keys known.
+- [ ] `TestCatalogRejectsUnknownKeys` — issue 03's strict-decode sweep — passes
+      against the **regenerated** tree, not just the old one. That is the whole
+      validation surface issue 03 ships; the five further invariants it once
+      carried are deferred to a follow-up (`issue 03`'s `## Out of scope`) and
+      are not gates on this PR.
+- [ ] `git diff --stat ai/catalog/data/images` is empty in this PR. One tool
+      invocation writes both catalog trees, so the images half must be split off
+      and left to
+      [issue 05](/epic-3-catalog-schema-and-export-tooling/issues/05-regenerate-image-catalog.md)
+      — the same discipline issue 02 applies to `ai/catalog/data` as a whole.
 - [ ] `TestCatalogCompatMatchesApi` passes over all 39 files.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./ai/catalog/... ./ai/providers/...` passes —
       `ai/providers` in particular, since `catalog.BuiltinModels("<id>")` feeds

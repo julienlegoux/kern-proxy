@@ -3,7 +3,7 @@ type: Issue
 title: "Rework tools/export-catalog to consume upstream's generated JSON catalog"
 description: "Replace the TypeScript-import input path with upstream's JSON catalog output, and document the regeneration procedure honestly now that it is no longer reproducible from the pinned SHA alone."
 tags: [epic-3]
-timestamp: 2026-08-09T04:52:00Z
+timestamp: 2026-08-11T14:20:00Z
 epic: 3
 issue: 02
 slug: export-catalog-json-input
@@ -54,8 +54,11 @@ record wins.
     `await import(models.generated.ts)`. Default to
     `${UPSTREAM_CLONE_DIR}/.artifacts/model-catalog` (upstream's
     `generate-model-catalog` destination is `../../.artifacts/model-catalog`,
-    i.e. the upstream repo root), overridable with an explicit
-    `MODEL_CATALOG_DIR` env var or a positional argument.
+    i.e. the upstream repo root). **Derive it from `UPSTREAM_CLONE_DIR` and stop
+    there** — no second env var and no positional argument. The existing
+    `UPSTREAM_CLONE_DIR` seam (`tools/export-catalog/export-catalog.ts:22`)
+    already points the tool at any checkout, so a second knob would be a new
+    configuration surface the epic never asked for.
   - Write `ai/catalog/data/models/<provider>.json` from `Object.values()` of
     each provider file, preserving the existing serialization exactly:
     tab-indented, trailing newline, `clearDir` first so a removed provider
@@ -75,10 +78,17 @@ record wins.
   "re-run `tools/export-catalog` and the catalog tests; no Go code changes".
   Spell out the real procedure: generate upstream's JSON catalog first, then run
   the export tool.
-- `docs/planning/SPECS.md` — the one-sentence description of
-  `tools/export-catalog` under "Stack" and the "The model catalog is not
-  hand-maintained" paragraph under "Data model & storage", if the finding
-  contradicts them.
+- Where the finding contradicts `docs/planning/SPECS.md` — its one-sentence
+  description of `tools/export-catalog` under "Stack", or the "The model catalog
+  is not hand-maintained" paragraph under "Data model & storage" — **do not edit
+  SPECS.md in this PR**. Extend
+  [issue 01](/epic-3-catalog-schema-and-export-tooling/issues/01-export-catalog-spike.md)'s
+  drift record, or add a second one under
+  `docs/epics/epic-3-catalog-schema-and-export-tooling/drift/`, naming the exact
+  sentence and what is true instead. `close-epic` promotes it to
+  `docs/planning/DRIFT.md`, where the user dispositions it; a planning-doc edge
+  triaged inside an implementation PR is the thing that mechanism exists to
+  prevent.
 
 ## Out of scope
 
@@ -104,6 +114,13 @@ record wins.
       `ai/catalog/data/images/`, and prints the provider counts.
 - [ ] Running it with no catalog directory present exits non-zero with a message
       naming both the missing path and the upstream command that produces it.
+- [ ] The catalog directory is derived from `UPSTREAM_CLONE_DIR` alone — the
+      tool reads no second environment variable and takes no positional
+      argument. `git grep -nE '\bprocess\.(env|argv)\b' tools/export-catalog/`
+      shows `UPSTREAM_CLONE_DIR` and nothing else.
+- [ ] `git diff --name-only` lists nothing under `docs/planning/`; any
+      contradiction with SPECS.md is recorded under the epic's `drift/` folder
+      instead.
 - [ ] Re-running the tool against the **current** pin (`244f1dea`, with its
       catalog generated) leaves `git status --porcelain ai/catalog/data` empty —
       the output format is unchanged, so this PR is provably data-neutral.
@@ -126,7 +143,8 @@ record wins.
 - `ai/catalog/data/models/*.json` (35 files today) and
   `ai/catalog/data/images/openrouter.json` — output targets, untouched here.
 - `docs/PORTING.md:58`, `:110-128`.
-- `docs/planning/SPECS.md` — "Stack" and "Data model & storage".
+- Read-only: `docs/planning/SPECS.md` — "Stack" and "Data model & storage". Not
+  edited here; a contradiction becomes a drift record.
 - Upstream at `936aff00`: `packages/ai/package.json` `scripts`
   (`generate-model-catalog` → `--strict --json-only --json-output
   ../../.artifacts/model-catalog`), `packages/ai/scripts/generate-models.ts`
