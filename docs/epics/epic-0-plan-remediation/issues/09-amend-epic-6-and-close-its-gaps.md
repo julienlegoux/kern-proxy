@@ -3,12 +3,12 @@ type: Issue
 title: "Amend EPIC_6.md to absorb the work its issues build, and close Epic 6's ownership and dependency gaps"
 description: "Add the four upstream files four Epic 6 issues build to EPIC_6.md's scope, declare the two undeclared conflicts, give acceptance criteria 2, 4 and 5 owners, and fix the three internal inconsistencies."
 tags: [epic-0]
-timestamp: 2026-08-11T13:20:00Z
+timestamp: 2026-08-11T16:00:00Z
 epic: 0
 issue: 09
 slug: amend-epic-6-and-close-its-gaps
 size: M
-status: pr-open
+status: done
 gh_issue: 207
 gh_pr: 221
 resource: https://github.com/kern-ia/kern-link/issues/207

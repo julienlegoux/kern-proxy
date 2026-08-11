@@ -19,6 +19,9 @@
 * **Completed**: [Issue 02: Adopt the six orphaned scope items, or record each as out of scope with a reason](/epic-0-plan-remediation/issues/02-adopt-the-orphaned-scope-items.md) (#200) moved to `done` — [PR #219](https://github.com/kern-ia/kern-link/pull/219) merged into `develop` 2026-08-11.
 * **Started**: [Issue 09: Amend EPIC_6.md to absorb the work its issues build, and close Epic 6's ownership and dependency gaps](/epic-0-plan-remediation/issues/09-amend-epic-6-and-close-its-gaps.md) (#207) moved to `in-progress` on branch `issue-09-epic0-epic6-recheck`.
 * **PR opened**: [Issue 09: Amend EPIC_6.md to absorb the work its issues build, and close Epic 6's ownership and dependency gaps](/epic-0-plan-remediation/issues/09-amend-epic-6-and-close-its-gaps.md) (#207) — [PR #221](https://github.com/kern-ia/kern-link/pull/221), targeting `develop`.
+* **Completed**: [Issue 04: Repair the Epic 2 issue set: the criterion Go cannot satisfy, the missing edge, and the duplicated ownership](/epic-0-plan-remediation/issues/04-repair-the-epic-2-issue-set.md) (#202) moved to `done` — [PR #222](https://github.com/kern-ia/kern-link/pull/222) merged into `develop` 2026-08-11.
+* **Completed**: [Issue 07: Repair the Epic 4 issue set: provenance, the undeclared cross-epic blockers, and the renamed section heading](/epic-0-plan-remediation/issues/07-repair-the-epic-4-issue-set.md) (#205) moved to `done` — [PR #220](https://github.com/kern-ia/kern-link/pull/220) merged into `develop` 2026-08-11.
+* **Completed**: [Issue 09: Amend EPIC_6.md to absorb the work its issues build, and close Epic 6's ownership and dependency gaps](/epic-0-plan-remediation/issues/09-amend-epic-6-and-close-its-gaps.md) (#207) moved to `done` — [PR #221](https://github.com/kern-ia/kern-link/pull/221) merged into `develop` 2026-08-11.
 
 ## 2026-08-10
 
