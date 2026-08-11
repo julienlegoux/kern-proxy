@@ -38,6 +38,7 @@
 * **Completed**: [Issue 12: Repair the Epic 9 issue set: the checker's file set, the classifier row count, and the release escape hatch](/epic-0-plan-remediation/issues/12-repair-the-epic-9-issue-set.md) (#210) moved to `done` — [PR #227](https://github.com/kern-ia/kern-link/pull/227) merged into `develop` 2026-08-11.
 * **Completed**: [Issue 05: Pre-split Epic 2 issues 05 and 08 into reviewable halves](/epic-0-plan-remediation/issues/05-pre-split-epic-2-issues-05-and-08.md) (#203) moved to `done` — [PR #228](https://github.com/kern-ia/kern-link/pull/228) merged into `develop` 2026-08-11.
 * **Started**: [Issue 13: Rewrite the PR size note in every issue against its own band, and correct the mis-declared sizes](/epic-0-plan-remediation/issues/13-rewrite-the-pr-size-notes.md) (#211) moved to `in-progress` on branch `issue-211-rewrite-the-pr-size-notes`.
+* **PR opened**: [Issue 13: Rewrite the PR size note in every issue against its own band, and correct the mis-declared sizes](/epic-0-plan-remediation/issues/13-rewrite-the-pr-size-notes.md) (#211) moved to `pr-open` — [PR #229](https://github.com/kern-ia/kern-link/pull/229), targeting `develop`. Rewrites the size note in all 74 epic 1-9 issues, re-declares 11 sizes, and states the generated-catalog rule in `EPIC_3.md`.
 
 ## 2026-08-10
 
