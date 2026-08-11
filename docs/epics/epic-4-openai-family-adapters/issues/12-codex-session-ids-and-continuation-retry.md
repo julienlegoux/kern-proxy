@@ -3,7 +3,7 @@ type: Issue
 title: "openai-codex-responses: cache-derived session ids, UUIDv7 request ids, and the missing-continuation retry"
 description: "Derive one clamped cache session id and use it everywhere, port utils/uuid.ts as the request-id source, retry once on previous_response_not_found, and record the connection-cache changes with no Go counterpart."
 tags: [epic-4]
-timestamp: 2026-08-09T05:17:46Z
+timestamp: 2026-08-11T12:30:00Z
 epic: 4
 issue: 12
 slug: codex-session-ids-and-continuation-retry
@@ -35,10 +35,12 @@ session id into transport-level bookkeeping.
 Two things ride along:
 
 - **`uuidv7`.** Upstream deleted `createCodexRequestId()` in favor of a new
-  `src/utils/uuid.ts` exporting `uuidv7()`, re-exported from `src/index.ts` — so
-  it is public API, not an internal helper. It is the WebSocket request id when
-  no session id exists. **No epic currently owns `utils/uuid.ts`**; it lands
-  here because Codex is its only in-repo consumer at `936aff00`. If
+  `src/utils/uuid.ts` exporting `uuidv7()`, re-exported from `src/index.ts:46`
+  at `936aff00` — so it is public API, not an internal helper. It is the
+  WebSocket request id when no session id exists. `EPIC_4.md`'s `## Scope`
+  **accepts `utils/uuid.ts` into this epic explicitly** and names this issue as
+  its owner; it lands here because `api/openai-codex-responses.ts` is its only
+  in-repo consumer under `packages/ai/src` at `936aff00`. If
   [Epic 8](/epic-8-pi-messages-and-radius/EPIC_8.md) needs it too, it will find
   it already ported.
 - **`previous_response_not_found`.** When the server rejects a continuation

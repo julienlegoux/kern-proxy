@@ -3,7 +3,7 @@ type: Issue
 title: "Document the four new flows in docs/auth.md and disposition their files in docs/PORTING.md"
 description: "Extend docs/auth.md's OAuth table and its terms-of-service section with a per-flow treatment for radius, openrouter, kimi-coding and xai, and give each ported file its row in docs/PORTING.md."
 tags: [epic-7]
-timestamp: 2026-08-09T13:40:00Z
+timestamp: 2026-08-11T12:30:00Z
 epic: 7
 issue: 06
 slug: auth-docs-and-porting
@@ -75,8 +75,11 @@ paths first guarantees a conflict and, worse, a table that is half-migrated.
     add short treatments for `openrouter` and `radius` that place them
     *outside* the subscription bucket, per the Summary's table. The existing
     "use API keys if you ship it" conclusion stands.
-  - `# Env API keys` (`:32`) — check the `openrouter`, `xai` and `kimi-coding`
-    rows still read correctly now that each has a second way in.
+  - `# Env API keys` (`:32-59`) — a **read-only** check that the `openrouter`,
+    `xai` and `kimi-coding` rows still read correctly now that each has a second
+    way in. The table itself belongs to
+    [epic 6 issue 11](/epic-6-auth-core-and-env-api-key-bindings/issues/11-porting-paths-and-dispositions.md);
+    if a row needs changing, say so in the PR body and let that issue change it.
 - `README.md:27` and `:125` — both enumerate the OAuth flows ("Claude Pro/Max,
   ChatGPT Plus/Pro, GitHub Copilot"). `SPECS.md` says the README carries this
   framing too, so update both lines rather than letting the README contradict
@@ -95,6 +98,16 @@ paths first guarantees a conflict and, worse, a table that is half-migrated.
 - `src/auth/oauth/load.ts`, `src/bun-oauth.ts`, `src/compat/extension-oauth-types.ts`,
   `src/utils/abort.ts` — [epic 6 issue 11](/epic-6-auth-core-and-env-api-key-bindings/issues/11-porting-paths-and-dispositions.md)
   owns those dispositions.
+- **`docs/auth.md`'s env-key table (`:34-59`) and its resolution-order section
+  (`:15-30`)** — also
+  [epic 6 issue 11](/epic-6-auth-core-and-env-api-key-bindings/issues/11-porting-paths-and-dispositions.md)
+  (#180), which lands before this issue. Epic 6 is what changes what those two
+  sections say (`ANTHROPIC_AUTH_TOKEN`'s precedence, four new bindings, the
+  per-field credential→env merge), so it writes them. This issue's one touch of
+  the table is the read-only check in `## Scope` that the `openrouter`, `xai`
+  and `kimi-coding` rows still read correctly now each has a second way in — if
+  a row needs *editing*, that is issue 11's row and this PR flags it rather than
+  changing it.
 - `src/providers/radius.ts` and the rest of `radius-config.ts` —
   [Epic 8](/epic-8-pi-messages-and-radius/EPIC_8.md).
 - The whole-repo disposition sweep — [Epic 9](/epic-9-classifier-audit-and-release/EPIC_9.md).

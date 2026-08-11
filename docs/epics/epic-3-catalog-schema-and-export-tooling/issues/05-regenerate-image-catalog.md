@@ -3,7 +3,7 @@ type: Issue
 title: "Regenerate the image catalog from upstream 936aff00 and cover its decode path"
 description: "Refresh ai/catalog/data/images/openrouter.json to the 42 image models upstream declares at the frozen revision, and prove ai/images decodes every entry."
 tags: [epic-3]
-timestamp: 2026-08-09T04:52:00Z
+timestamp: 2026-08-11T12:30:00Z
 epic: 3
 issue: 05
 slug: regenerate-image-catalog
@@ -69,12 +69,20 @@ the file is non-empty — it never decodes it.
   keeps env-key-only auth after this PR.
 - **The `getAuth` reshape.** Upstream's `images-models.ts` now overloads
   `getAuth(providerId | model, overrides)` on a new `AuthResolutionOverrides`
-  and drops the model argument from `resolveProviderAuth`. That is the auth
-  restructure ([decision 08](../../../planning/scope/08-auth-restructure.md),
-  [Epic 6](/epic-6-auth-core-and-env-api-key-bindings/EPIC_6.md));
-  `ai/images/provider.go:213-218` keeps its current signature here.
-- `ImagesOptions extends ProviderRequestOptions` and the `fetch` override — epic 2
-  [issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md).
+  and drops the model argument from `resolveProviderAuth`. The images half of it
+  is [issue 07](/epic-3-catalog-schema-and-export-tooling/issues/07-images-options-base-and-auth-overrides.md)
+  (#218) — **not** [Epic 6](/epic-6-auth-core-and-env-api-key-bindings/EPIC_6.md),
+  whose epic file never mentions `ai/images` and whose
+  [issue 10](/epic-6-auth-core-and-env-api-key-bindings/issues/10-env-api-key-bindings.md)
+  hands the images files back to this epic by name. (Issue 07 does take a
+  cross-epic edge on Epic 6 issues 03 and 06 for the shared shapes; that edge is
+  recorded there.) `ai/images/provider.go:213-219` keeps its current signature
+  here.
+- `ImagesOptions extends ProviderRequestOptions` and the `fetch` override —
+  [issue 07](/epic-3-catalog-schema-and-export-tooling/issues/07-images-options-base-and-auth-overrides.md)
+  (#218), which consumes the `ProviderRequestOptions` base
+  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  declares.
 - The model catalog (issue 04).
 
 ## Acceptance criteria / Definition of done

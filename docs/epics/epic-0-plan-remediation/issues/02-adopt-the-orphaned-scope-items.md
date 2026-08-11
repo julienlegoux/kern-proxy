@@ -3,13 +3,14 @@ type: Issue
 title: "Adopt the six orphaned scope items, or record each as out of scope with a reason"
 description: "Give an owning issue to the six pieces of work every epic defers to another epic that disclaims them — or an explicit, reasoned out-of-scope line."
 tags: [epic-0]
-timestamp: 2026-08-10T03:10:00Z
+timestamp: 2026-08-11T12:50:00Z
 epic: 0
 issue: 02
 slug: adopt-the-orphaned-scope-items
 size: M
-status: open
+status: pr-open
 gh_issue: 200
+gh_pr: 219
 resource: https://github.com/kern-ia/kern-link/issues/200
 depends_on: [1]
 ---

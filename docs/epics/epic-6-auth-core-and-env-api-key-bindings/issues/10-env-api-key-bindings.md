@@ -3,7 +3,7 @@ type: Issue
 title: "Bind baseten and the three qwen-token-plan providers"
 description: "Add the four new env-API-key provider bindings upstream shipped in range, each one EnvAPIKeyAuth over the openai-completions adapter, and register them in ai/providers/all.go."
 tags: [epic-6]
-timestamp: 2026-08-09T10:24:00Z
+timestamp: 2026-08-11T12:30:00Z
 epic: 6
 issue: 10
 slug: env-api-key-bindings
@@ -79,6 +79,12 @@ providers are empty until it does and say so in the PR body.
 - Any change to `auth.EnvAPIKeyAuth` itself —
   [issue 07](/epic-6-auth-core-and-env-api-key-bindings/issues/07-anthropic-auth-token.md)
   makes its one change (propagating a stored credential's `Env`).
+- **The four rows these bindings need in `docs/auth.md`'s env-key table
+  (`:34-59`)** — [issue 11](/epic-6-auth-core-and-env-api-key-bindings/issues/11-porting-paths-and-dispositions.md)
+  (#180) owns that table and lands last, so all of this epic's env changes are
+  written up once rather than four times. Named here because the table is
+  otherwise the kind of documentation that quietly stays wrong: this issue is
+  what makes it wrong.
 
 ## Acceptance criteria / Definition of done
 

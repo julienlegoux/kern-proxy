@@ -8,6 +8,10 @@
 * **Completed**: [Issue 03: Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type](/epic-0-plan-remediation/issues/03-repair-the-epic-1-issue-set.md) (#201) moved to `done` — [PR #215](https://github.com/kern-ia/kern-link/pull/215) merged into `develop` 2026-08-11.
 * **Completed**: [Issue 11: Repair the Epic 8 issues: provenance on ported tests, the unsatisfiable grep, and the two missing scope files](/epic-0-plan-remediation/issues/11-repair-the-epic-8-issue-set.md) (#209) moved to `done` — [PR #214](https://github.com/kern-ia/kern-link/pull/214) merged into `develop` 2026-08-10.
 * **PR opened**: [Issue 08: Reconcile EPIC_5.md with its issues, and settle the five criteria that pass whichever way the implementer decides](/epic-0-plan-remediation/issues/08-reconcile-epic-5-with-its-issues.md) (#206) — [PR #217](https://github.com/kern-ia/kern-link/pull/217).
+* **Completed**: [Issue 08: Reconcile EPIC_5.md with its issues, and settle the five criteria that pass whichever way the implementer decides](/epic-0-plan-remediation/issues/08-reconcile-epic-5-with-its-issues.md) (#206) moved to `done` — [PR #217](https://github.com/kern-ia/kern-link/pull/217) merged into `develop` 2026-08-11.
+* **Started**: [Issue 02: Adopt the six orphaned scope items, or record each as out of scope with a reason](/epic-0-plan-remediation/issues/02-adopt-the-orphaned-scope-items.md) (#200) moved to `in-progress` on branch `epic0-issue02-orphaned-scope`.
+* **Creation**: Established [Issue 07: Reshape ai/images.Options onto ProviderRequestOptions, honor the fetch override, and carry the getAuth overrides](/epic-3-catalog-schema-and-export-tooling/issues/07-images-options-base-and-auth-overrides.md) (#218) — the owner Epic 0 issue 02 gives the `ImagesOptions` reshape and the images `getAuth` overrides.
+* **PR opened**: [Issue 02: Adopt the six orphaned scope items, or record each as out of scope with a reason](/epic-0-plan-remediation/issues/02-adopt-the-orphaned-scope-items.md) (#200) moved to `pr-open` — [PR #219](https://github.com/kern-ia/kern-link/pull/219), targeting `develop`.
 
 ## 2026-08-10
 

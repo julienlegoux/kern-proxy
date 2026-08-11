@@ -3,12 +3,12 @@ type: Issue
 title: "Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig"
 description: "Name and assign the two ai.StreamOptions fields three Epic 4 issues assume exist, and make EPIC_4.md, the scope decision and Epic 4 issue 01 agree on where ConstrainedSamplingConfig lands."
 tags: [epic-0]
-timestamp: 2026-08-11T09:40:00Z
+timestamp: 2026-08-11T12:05:00Z
 epic: 0
 issue: 01
 slug: epic-4-core-type-contracts
 size: M
-status: pr-open
+status: done
 gh_issue: 199
 gh_pr: 216
 resource: https://github.com/kern-ia/kern-link/issues/199
