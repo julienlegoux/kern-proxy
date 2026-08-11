@@ -3,7 +3,7 @@ type: Issue
 title: "Dispatch deferred responses through ProviderStreams, Provider, and Models"
 description: "Add the optional fetchDeferred/cancelDeferred capability across the three dispatch layers, with capability detection in CreateProvider and the upstream-verbatim unsupported-provider errors."
 tags: [epic-2]
-timestamp: 2026-08-11T12:30:00Z
+timestamp: 2026-08-11T13:10:00Z
 epic: 2
 issue: 10
 slug: deferred-response-dispatch
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 138
 resource: https://github.com/kern-ia/kern-link/issues/138
-depends_on: [1, 2, 5, 8]
+depends_on: [1, 2, 5, 8, 9]
 ---
 
 # Dispatch deferred responses through ProviderStreams, Provider, and Models
@@ -171,7 +171,10 @@ can never emit — the outcome
 - **Blocked by**: [Issue 01](/epic-2-core-types-and-models-contracts/issues/01-widen-stopreason-and-thinkinglevel.md),
   [Issue 02](/epic-2-core-types-and-models-contracts/issues/02-message-model-deferred-fields.md),
   [Issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md),
-  [Issue 08](/epic-2-core-types-and-models-contracts/issues/08-models-refresh-contract.md).
+  [Issue 08](/epic-2-core-types-and-models-contracts/issues/08-models-refresh-contract.md),
+  [Issue 09](/epic-2-core-types-and-models-contracts/issues/09-models-request-transforms.md)
+  — the `Models`-level deferred option variants carry `ModelsRequestTransforms`
+  in the shape issue 09 settles on.
 - **Blocks**: [Issue 12](/epic-2-core-types-and-models-contracts/issues/12-faux-deferred-responses.md).
 
 ## PR size note
