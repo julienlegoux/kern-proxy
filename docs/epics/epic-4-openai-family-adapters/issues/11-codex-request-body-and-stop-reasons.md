@@ -3,11 +3,11 @@ type: Issue
 title: "openai-codex-responses: grammar and deferred tools in the request body, end_turn and stop-reason guards"
 description: "Wire Codex onto the updated shared responses core, add tool_choice, and record end_turn plus the pending/error stop-reason guards on every transport."
 tags: [epic-4]
-timestamp: 2026-08-11T15:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 4
 issue: 11
 slug: codex-request-body-and-stop-reasons
-size: M
+size: L
 status: open
 gh_issue: 157
 resource: https://github.com/kern-ia/kern-link/issues/157
@@ -146,5 +146,10 @@ contract tightens.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`L` — ~700 changed lines: this PR takes the request-shape and stream-end half
+of the +778-line upstream `openai-codex-stream.test.ts`, and every termination
+case must be proven on both the SSE and the WebSocket transport, so each named
+test needs two harnesses. Raised from `M` on that duplication. `L` is the
+ceiling, not the target: `assertSuccessfulOutput` exists because the two
+transports drifted apart, so they must land together; past ~1000 the honest cut
+is the `buildRequestBody` tool wiring apart from the stop-reason guards.

@@ -3,7 +3,7 @@ type: Issue
 title: "Add upstream/disposition_check.sh and its offline test"
 description: "A checker that reads docs/PORTING.md's mapping table and reports any in-range upstream file with no disposition, plus any Go target that does not exist — so the 232-file criterion is verified mechanically rather than by hand."
 tags: [epic-9]
-timestamp: 2026-08-11T15:10:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 9
 issue: 03
 slug: disposition-checker
@@ -151,5 +151,10 @@ the precedent already in the repo: `upstream/sync.sh` does the network work,
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening
-the PR.
+`M` — ~350 changed lines of shell: `upstream/disposition_check.sh` (in-range
+diff enumeration, glob matching over `docs/PORTING.md:19-64`'s first column, the
+`MISSING` second pass, the summary line) and the offline
+`upstream/disposition_check_test.sh` with its five fixture cases, plus one
+`run:` step in `.github/workflows/test.yml` and one sync-procedure step. Split
+past ~500, and the seam is the second check — the `MISSING` pass can follow the
+`UNACCOUNTED` one in its own PR.

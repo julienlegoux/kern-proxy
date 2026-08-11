@@ -3,7 +3,7 @@ type: Issue
 title: "Extend the auth contract: AuthCheck, AuthType, subscription metadata, and the info auth event"
 description: "Port auth/types.ts's 0.84.1 additions into ai/auth.go — the availability-check contract, the auth-type discriminator, OAuth subscription metadata, and the info event — and rename AuthLoginCallbacks to AuthInteraction."
 tags: [epic-6]
-timestamp: 2026-08-11T13:05:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 6
 issue: 01
 slug: auth-contract-surface
@@ -162,5 +162,9 @@ comment so its absence does not read as an oversight.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~350 changed lines: `ai/auth.go` absorbs upstream's +82/-25 of new types
+(`AuthType`, `AuthCheck`, `AuthInfoLink`, two `OAuthAuth` fields), three
+`IsSubscription: true` edits, five named tests, and a mechanical
+`AuthLoginCallbacks` → `AuthInteraction` sweep across `ai/auth/oauth/*.go`,
+their tests and `cmd/pi-ai/oauth.go`. Split past ~500; the rename sweep is the
+only seam, and it conflicts with all five downstream issues, so keep it whole.

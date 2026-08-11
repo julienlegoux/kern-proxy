@@ -3,11 +3,11 @@ type: Issue
 title: "Open the pi-messages package with its wire event union and the converter onto ai.Event"
 description: "Add ai.ApiPiMessages and the ai/apis/pimessages package's decode half: the serialized pi-messages event union, its SSE frame decoding, and the converter that assembles an ai.AssistantMessage partial and emits unified events."
 tags: [epic-8]
-timestamp: 2026-08-10T14:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 8
 issue: 01
 slug: pimessages-wire-and-converter
-size: M
+size: L
 status: open
 gh_issue: 187
 resource: https://github.com/kern-ia/kern-link/issues/187
@@ -220,5 +220,10 @@ The wire `usage` object is the unified `ai.Usage` already
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening
-the PR.
+`L` — ~600 changed lines: the decode half of upstream's 433-line
+`src/api/pi-messages.ts` spread over three new files (`pimessages.go`,
+`wire.go`, `events.go`), the converter cases of the 248-line
+`test/pi-messages.test.ts` in two new test files, 12 named tests, plus
+`ai.ApiPiMessages` and its `ai/catalog` case. `L` is the ceiling, not the
+target: the wire union and the converter that consumes it are one decode
+contract; past ~1000 the honest cut is `wire.go` plus `wire_test.go` first.

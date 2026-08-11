@@ -3,7 +3,7 @@ type: Issue
 title: "Add Models.Login, Models.Logout, and the provider-id GetAuth overload, and drive pi-ai login through them"
 description: "Port the mutating half of upstream's Models auth surface — login persists through the credential store, logout deletes, GetAuth answers for a bare provider id — and make cmd/pi-ai use it instead of calling flows directly."
 tags: [epic-6]
-timestamp: 2026-08-11T13:05:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 6
 issue: 06
 slug: models-login-logout
@@ -162,5 +162,8 @@ it in `docs/PORTING.md` via
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~460 changed lines: three new `Models` methods (`Login`, `Logout`,
+`GetAuthForProvider`), the static-header merge added to `GetAuth`, nine named
+tests pinning four verbatim error strings, and the `cmd/pi-ai/oauth.go:72-85`
+migration off hand-rolled persistence. Also top of the band. Split past ~500,
+and the seam is the CLI migration — the library half stands on its own.

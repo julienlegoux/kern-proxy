@@ -3,7 +3,7 @@ type: Issue
 title: "openai-completions: emit and stream grammar custom tools"
 description: "Send grammar-constrained tools as type:\"custom\" chat-completions tools, replay them on the request side, and reassemble their streamed raw input into JSON tool-call deltas."
 tags: [epic-4]
-timestamp: 2026-08-11T15:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 4
 issue: 03
 slug: completions-grammar-custom-tools
@@ -149,5 +149,10 @@ path.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~480 changed lines: eight call sites inside the 1388-line
+`openaicompletions.go` (`wireTool`, `wireToolCall`, `convertTools`,
+`convertAssistantMessage`, `toolCallBlock`, `decodeEvents`, `rawToolCallDelta`
+and the error path) plus a new `grammar_test.go` holding six named tests and
+the ported grammar cases of two upstream suites. It sits near the top of `M`;
+split past ~500, and the seam is the request-side wire shapes apart from the
+streamed JSON-delta synthesis.

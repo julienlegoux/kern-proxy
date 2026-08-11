@@ -3,11 +3,11 @@ type: Issue
 title: "Regenerate the embedded model catalog from upstream 936aff00 (35 to 39 provider files)"
 description: "Run the reworked export tool against the frozen upstream revision, replace ai/catalog/data/models wholesale, and prove the regenerated tree loads and validates."
 tags: [epic-3]
-timestamp: 2026-08-11T14:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 3
 issue: 04
 slug: regenerate-model-catalog
-size: L
+size: S
 status: open
 gh_issue: 144
 resource: https://github.com/kern-ia/kern-link/issues/144
@@ -146,10 +146,10 @@ generated. Review it as a shape check, not line by line.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. **This issue is the deliberate exception, and is sized L for that reason.**
-The `~500` target applies to hand-written lines only — those should stay well
-under 200 here (one test, one doc paragraph). `ai/catalog/data/models/**` is
-generated output that cannot be split without splitting the catalog itself, and
-must be reviewed as a whole via the shape checks in the acceptance criteria
-rather than line by line.
+`S` — ~60 hand-written lines: one test (`TestCatalogProviderSetIsExpected`) and
+one `docs/PORTING.md` paragraph for the four catalog-only providers.
+**Re-labelled from `L`**: generated catalog output does not count toward the
+bands ([Epic 0](/epic-0-plan-remediation/EPIC_0.md), `## Notes`, restated in
+[EPIC_3.md](/epic-3-catalog-schema-and-export-tooling/EPIC_3.md)), and the
+regenerated `ai/catalog/data/models/**` — thousands of generated JSON lines over
+39 files — is reviewed as a shape check. Split past ~200 hand-written lines.

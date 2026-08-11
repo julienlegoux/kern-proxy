@@ -3,7 +3,7 @@ type: Issue
 title: "anthropic: pending and raw stop reasons, prefilled content blocks, and nullable message_delta usage"
 description: "Start the Anthropic stream at StopReason pending, record the provider's literal stop_reason, honor text/thinking prefilled on content_block_start, and stop treating a usage-less message_delta as zeroes."
 tags: [epic-5]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 5
 issue: 02
 slug: anthropic-stream-lifecycle
@@ -188,5 +188,9 @@ PR's.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~400 changed lines: five independent SSE-path changes inside
+`anthropic.go` (1234 lines) plus `Fetch` injection on the request path, and a
+new `anthropic_sse_parsing_test.go` carrying seven named tests plus all six
+cases of the 177-line upstream `anthropic-sse-parsing.test.ts`. Split past ~500,
+and the seam is the four decoder changes first and `Fetch` injection second —
+the latter shares no code with them and lands in `httpretry`.

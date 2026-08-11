@@ -3,7 +3,7 @@ type: Issue
 title: "Bring ai/catalog validation up to the 0.84.1 schema, and make unknown catalog keys fail loudly"
 description: "Extend the per-api compat field map to the 0.84.1 interfaces, add invariants for tiers and the widened thinking levels, and turn silently-dropped catalog keys into a test failure."
 tags: [epic-3]
-timestamp: 2026-08-11T14:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 3
 issue: 03
 slug: catalog-validation-0-84-1
@@ -197,5 +197,10 @@ original wording until the planning bundle is next touched.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~350 changed lines: `compatFieldsByApi` grows fourteen fields across its
+three existing api arms, gains `ai.ApiBedrockConverseStream`, and shares the
+responses arm with `azure-openai-responses` and `openai-codex-responses`; the
+strict-decode sweep over every embedded `data/**/*.json` arrives beside it with
+four named tests. Split past ~500 — the five invariants moved to `## Out of
+scope` are what keeps it under, and they stay deferred because this issue gates
+issue 04.

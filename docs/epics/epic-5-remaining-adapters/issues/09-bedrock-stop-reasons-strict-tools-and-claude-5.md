@@ -3,7 +3,7 @@ type: Issue
 title: "bedrock: pending and raw stop reasons, strict tool schemas, and the Claude 5 model matrix"
 description: "Start the Bedrock stream at pending, surface the raw stop reason in the error text, send strict tool specs behind the Bedrock compat flag, and recognise opus-5 and sonnet-5 across the thinking and cache matrices."
 tags: [epic-5]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 5
 issue: 09
 slug: bedrock-stop-reasons-strict-tools-and-claude-5
@@ -184,5 +184,10 @@ all in the request/stream path:
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~400 changed lines: three groups over five files from a +146 upstream
+diff, with eight named tests and six ported upstream cases. Re-checked against
+REPORT_5's "plausibly L" flag and kept `M`, because the Claude 5 group is four
+list entries plus one clamp and the strict-tool group only adds a `strict` flag
+to `toolSpec` without reshaping `inputSchema.json` — neither carries the schema
+surgery that makes the Anthropic sibling heavier. Split past ~500, and
+REPORT_5's named seam holds: stop reasons versus Claude 5 matrix + strict tools.

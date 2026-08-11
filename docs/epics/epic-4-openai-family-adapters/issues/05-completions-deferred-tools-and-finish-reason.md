@@ -3,7 +3,7 @@ type: Issue
 title: "openai-completions: Kimi deferred tools, finish-reason inference, and item-unique tool call ids"
 description: "Withhold transcript-loaded tools and re-announce them in a Kimi system message, infer the stop reason when a provider omits finish_reason, record rawStopReason, and stop collapsing distinct tool calls onto one id."
 tags: [epic-4]
-timestamp: 2026-08-11T15:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 4
 issue: 05
 slug: completions-deferred-tools-and-finish-reason
@@ -163,5 +163,10 @@ four hand-listed shapes.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~490 changed lines: four contract changes plus the `tool_choice`
+passthrough, spread over `run`, `buildParams`, `convertMessages` and
+`normalizeToolCallID`, with eight named tests and the +79-line raw-stop-reason
+and +218-line tool-choice upstream suites to port. Kept `M` rather than
+promoted: each of the four is individually small and none shares state with the
+others. Split past ~500, and the seam is the Kimi deferred-tool path apart from
+the finish-reason inference and the tool-call-id fix.

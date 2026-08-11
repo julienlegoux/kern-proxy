@@ -3,7 +3,7 @@ type: Issue
 title: "anthropic: deferred tools via defer_loading and tool_reference blocks"
 description: "Split the tool list with SplitDeferredTools, send withheld tools with defer_loading, and load them at their tool-result markers as tool_reference blocks with displaced sibling content."
 tags: [epic-5]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 5
 issue: 04
 slug: anthropic-deferred-tools
@@ -198,12 +198,15 @@ Four pieces:
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. Sized **L** because the four pieces are one wire contract — the split, the
-two-pass tool emission, the reference blocks and the sibling displacement are
-mutually unobservable if landed separately, and a half-ported version sends
-Anthropic a request it rejects. Splitting it would mean shipping a knowingly
-broken intermediate state, which is why it stays whole; if it starts trending
-past ~1000 lines, the honest cut is to land the split + `defer_loading` emission
-first (with `SupportsToolReferences` forced false so nothing changes on the
-wire) and the reference blocks second.
+`L` — ~800 changed lines: four pieces spread across `buildParams`,
+`convertMessages`, `convertTools`, `toolResultBlock` and the restructured
+tool-result batching loop, plus a `deferred_tools_test.go` carrying eight named
+tests and the ten Anthropic cases of `test/deferred-tools.test.ts:188-343`.
+`L` is the ceiling, not the target: the four pieces are one wire contract — the
+split, the two-pass tool emission, the reference blocks and the sibling
+displacement are mutually unobservable if landed separately, and a half-ported
+version sends Anthropic a request it rejects. Splitting it would mean shipping a
+knowingly broken intermediate state, which is why it stays whole; if it starts
+trending past ~1000 lines, the honest cut is to land the split +
+`defer_loading` emission first (with `SupportsToolReferences` forced false so
+nothing changes on the wire) and the reference blocks second.

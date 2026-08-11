@@ -3,7 +3,7 @@ type: Issue
 title: "openai-responses shared: tool namespaces and transcript-loaded deferred tools"
 description: "Replay ToolCall.namespace when the model can accept it, and re-announce transcript-loaded tools as additional_tools or as a synthetic tool_search call/output pair."
 tags: [epic-4]
-timestamp: 2026-08-11T15:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 4
 issue: 07
 slug: responses-shared-namespace-and-deferred-tools
@@ -142,5 +142,9 @@ and 11 wire it.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~460 changed lines: the `canReplayNamespace` guard, two deferred-tool
+injection modes with their new `additional_tools`, `tool_search_call` and
+`tool_search_output` wire structs, and eight named tests bringing the +224-line
+upstream `openai-responses-namespace` suite across. Split past ~500; namespace
+replay and deferred-tool injection are independent halves of the same two
+converter functions.

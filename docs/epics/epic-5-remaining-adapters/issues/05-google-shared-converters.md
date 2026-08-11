@@ -3,7 +3,7 @@ type: Issue
 title: "google-shared: Gemini 3 tool-call ids, signature-bearing empty blocks, and the VALIDATED function-calling mode"
 description: "Require tool-call ids on Gemini 3+, stop dropping empty text and thinking parts that carry a thought signature, and resolve the function-calling mode from strict tool sampling."
 tags: [epic-5]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 5
 issue: 05
 slug: google-shared-converters
@@ -167,5 +167,9 @@ way.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~400 changed lines: an +82 upstream diff landing as three converter
+changes in `messages.go` (411 lines) plus two new exported resolvers, with eight
+named tests and the four cases of `google-shared-signed-empty-blocks.test.ts`
+and three of `google-shared-retry.test.ts` ported alongside. Split past ~500,
+and the seam is the signature-bearing-empty-block rule versus the strict-mode
+resolver: they share no code and only the second one blocks issue 06.

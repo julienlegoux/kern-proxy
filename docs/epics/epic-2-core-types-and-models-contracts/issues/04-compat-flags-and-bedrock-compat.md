@@ -3,7 +3,7 @@ type: Issue
 title: "Extend Compat with the 0.84.1 flags, BedrockCompat, and SessionAffinityFormat"
 description: "Add the twelve new per-api compatibility flags, replace sendSessionIdHeader with sessionAffinityFormat, and fold in the new BedrockCompat struct."
 tags: [epic-2]
-timestamp: 2026-08-09T04:31:17Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 04
 slug: compat-flags-and-bedrock-compat
@@ -144,5 +144,10 @@ since Go's `Compat` is already flat; note it in the struct comment)
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~300 changed lines: twelve new flags drawn from four upstream compat
+interfaces land on one flat `ai.Compat`, each carrying the doc comment that
+records its upstream default, plus the new `SessionAffinityFormat` type
+replacing `SendSessionIDHeader`, the mechanical compile fix in
+`ai/apis/openairesponses`, and two marshalling tests. Split past ~500; the seam
+is per-api flag groups, but the `SendSessionIDHeader` removal must land with
+whatever replaces it.

@@ -3,7 +3,7 @@ type: Issue
 title: "Provider-scope api-key resolution: drop Model from APIKeyResolveInput and rebuild the Cloudflare resolvers"
 description: "Follow upstream in making auth resolution provider-scoped rather than model-scoped, and move Cloudflare's account/gateway placeholder substitution off the auth path it can no longer reach."
 tags: [epic-6]
-timestamp: 2026-08-11T13:05:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 6
 issue: 03
 slug: provider-scoped-apikey-resolution
@@ -175,5 +175,10 @@ this is where it lands.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~400 changed lines: one field removed from `APIKeyResolveInput` and two
+signatures changed in `ai/resolve.go` cascade into 13 `Resolve: func` sites
+across `ai/auth/helpers.go`, `ai/providers/*.go` and the `ai/`/`ai/images/`
+tests, on top of the per-field rewrite of `resolveCloudflareResolvedEnv` and
+five named tests. It only reaches the top of the band if `#169` has not landed
+and this PR must carry the dispatch-time placeholder substitution. Split past
+~500, and that substitution is the seam — it belongs to `cloudflare-stream.ts`.

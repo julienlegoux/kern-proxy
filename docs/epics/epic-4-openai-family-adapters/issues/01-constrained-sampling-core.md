@@ -3,7 +3,7 @@ type: Issue
 title: "Port constrained-sampling.ts as a shared grammar package, with Tool.ConstrainedSampling"
 description: "Add the GrammarFormat / GrammarVariants / ConstrainedSamplingConfig types on ai.Tool and port upstream's grammar resolution and JSON-delta buffer, with its 229-line test."
 tags: [epic-4]
-timestamp: 2026-08-10T09:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 4
 issue: 01
 slug: constrained-sampling-core
@@ -172,5 +172,9 @@ re-derive it.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~450 changed lines: a new `ai/apis/internal/grammar` package porting
+upstream's +148-line `constrained-sampling.ts` (six exported symbols), the
+`Tool` struct extension in `ai/types.go`, and the 229-line upstream test file
+reworked as the nine discrete Go tests listed above. Split past ~500; the seam
+is the `Tool.ConstrainedSampling` type with its round-trip test in one PR and
+the resolver package in another.

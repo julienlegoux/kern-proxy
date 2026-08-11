@@ -3,7 +3,7 @@ type: Issue
 title: "Port tiered model pricing: ModelCostRates, ModelCostTier, and tier selection in CalculateCost"
 description: "Split ModelCost into rates plus optional request-wide tiers and make CalculateCost pick the highest matching input-token tier, without breaking the currently embedded catalog."
 tags: [epic-2]
-timestamp: 2026-08-11T13:10:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 03
 slug: tiered-model-cost
@@ -154,5 +154,9 @@ sync, so it ships as its own PR with its own arithmetic tests.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~350 changed lines: the `ModelCostRates` split and the tier selection in
+`CalculateCost` are perhaps sixty lines, but eleven keyed `ai.ModelCost{...}`
+literals across twelve files need the mechanical embedded-key rewrite, and five
+named arithmetic tests plus the `ModelsStoreEntry` deep-copy extension follow.
+Split past ~500; the seam is the literal rewrite versus the pricing change,
+though the tree does not compile between those two halves.

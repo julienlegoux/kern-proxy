@@ -3,11 +3,11 @@ type: Issue
 title: "Close the Copilot dynamic-headers gap: port github-copilot-headers.ts and wire its three call sites"
 description: "Port the unported X-Initiator / Openai-Intent / Copilot-Vision-Request header builder and apply it in the anthropic, openai-completions and openai-responses adapters."
 tags: [epic-5]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 5
 issue: 01
 slug: copilot-dynamic-headers
-size: S
+size: M
 status: open
 gh_issue: 159
 resource: https://github.com/kern-ia/kern-link/issues/159
@@ -157,5 +157,9 @@ three call sites — including the two in packages epic 4 otherwise owns.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~350 changed lines: a new `ai/apis/internal/copilotheaders` package with
+three exported functions ported from a 37-line upstream file, three adapter
+packages wired at their header builders, and six acceptance criteria including
+`httptest` assertions in three separate packages. Re-labelled up from `S`
+because that is well past the ~200-line S ceiling. Split past ~500, and the seam
+is the new package plus its three unit tests first, the three call sites second.

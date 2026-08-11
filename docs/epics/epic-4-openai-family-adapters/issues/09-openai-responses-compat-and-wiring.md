@@ -3,11 +3,11 @@ type: Issue
 title: "openai-responses: compat resolution, session affinity, explicit prompt cache, and tool wiring"
 description: "Resolve the five new responses compat flags with OpenRouter session-affinity detection, wire grammar and deferred tools into the request, and add explicit prompt-cache mode, tool_choice and the xai reasoning include."
 tags: [epic-4]
-timestamp: 2026-08-11T15:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 4
 issue: 09
 slug: openai-responses-compat-and-wiring
-size: M
+size: L
 status: open
 gh_issue: 155
 resource: https://github.com/kern-ia/kern-link/issues/155
@@ -154,7 +154,10 @@ which is the shape of this change: provider sniffing turns into resolved compat.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. The likely overflow is the ported compat test suite — if it alone pushes
-past the ceiling, land the adapter change with the highest-value cases and open
-a follow-up for the remainder rather than trimming coverage silently.
+`L` — ~750 changed lines: the +472-line upstream `openai-responses-compat`
+suite is the bulk, landing on five new compat flags, the three-way
+session-affinity header branch and the deferred-tool wiring across the 513-line
+adapter. Raised from `M`: that ported suite alone exceeds an `M`. `L` is the
+ceiling, not the target — compat resolution and the wiring it drives cannot be
+verified apart — so if it trends past ~1000 the honest cut is session-affinity
+detection and headers in one PR, tool and prompt-cache wiring in another.

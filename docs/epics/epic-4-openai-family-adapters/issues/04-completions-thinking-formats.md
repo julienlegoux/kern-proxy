@@ -3,7 +3,7 @@ type: Issue
 title: "openai-completions: baseten thinking format, thinking_token_budget, and qwen effort mapping"
 description: "Add the baseten chat_template_args branch, the vLLM thinking_token_budget cap, and thinkingLevelMap resolution on the qwen and baseten reasoning-effort paths."
 tags: [epic-4]
-timestamp: 2026-08-10T09:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 4
 issue: 04
 slug: completions-thinking-formats
@@ -155,5 +155,9 @@ both `chat_template_kwargs` and `chat_template_args`.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~380 changed lines: three additions to the thinking ladder (the `baseten`
+format, `thinking_token_budget` with its clamp and `MIN_ANSWER_TOKENS`, the qwen
+effort mapping), the `buildChatTemplateValues` generalization, and seven named
+tests carrying the +124-line upstream thinking-token-budget suite into the
+existing 420-line `thinking_test.go`. Split past ~500; the budget block is the
+standalone half, since it is gated independently of thinking format.

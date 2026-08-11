@@ -3,11 +3,11 @@ type: Issue
 title: "Port the xAI device-code OAuth flow and bind it to the xai provider"
 description: "Port src/auth/oauth/xai.ts as ai/auth/oauth/xai.go over the existing device-code poller, add the shared form-POST helper the other three flows reuse, and give the xai binding an OAuth strategy."
 tags: [epic-7]
-timestamp: 2026-08-11T13:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 7
 issue: 01
 slug: xai-device-code-oauth
-size: M
+size: L
 status: open
 gh_issue: 181
 resource: https://github.com/kern-ia/kern-link/issues/181
@@ -222,5 +222,10 @@ That doubling is upstream's; do not compensate for it here.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`L` — ~700 changed lines: 574 upstream lines (`src/auth/oauth/xai.ts` 239 plus
+`test/xai-oauth.test.ts` 335) re-expressed in Go's more verbose `httptest`
+scaffolding, plus the shared `postForm` helper in `token.go` and the
+`ai/providers/xai.go` binding, pinned by 12 named tests. `L` is the ceiling,
+not the target: `postForm` cannot land ahead of its first caller without
+shipping an unused helper, and if it trends past ~1000 the honest cut is
+`postForm` plus its direct test as a first PR and the flow as a second.

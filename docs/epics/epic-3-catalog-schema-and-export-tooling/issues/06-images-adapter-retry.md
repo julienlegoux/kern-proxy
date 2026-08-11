@@ -3,7 +3,7 @@ type: Issue
 title: "Honor MaxRetries and MaxRetryDelay in the OpenRouter images adapter"
 description: "Port upstream's retryProviderRequest wrapping of the images request by reaching the shared httpretry loop from ai/images through a thin ai/apis shim, with offline httptest coverage."
 tags: [epic-3]
-timestamp: 2026-08-11T14:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 3
 issue: 06
 slug: images-adapter-retry
@@ -232,10 +232,10 @@ smoke, which is true and stays as it is.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. Three files carry the change — the new `ai/apis` shim,
-`ai/images/openrouter.go`, and `ai/images/openrouter_test.go` — plus the drift
-record. If the shim turns out to need a change inside
-`ai/apis/internal/httpretry` after all, that change lands additively and its
-effect on the four text adapters is proved by their retry tests staying
-untouched, not by re-running them after an edit.
+`M` — ~400 changed lines across three files plus the drift record: the new
+`ai/apis` retry shim, the rewrite of `generateImagesOpenRouter`'s transport
+(`ai/images/openrouter.go:204-291`), and six new offline `httptest` retry tests
+in `ai/images/openrouter_test.go`. Split past ~500, and the seam is the shim —
+land `ai/apis/retry.go` with its own coverage first. If it turns out to need a
+change inside `ai/apis/internal/httpretry`, that change lands additively and is
+proved by the four text adapters' retry tests staying untouched.

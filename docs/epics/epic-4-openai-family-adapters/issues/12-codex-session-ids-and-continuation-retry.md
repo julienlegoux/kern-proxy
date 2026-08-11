@@ -3,7 +3,7 @@ type: Issue
 title: "openai-codex-responses: cache-derived session ids, UUIDv7 request ids, and the missing-continuation retry"
 description: "Derive one clamped cache session id and use it everywhere, port utils/uuid.ts as the request-id source, retry once on previous_response_not_found, and record the connection-cache changes with no Go counterpart."
 tags: [epic-4]
-timestamp: 2026-08-11T15:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 4
 issue: 12
 slug: codex-session-ids-and-continuation-retry
@@ -153,5 +153,9 @@ ported:
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~400 changed lines: a new `ai/uuid.go` porting `utils/uuid.ts` with
+mutex-guarded monotonic state, the `cacheSessionID`/`codexSessionID` derivation
+rethreaded through six call sites across `codex.go` and the 563-line
+`websocket.go`, the one-shot `previous_response_not_found` retry, and six named
+tests plus the +50-line upstream uuid suite. Split past ~500, and the seam is
+`ai/uuid.go` with its two tests landing ahead of the Codex session rework.

@@ -3,7 +3,7 @@ type: Issue
 title: "Port the Models refresh contract: the two-phase refresh, ModelsPublication types, and the provider overlay"
 description: "Replace refreshModels() with the context-carrying refresh contract, add ModelsRefreshOptions/Result, and rebuild createProvider around a static baseline plus a dynamic overlay — the generation-checked publish machinery is issue 14."
 tags: [epic-2]
-timestamp: 2026-08-11T16:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 08
 slug: models-refresh-contract
@@ -179,8 +179,11 @@ owns.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. **Sized `L`**: the `Provider` interface change, the two-phase `modelsImpl`
-refresh, and the `createProvider` overlay are one contract — landing any one
-alone leaves the interface half-migrated and the dynamic bindings
-uncompilable.
+`L` — ~700 changed lines even after the pre-split moved generation checking to
+issue 14: a `Provider` interface change, four contract types, the two-phase
+refresh in `modelsImpl` (`ai/provider.go` is 489 lines), the `createProvider`
+baseline-plus-overlay rework, five named tests, and mechanical updates to all
+four dynamic bindings. `L` is the ceiling, not the target: the interface change
+and the bindings cannot land apart without an uncompilable tree. Past ~1000, cut
+the `providerImpl` baseline/dynamic overlay out first — it merges by ID and is
+green under today's `RefreshModels` shape.

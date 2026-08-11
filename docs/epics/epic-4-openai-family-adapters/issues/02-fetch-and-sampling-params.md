@@ -3,7 +3,7 @@ type: Issue
 title: "Honor Fetch and SamplingParams in the four OpenAI-family adapters"
 description: "Make the injectable HTTP doer actually carry requests through httpretry, and merge arbitrary samplingParams into each adapter's request body last."
 tags: [epic-4]
-timestamp: 2026-08-09T05:17:46Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 4
 issue: 02
 slug: fetch-and-sampling-params
@@ -139,5 +139,9 @@ Both are one-line changes upstream and neither is one line in Go:
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~350 changed lines: one injectable-doer seam inside `httpretry`, one
+shared `SamplingParams` overlay helper called from four `buildParams`
+functions, and seven named tests (three on `httpretry`, one per adapter) beside
+the +178-line upstream `fetch-option` suite. Split past ~500, and the seam is
+the `Fetch` half — `httpretry` plus its three tests — landing apart from the
+`SamplingParams` overlay.

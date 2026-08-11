@@ -3,7 +3,7 @@ type: Issue
 title: "Widen StopReason and ThinkingLevel, and sweep for non-exhaustive switches"
 description: "Add the pending/deferred stop reasons and the max thinking level, wire them into the thinking ladder and clamps, and record the manual sweep for switch sites the compiler cannot flag."
 tags: [epic-2]
-timestamp: 2026-08-09T04:31:17Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 01
 slug: widen-stopreason-and-thinkinglevel
@@ -133,6 +133,9 @@ the sweep is only meaningful against the pre-existing tree.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. Expected here: a few dozen lines of production code plus tests — the sweep
-is the work, not the diff.
+`M` — ~250 changed lines: the enum widening plus the `extendedThinkingLevels`,
+`GetSupportedThinkingLevels` and `ClampReasoning` edits are a few dozen lines of
+production code; the four named ladder/clamp tests, the `TestJSON` deferred
+round-trip case, and whatever the tree-wide `StopReason`/`ThinkingLevel` sweep
+turns up carry the rest — the sweep is the work, not the diff. Split past ~500,
+but not along the sweep, which is only meaningful against the pre-existing tree.

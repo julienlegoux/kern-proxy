@@ -3,7 +3,7 @@ type: Issue
 title: "Disposition every in-range upstream file in docs/PORTING.md and drop the vX.Y.Z-go.N convention"
 description: "Close the porting map over all 232 in-range upstream files until the disposition checker exits zero, reconcile the deviations list with what the program actually shipped, and remove the unused Go tagging convention."
 tags: [epic-9]
-timestamp: 2026-08-11T15:10:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 9
 issue: 04
 slug: disposition-sweep
@@ -163,9 +163,10 @@ never used, and contradicting the SemVer line the CHANGELOG maintains.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening
-the PR. This one is sized **L** deliberately: it is a single markdown table that
-must be closed in one pass, and splitting it across PRs would mean two branches
-editing the same rows while the checker's exit-0 criterion is only meaningful
-once. If it does approach 1000 lines, that is a signal the rows are too granular
-— widen globs before splitting the PR.
+`L` — ~600 changed lines of `docs/PORTING.md`: 232 in-range files closed out
+across the mapping table and **Intentional deviations**, plus the `go.N`
+convention removed from the sync procedure and a `docs/log.md` entry. `L` is the
+ceiling, not the target: the table must be closed in one pass because the
+checker's exit-0 criterion is only meaningful once, and splitting it would mean
+two branches editing the same rows. If it trends past ~1000, that is a signal
+the rows are too granular — widen globs before splitting the PR.

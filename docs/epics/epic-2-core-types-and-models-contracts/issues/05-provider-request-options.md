@@ -3,7 +3,7 @@ type: Issue
 title: "Introduce ProviderRequestOptions as the shared request base, and rewrite the affected StreamOptions literals"
 description: "Refactor ai/options.go so transport, auth, and lifecycle knobs live in one reusable base that StreamOptions embeds, and mechanically rewrite every keyed composite literal the split breaks."
 tags: [epic-2]
-timestamp: 2026-08-11T16:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 05
 slug: provider-request-options
@@ -167,11 +167,11 @@ by number, not by build order.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. **Sized `L`**: the struct split alone is small, but the **248**-site
-mechanical literal rewrite is not, and it is deliberately kept in one PR — a
-partial rewrite leaves the tree uncompilable between PRs, so this cannot land in
-pieces. It is sized on line count, not on review difficulty: the rewrite is
-repetitive and reviewable as a diffstat, one shape repeated 248 times, unlike
-the two knobs and their adapter-facing implications that issue 13 carries
-separately.
+`L` — ~700 changed lines, almost all of it the **248**-site keyed
+`StreamOptions` literal rewrite (re-derive at the PR's base commit); the struct
+split itself is small. `L` is the ceiling, not the target: a partial rewrite
+leaves the tree uncompilable between PRs, so this cannot land in pieces, and it
+is sized on line count rather than review difficulty — one shape repeated 248
+times, reviewable as a diffstat. If it trends past ~1000 the honest cut is a
+stacked pair on one branch — struct plus the non-test literals first, the
+`_test.go` literals second — merged together, since neither half is green alone.

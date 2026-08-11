@@ -3,7 +3,7 @@ type: Issue
 title: "Dispatch deferred responses through ProviderStreams, Provider, and Models"
 description: "Add the optional fetchDeferred/cancelDeferred capability across the three dispatch layers, with capability detection in CreateProvider and the upstream-verbatim unsupported-provider errors."
 tags: [epic-2]
-timestamp: 2026-08-11T16:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 10
 slug: deferred-response-dispatch
@@ -181,5 +181,10 @@ can never emit — the outcome
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~450 changed lines, near the top of the band: the capability threads
+through three dispatch layers (`ProviderStreams`, `Provider`, `modelsImpl`),
+`SimpleStreamOptions` gains `Deferred`, `CreateProvider` grows capability
+detection, four upstream-verbatim error strings are copied, and six named tests
+plus a `docs/PORTING.md` row follow. Split past ~500, and the seam is
+`SimpleStreamOptions.Deferred` — the request-side knob is separable from the
+fetch/cancel dispatch.

@@ -3,7 +3,7 @@ type: Issue
 title: "Audit the retry and overflow classifiers against upstream 936aff00 and resync their patterns"
 description: "Produce the pattern-by-pattern parity table for ai/retry.go and ai/overflow.go, port every upstream pattern change in range, and cover each one in the two table-driven test files."
 tags: [epic-9]
-timestamp: 2026-08-11T15:10:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 9
 issue: 01
 slug: classifier-parity-audit
@@ -175,5 +175,10 @@ pattern delta ported, each with a test case.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening
-the PR.
+`M` — ~400 changed lines: a 72-row `docs/classifier-parity.md` table
+(`8 + 6 + 28 + 24 + 3 + 3` across the six groups), the upstream pattern deltas
+ported into `ai/retry.go` and `ai/overflow.go`, a case each in the two existing
+table-driven suites, and three registrations. Re-checked against REPORT_9's
+flag and kept `M` because the table is one line per row and the ports edit
+existing vars rather than adding files. Split past ~500, and the seam is the
+doc: the parity table can land before the pattern ports it justifies.

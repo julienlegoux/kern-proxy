@@ -3,7 +3,7 @@ type: Issue
 title: "anthropic: strict tool schemas and signature-only thinking blocks"
 description: "Resolve per-tool strict JSON-schema sampling into the Anthropic tool wire shape behind SupportsStrictTools, and stop dropping an empty thinking block that carries a signature."
 tags: [epic-5]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 5
 issue: 03
 slug: anthropic-strict-tools-and-signed-thinking
@@ -170,5 +170,9 @@ converters:
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~350 changed lines: two converter changes in `anthropic.go`, the first of
+which reshapes `wireInputSchema` and widens `convertTools`' signature to carry
+an error, plus five named tests and the ported strict case of
+`anthropic-eager-tool-input-compat.test.ts`. Split past ~500, and the seam is
+the signature-only thinking rule — it is independent of the strict-tool work,
+lands in a few lines, and is the half issue 04 does not rebase onto.

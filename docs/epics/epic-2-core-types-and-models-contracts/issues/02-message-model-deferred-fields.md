@@ -3,7 +3,7 @@ type: Issue
 title: "Port the 0.84.1 message-model additions: DeferredHandle, JsonValue, and the new message fields"
 description: "Add DeferredHandle and JsonValue plus the new AssistantMessage, ToolResultMessage, and ToolCall fields, with JSON round-trip coverage."
 tags: [epic-2]
-timestamp: 2026-08-09T04:31:17Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 02
 slug: message-model-deferred-fields
@@ -136,5 +136,9 @@ export interface DeferredHandle {
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~300 changed lines: two new types and five new message fields are each
+small, but every one of them travels through `ai/json.go` (313 lines) and needs
+a codec path, and the acceptance criteria name six round-trip tests including
+the tri-state `EndTurn` and the documented `Clone` semantics for `Deferred`.
+Split past ~500; the seam would be `ToolResultMessage`/`ToolCall` versus
+`AssistantMessage`, though the shared codec makes that a poor cut.

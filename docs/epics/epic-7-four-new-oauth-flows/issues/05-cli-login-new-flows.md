@@ -3,7 +3,7 @@ type: Issue
 title: "Offer every registered OAuth provider in pi-ai login, using each flow's login label"
 description: "Replace cmd/pi-ai's hardcoded three-entry login list with one derived from the provider registry's OAuth strategies, add Radius against its default gateway, and show LoginLabel where a flow sets one."
 tags: [epic-7]
-timestamp: 2026-08-11T13:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 7
 issue: 05
 slug: cli-login-new-flows
@@ -166,5 +166,8 @@ say so in the PR body rather than reintroducing the hand-rolled
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`S` — ~170 changed lines: `oauthProviders()` (`cmd/pi-ai/oauth.go:36-42`)
+becomes a registry walk plus the Radius special case, a sort and a
+`LoginLabel`-else-`Name` fallback — about 40 lines of source — and the rest is
+five named tests extending the existing `cmd/pi-ai/oauth_test.go` harness
+rather than building one. Split past ~200.

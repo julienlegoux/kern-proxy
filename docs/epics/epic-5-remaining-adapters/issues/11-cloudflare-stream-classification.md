@@ -3,7 +3,7 @@ type: Issue
 title: "cloudflare-stream: classify upstream's dispatch-time base-URL resolution and give it a Go home"
 description: "Upstream moved Cloudflare account/gateway placeholder resolution out of auth and into a per-request stream wrapper; decide whether kern-link follows, and record the disposition in PORTING.md."
 tags: [epic-5]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 5
 issue: 11
 slug: cloudflare-stream-classification
@@ -143,5 +143,7 @@ contract, and it stays until
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`S` — ~120 changed lines: the upstream file is 28 lines, the Go port reuses the
+existing `resolveCloudflareBaseURL` rather than writing a second substitution,
+and the remainder is two `docs/PORTING.md` rows and three named tests plus the
+two ported cases of the 65-line `cloudflare-stream.test.ts`. Split past ~200.

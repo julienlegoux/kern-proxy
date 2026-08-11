@@ -3,7 +3,7 @@ type: Issue
 title: "Prove the pending and deferred stop reasons end to end through the faux provider"
 description: "Port faux's deferred scripting, pending partial snapshots, and deferred fetch/cancel counters, so the new stop reasons are emitted and observed by a test rather than merely declared."
 tags: [epic-2]
-timestamp: 2026-08-09T04:31:17Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 12
 slug: faux-deferred-responses
@@ -125,5 +125,9 @@ contract", and upstream extended its own `faux.ts` in exactly this direction at
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~350 changed lines, confined to the two-file `ai/providers/faux` package:
+the scripted-response builder gains a handle, partial snapshots switch to
+`StopReasonPending`, `FauxProviderState` grows two fields, the provider options
+gain a `deferred` block, and `FetchDeferred`/`CancelDeferred` arrive alongside
+six named tests proving the round trip. Split past ~500; the seam is the faux
+port itself versus the `Models`-layer round-trip assertions, which can follow.

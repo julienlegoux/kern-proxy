@@ -3,7 +3,7 @@ type: Issue
 title: "Settle whether upstream's provider-retry.ts supersedes ai/apis/internal/httpretry"
 description: "Compare upstream's new request-level retry helper against the Go port's own httpretry package, port what is portable, and record the rest as a drift record rather than a silent difference."
 tags: [epic-9]
-timestamp: 2026-08-11T15:10:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 9
 issue: 02
 slug: provider-retry-vs-httpretry
@@ -151,5 +151,10 @@ without moving the package.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening
-the PR.
+`M` — ~300 changed lines: the five-axis comparison lands as edits inside
+`httpretry.go` (retryable statuses, `Retry-After` precedence, backoff, the
+stream boundary), a named test per adopted behavior in `httpretry_test.go`, the
+one `docs/PORTING.md` row for `src/utils/provider-retry.ts`, and a six-field
+drift record for whatever stays divergent. Split past ~500 — but if the
+comparison concludes the stream boundary should move, that is a follow-up with a
+blast radius across every adapter, not more lines here.

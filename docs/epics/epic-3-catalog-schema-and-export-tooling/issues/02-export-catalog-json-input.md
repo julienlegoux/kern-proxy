@@ -3,7 +3,7 @@ type: Issue
 title: "Rework tools/export-catalog to consume upstream's generated JSON catalog"
 description: "Replace the TypeScript-import input path with upstream's JSON catalog output, and document the regeneration procedure honestly now that it is no longer reproducible from the pinned SHA alone."
 tags: [epic-3]
-timestamp: 2026-08-11T14:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 3
 issue: 02
 slug: export-catalog-json-input
@@ -161,5 +161,9 @@ record wins.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~250 changed lines: the models input of a 58-line script rewritten end to
+end (directory read off `UPSTREAM_CLONE_DIR`, `Object.values()` mapping, an
+actionable missing-catalog error), its doc comment's byte-stability claim
+replaced, `docs/PORTING.md:58` and the sync procedure at `:120-124` rewritten,
+and a drift record for the SPECS.md contradiction. Split past ~500, and the seam
+is the documentation half — the tool change alone is the mergeable core.

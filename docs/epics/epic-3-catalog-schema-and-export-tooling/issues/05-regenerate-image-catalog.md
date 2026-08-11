@@ -3,7 +3,7 @@ type: Issue
 title: "Regenerate the image catalog from upstream 936aff00 and cover its decode path"
 description: "Refresh ai/catalog/data/images/openrouter.json to the 42 image models upstream declares at the frozen revision, and prove ai/images decodes every entry."
 tags: [epic-3]
-timestamp: 2026-08-11T14:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 3
 issue: 05
 slug: regenerate-image-catalog
@@ -149,6 +149,10 @@ the file is non-empty — it never decodes it.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. The JSON here is generated (712 lines today, ~850 after) and the
-hand-written part is one test file.
+`S` — ~80 hand-written lines: one test file covering the decode path
+(`TestCatalogModelsDecodesEveryEmbeddedImageModel` plus the builtin-provider
+case), reusing issue 03's strict-decode helper rather than adding a sweep. The
+regenerated `ai/catalog/data/images/openrouter.json` is generated — 712 lines
+today, ~850 after — and does not count toward the band
+([Epic 0](/epic-0-plan-remediation/EPIC_0.md), `## Notes`), which is the same
+rule that now re-labels issue 04 to `S`. Split past ~200 hand-written lines.

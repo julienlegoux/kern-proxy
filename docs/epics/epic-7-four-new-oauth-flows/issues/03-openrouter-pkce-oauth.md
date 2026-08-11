@@ -3,11 +3,11 @@ type: Issue
 title: "Port the OpenRouter PKCE OAuth flow and bind it to both OpenRouter providers"
 description: "Port src/auth/oauth/openrouter.ts as ai/auth/oauth/openrouter.go — a one-shot loopback callback on an ephemeral port raced against a manual-code prompt, exchanging the code for a permanent API key — and wire it into the text and image OpenRouter bindings."
 tags: [epic-7]
-timestamp: 2026-08-11T13:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 7
 issue: 03
 slug: openrouter-pkce-oauth
-size: M
+size: L
 status: open
 gh_issue: 183
 resource: https://github.com/kern-ia/kern-link/issues/183
@@ -238,5 +238,11 @@ flight, and copy its resolved shape rather than inventing a third.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`L` — ~800 changed lines: 633 upstream lines (`src/auth/oauth/openrouter.ts`
+311 plus `test/openrouter-oauth.test.ts` 322), plus a bespoke one-shot
+callback server that exchanges inside the handler (404/409/400/502 pages and
+all), the `anthropicCallbackHost` → `callbackHost` rename across
+`anthropic.go` and `codex.go`, and two bindings, pinned by 13 named tests.
+`L` is the ceiling, not the target: server, exchange and manual-code race
+settle one decision together, and past ~1000 the honest cut is landing the
+mechanical rename as its own preceding PR.

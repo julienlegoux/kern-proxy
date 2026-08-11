@@ -3,7 +3,7 @@ type: Issue
 title: "Anthropic: resolve ANTHROPIC_AUTH_TOKEN as a bearer header ahead of the API-key envs"
 description: "Replace the Anthropic binding's generic env-key strategy with upstream's dedicated resolver, which sends ANTHROPIC_AUTH_TOKEN as Authorization: Bearer instead of as an x-api-key."
 tags: [epic-6]
-timestamp: 2026-08-11T13:05:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 6
 issue: 07
 slug: anthropic-auth-token
@@ -160,5 +160,8 @@ distribution and is the reason it stays defensible; the row itself is
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~300 changed lines: one binding-local `anthropicAPIKeyAuth()` replacing a
+single `auth.EnvAPIKeyAuth` call in `ai/providers/anthropic.go`, a one-line
+`Env` propagation in `ai/auth/helpers.go`, and six named tests — one of them an
+offline `httptest` round trip through the Anthropic adapter — covering
+upstream's new 187-line `test/anthropic-auth-token.test.ts`. Split past ~500.

@@ -3,11 +3,11 @@ type: Issue
 title: "Collapse the anthropic and codex login flows onto upstream's always-racing manual-code prompt"
 description: "Port the moved auth/oauth/anthropic.ts and openai-codex.ts content: the optional manual-code branch and its text-prompt fallback are gone, the manual prompt always races the callback server, and abort cancels the wait."
 tags: [epic-6]
-timestamp: 2026-08-09T10:24:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 6
 issue: 08
 slug: anthropic-codex-login-race
-size: M
+size: L
 status: open
 gh_issue: 177
 resource: https://github.com/kern-ia/kern-link/issues/177
@@ -152,5 +152,10 @@ Codex keeps its `originator` parameter at `936aff00` (defaulted to `"pi"`), so
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`L` — ~800 changed lines: `anthropic_test.go` (415) and `codex_test.go` (738)
+are 1153 lines pinning the optional-manual-code shape and all of it is
+rewritten, on top of deleting a branch, `redirectUriForExchange` and an options
+field from each of the two flows. Re-sized from `M` per REPORT_6. `L` is the
+ceiling, not the target: the prompt-race contract is one behavior, and a
+half-migrated tree would ship two different login shapes at once. If it trends
+past ~1000 the honest cut is 08a anthropic / 08b codex — the files share no code.

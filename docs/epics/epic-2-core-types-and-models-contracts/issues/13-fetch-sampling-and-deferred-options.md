@@ -3,7 +3,7 @@ type: Issue
 title: "Add Fetch and SamplingParams to the provider request base, and declare the deferred option variants"
 description: "Extend ProviderRequestOptions with fetch injection, add samplingParams to Model and StreamOptions, declare DeferredFetchOptions/DeferredCancelOptions and the two OpenAI-family StreamOptions fields Epic 4 waits on, and record the telemetry and TModel-generic PORTING decisions."
 tags: [epic-2]
-timestamp: 2026-08-11T16:20:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 2
 issue: 13
 slug: fetch-sampling-and-deferred-options
@@ -196,8 +196,10 @@ and cheaper.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. Expected well under the ceiling: one struct field, a `Model` field plus its
-deep-copy extension, two thin option types, two `StreamOptions` field
-declarations with doc comments, and two `docs/PORTING.md` rows — none of it
-touches the 248-site literal rewrite issue 05 already landed.
+`M` — ~200 changed lines, at the bottom of the band: `Fetch` plus its
+`FetchFunction` type, `SamplingParams` on `Model` and `StreamOptions` with the
+deep-copy extension, two thin deferred option structs, the two OpenAI-family
+`StreamOptions` declarations with the doc comments that justify `any`, and two
+`docs/PORTING.md` entries — none of it touching the 248-site literal rewrite
+issue 05 already landed. Split past ~500; the seam is the two OpenAI-family
+fields, which nothing in this epic consumes.
