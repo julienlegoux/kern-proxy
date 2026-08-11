@@ -3,7 +3,7 @@ type: Issue
 title: "mistral: pending and raw stop reasons with provider-stopped error text, and strict tool sampling"
 description: "Stop silently mapping unknown Mistral finish reasons to stop, start the stream at pending, record the raw finish reason, and resolve per-tool strict JSON-schema sampling."
 tags: [epic-5]
-timestamp: 2026-08-09T09:45:42Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 5
 issue: 07
 slug: mistral-stop-reasons-and-strict-tools
@@ -128,6 +128,9 @@ This issue covers the two behavioral changes:
       `test/mistral-raw-stop-reason.test.ts` and the strict case of
       `test/mistral-tool-schema.test.ts` (+3 in range) come across as discrete
       Go tests.
+- [ ] `docs/PORTING.md`'s row for `src/api/mistral-conversations.ts` still
+      describes the Go code after this change (unchanged: already
+      `ported (raw REST; no Go Mistral SDK)`).
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

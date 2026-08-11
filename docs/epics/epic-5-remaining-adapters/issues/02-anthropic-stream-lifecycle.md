@@ -3,7 +3,7 @@ type: Issue
 title: "anthropic: pending and raw stop reasons, prefilled content blocks, and nullable message_delta usage"
 description: "Start the Anthropic stream at StopReason pending, record the provider's literal stop_reason, honor text/thinking prefilled on content_block_start, and stop treating a usage-less message_delta as zeroes."
 tags: [epic-5]
-timestamp: 2026-08-09T09:45:42Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 5
 issue: 02
 slug: anthropic-stream-lifecycle
@@ -82,10 +82,11 @@ PR's.
     `ai.TextContent{Text: …}` and
     `ai.ThinkingContent{Thinking: …, ThinkingSignature: …}` from those fields
     instead of the current zero values. The `redacted_thinking` and `tool_use`
-    branches are unchanged. **Check what the start event pushes**: if a
-    non-empty prefill must also reach consumers as a delta rather than only as
-    final content, emit the matching `TextDeltaEvent` /
-    `ThinkingDeltaEvent` — decide, implement one way, and assert it in a test.
+    branches are unchanged. **Emit the matching `TextDeltaEvent` /
+    `ThinkingDeltaEvent` for a non-empty prefill**, so it reaches streaming
+    consumers the same way every other content source in this decoder does —
+    seeded, then delivered as a delta before it lands in the final message.
+    Decided in [EPIC_5.md](/epic-5-remaining-adapters/EPIC_5.md)'s `## Notes`.
   - `applyUsageDelta` (`:582`) — it already only overwrites non-null fields, but
     the caller (`:547`) invokes it unconditionally and then recomputes
     `TotalTokens`. Make a `message_delta` carrying **no** `usage` object at all
@@ -115,10 +116,10 @@ PR's.
 - Copilot dynamic headers — issue 01.
 - `providers/anthropic.ts` (+49 in range: `ANTHROPIC_AUTH_TOKEN` as a bearer
   header). That is a provider binding, not this adapter; upstream's new
-  `test/anthropic-auth-token.test.ts` covers it. **No epic in this program
-  currently owns it** — flag it in the PR body so
-  [Epic 9](/epic-9-classifier-audit-and-release/EPIC_9.md)'s disposition sweep
-  catches it rather than letting it disappear.
+  `test/anthropic-auth-token.test.ts` covers it.
+  [Epic 6](/epic-6-auth-core-and-env-api-key-bindings/EPIC_6.md) issue 07
+  (#176) owns this work — the `ANTHROPIC_AUTH_TOKEN` bearer-header binding is
+  exactly that issue's scope. Do not fold it in here.
 - The `retryProviderRequest` vs `httpretry` question — Epic 9.
 
 ## Acceptance criteria / Definition of done
@@ -135,10 +136,13 @@ PR's.
       "Provider stopped with: sensitive"` (exact string).
 - [ ] `TestContentBlockStartPreservesPrefilledText` — a `content_block_start`
       whose `content_block` is `{"type":"text","text":"hello"}` followed
-      immediately by `content_block_stop` yields a text block of `"hello"`.
+      immediately by `content_block_stop` yields a text block of `"hello"`
+      **and** a `TextDeltaEvent` carrying `"hello"` is emitted before the block
+      closes.
 - [ ] `TestContentBlockStartPreservesPrefilledThinking` — the same for
       `{"type":"thinking","thinking":"…","signature":"sig"}`, with the signature
-      landing on `ThinkingSignature`.
+      landing on `ThinkingSignature` **and** a matching `ThinkingDeltaEvent`
+      emitted.
 - [ ] `TestMessageDeltaWithoutUsageLeavesUsageUntouched` — after a
       `message_start` establishing `input_tokens: 100`, a `message_delta`
       carrying only `delta.stop_reason` leaves `Usage.Input == 100` and
@@ -150,6 +154,8 @@ PR's.
       discrete Go tests, including "repairs malformed SSE JSON" and "ignores
       unknown SSE events after message_stop" — those two assert behavior the Go
       port already has, so they are regression locks, not new features.
+- [ ] `docs/PORTING.md`'s row for `src/api/anthropic-messages.ts` still
+      describes the Go code after this change (unchanged: already `ported`).
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

@@ -3,7 +3,7 @@ type: Issue
 title: "cloudflare-stream: classify upstream's dispatch-time base-URL resolution and give it a Go home"
 description: "Upstream moved Cloudflare account/gateway placeholder resolution out of auth and into a per-request stream wrapper; decide whether kern-link follows, and record the disposition in PORTING.md."
 tags: [epic-5]
-timestamp: 2026-08-09T09:45:42Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 5
 issue: 11
 slug: cloudflare-stream-classification
@@ -48,34 +48,32 @@ disposition gate exists to eliminate, and what
 [decision 16](../../../planning/scope/16-copilot-headers-gap.md) just finished
 paying off for the Copilot headers.
 
-**Recommended**: port the dispatch-time resolution as well. It is idempotent
-(a fully-resolved URL contains no placeholders, so a second pass is a no-op), it
-is ~20 lines, and it makes the Go behavior a superset of both. Keep the
-auth-time resolution — removing it would change what `AuthResult.Auth.BaseURL`
-reports, which is kern-link's own tested contract. If the implementer instead
-concludes the auth-time resolution is sufficient, that is a defensible
-deviation — but it must be **written down with that reason**, not left implicit.
+**Port it.** Decided in [EPIC_5.md](/epic-5-remaining-adapters/EPIC_5.md)'s
+`## Notes`: it is idempotent (a fully-resolved URL contains no placeholders, so
+a second pass is a no-op), it is ~20 lines, and it makes the Go behavior a
+superset of both. Keep the auth-time resolution — removing it would change
+what `AuthResult.Auth.BaseURL` reports, which is kern-link's own tested
+contract, and it stays until
+[Epic 6 issue 03](/epic-6-auth-core-and-env-api-key-bindings/issues/03-provider-scoped-apikey-resolution.md)
+(#172) removes it.
 
 ## Scope
 
-- Decide, and implement one of:
-  - **(recommended) Port it.** Add placeholder resolution on the request path for
-    the two Cloudflare bindings, reading `{CLOUDFLARE_ACCOUNT_ID}` /
-    `{CLOUDFLARE_GATEWAY_ID}` from the resolved `ProviderEnv`, leaving the URL
-    untouched when neither placeholder resolves. Home it beside the existing
-    `resolveCloudflareBaseURL` in `ai/providers/cloudflare_auth.go` — reusing
-    that function, not writing a second substitution — or in a sibling
-    `cloudflare_stream.go` if the wiring needs its own file. `cloudflareStreams`
-    wraps `ProviderStreams`; check how kern-link's `ai.Provider` exposes
-    `Stream`/`StreamSimple` before deciding whether a wrapper type or a call in
-    each binding is the smaller change.
-  - **Record it as a deviation.** State that kern-link resolves at auth time and
-    why that is structurally sufficient here, naming the case it does not cover.
-- **`docs/PORTING.md`** gets a row for `src/providers/cloudflare-stream.ts`
-  either way, and the existing `src/api/cloudflare.ts` row (`:45`) is checked
-  for staleness — it currently says the templates are "resolved at runtime by
-  `resolveCloudflareBaseURL`", which stays true under either outcome but should
-  name the new file if one appears.
+- **Port it.** Add placeholder resolution on the request path for the two
+  Cloudflare bindings, reading `{CLOUDFLARE_ACCOUNT_ID}` /
+  `{CLOUDFLARE_GATEWAY_ID}` from the resolved `ProviderEnv`, leaving the URL
+  untouched when neither placeholder resolves. Home it beside the existing
+  `resolveCloudflareBaseURL` in `ai/providers/cloudflare_auth.go` — reusing
+  that function, not writing a second substitution — or in a sibling
+  `cloudflare_stream.go` if the wiring needs its own file. `cloudflareStreams`
+  wraps `ProviderStreams`; check how kern-link's `ai.Provider` exposes
+  `Stream`/`StreamSimple` before deciding whether a wrapper type or a call in
+  each binding is the smaller change.
+- **`docs/PORTING.md`** gets a `ported` row for
+  `src/providers/cloudflare-stream.ts`, and the existing `src/api/cloudflare.ts`
+  row (`:45`) is checked for staleness — it currently says the templates are
+  "resolved at runtime by `resolveCloudflareBaseURL`", which stays true but
+  should name the new file.
 - `// Ports:` header on whatever new code lands.
 
 ## Out of scope
@@ -84,45 +82,44 @@ deviation — but it must be **written down with that reason**, not left implici
   per-field credential/env merge ("a credential carrying only the API key must
   still pick up the account / gateway id from the environment"), the
   `AbortSignal` threading, and the removed `login` prompts. Those are provider
-  **auth** changes. No epic in this program currently claims
-  `src/providers/*.ts` updates beyond
-  [Epic 6](/epic-6-auth-core-and-env-api-key-bindings/EPIC_6.md)'s four new
-  bindings — flag it in the PR body so
-  [Epic 9](/epic-9-classifier-audit-and-release/EPIC_9.md)'s disposition sweep
-  catches it rather than losing it. **Do not fold it in here**; it is a separate
-  behavior with its own tests.
+  **auth** changes, and
+  [Epic 6 issue 03](/epic-6-auth-core-and-env-api-key-bindings/issues/03-provider-scoped-apikey-resolution.md)
+  (#172) already owns the per-field credential/env merge half of it — that is
+  exactly the `cloudflare-auth.ts` work #172 does. **Do not fold it in here**;
+  it is a separate behavior with its own tests, and #172 is the issue that
+  lands it.
 - The Cloudflare compat detection in `ai/apis/openaicompletions/compat.go:57-58`
   — unrelated and unchanged.
 
 ## Acceptance criteria / Definition of done
 
-- [ ] `docs/PORTING.md` contains a row for `src/providers/cloudflare-stream.ts`
-      with a disposition of `ported` or a named deviation, and no upstream file
-      under `src/providers/cloudflare*` is left undispositioned.
-- [ ] If ported — `TestResolvesCloudflarePlaceholdersAtDispatch`: a model whose
-      `BaseURL` is
+- [ ] `docs/PORTING.md` contains a `ported` row for
+      `src/providers/cloudflare-stream.ts`, and no upstream file under
+      `src/providers/cloudflare*` is left undispositioned.
+- [ ] `TestResolvesCloudflarePlaceholdersAtDispatch`: a model whose `BaseURL` is
       `https://gateway.ai.cloudflare.com/v1/{CLOUDFLARE_ACCOUNT_ID}/{CLOUDFLARE_GATEWAY_ID}/openai`
       dispatched with `Env{CLOUDFLARE_ACCOUNT_ID: "account",
       CLOUDFLARE_GATEWAY_ID: "gateway"}` reaches the adapter with
       `https://gateway.ai.cloudflare.com/v1/account/gateway/openai`.
-- [ ] If ported — `TestKeepsCloudflarePlaceholdersWhenEnvIsAbsent`: dispatched
-      with an empty env, the `BaseURL` is returned **unchanged**, placeholders
-      and all (upstream returns the same object identity when nothing
-      substitutes; the Go equivalent is simply not mutating it).
-- [ ] If ported — `TestCloudflareResolutionIsIdempotent`: an already-resolved
-      URL passes through untouched, proving the auth-time and dispatch-time
-      passes compose.
+- [ ] `TestKeepsCloudflarePlaceholdersWhenEnvIsAbsent`: dispatched with an empty
+      env, the `BaseURL` is returned **unchanged**, placeholders and all
+      (upstream returns the same object identity when nothing substitutes; the
+      Go equivalent is simply not mutating it).
+- [ ] `TestCloudflareResolutionIsIdempotent`: an already-resolved URL passes
+      through untouched, proving the auth-time and dispatch-time passes
+      compose.
 - [ ] Both cases of upstream's `test/cloudflare-stream.test.ts` (new, 65 lines)
-      are represented — as Go tests if ported, or named in the deviation entry
-      as behavior kern-link deliberately does not have.
+      come across as discrete Go tests.
 - [ ] The existing `ai/providers/cloudflare_auth.go` tests still pass unchanged;
-      auth-time resolution is not removed.
+      auth-time resolution stays until
+      [Epic 6 issue 03](/epic-6-auth-core-and-env-api-key-bindings/issues/03-provider-scoped-apikey-resolution.md)
+      (#172) removes it — the dispatch-time path added here must not depend on
+      it.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.
 - [ ] Conventional Commit, e.g.
-      `feat(providers): resolve cloudflare endpoint placeholders at dispatch time`
-      (or `docs: disposition src/providers/cloudflare-stream.ts as a deviation`).
+      `feat(providers): resolve cloudflare endpoint placeholders at dispatch time`.
 
 ## Relevant files / areas
 

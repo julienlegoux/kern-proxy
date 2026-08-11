@@ -3,7 +3,7 @@ type: Issue
 title: "anthropic: deferred tools via defer_loading and tool_reference blocks"
 description: "Split the tool list with SplitDeferredTools, send withheld tools with defer_loading, and load them at their tool-result markers as tool_reference blocks with displaced sibling content."
 tags: [epic-5]
-timestamp: 2026-08-09T09:45:42Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 5
 issue: 04
 slug: anthropic-deferred-tools
@@ -161,6 +161,8 @@ Four pieces:
       immediate Anthropic tool when every current tool is marked", "supports
       explicit Anthropic compatibility overrides") come across as discrete Go
       tests.
+- [ ] `docs/PORTING.md`'s row for `src/api/anthropic-messages.ts` still
+      describes the Go code after this change (unchanged: already `ported`).
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

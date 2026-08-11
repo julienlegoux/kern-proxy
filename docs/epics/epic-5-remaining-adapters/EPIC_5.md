@@ -3,7 +3,7 @@ type: Epic
 title: "Remaining adapters"
 description: "Sync the Anthropic, Google/Vertex, Mistral and Bedrock adapters, close the long-standing Copilot dynamic-headers gap, and classify cloudflare-stream."
 tags: [epic]
-timestamp: 2026-08-09T03:55:05Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 5
 slug: remaining-adapters
 status: open
@@ -40,9 +40,12 @@ the same epic-2 core, which is why they are grouped rather than scattered.
 
 ## Out of scope
 
-- The OpenAI-family adapters — epic 4 owns those.
+- The OpenAI-family adapters — epic 4 owns those, except the Copilot header
+  builders, which [issue 01](/epic-5-remaining-adapters/issues/01-copilot-dynamic-headers.md)
+  owns end to end.
 - The classifier audit of the error strings these adapters emit; epic 9 audits
-  after the adapters have moved.
+  after the adapters have moved, except where this epic's own change to an
+  error string forces a classifier check in the same PR.
 - `pi-messages`, which is a new tenth adapter package rather than an update —
   epic 8.
 - Idiomatic-Go cleanups of ported code.
@@ -65,9 +68,24 @@ the same epic-2 core, which is why they are grouped rather than scattered.
 ## Dependencies
 
 - [Epic 2: Core types and Models contracts](/epic-2-core-types-and-models-contracts/EPIC_2.md)
+- [Epic 4](/epic-4-openai-family-adapters/EPIC_4.md) issue 01 — creates
+  `ai/apis/internal/grammar` and `ResolveJSONSchemaStrictSampling`, which
+  [issue 03](/epic-5-remaining-adapters/issues/03-anthropic-strict-tools-and-signed-thinking.md),
+  [issue 05](/epic-5-remaining-adapters/issues/05-google-shared-converters.md),
+  [issue 07](/epic-5-remaining-adapters/issues/07-mistral-stop-reasons-and-strict-tools.md)
+  and [issue 09](/epic-5-remaining-adapters/issues/09-bedrock-stop-reasons-strict-tools-and-claude-5.md)
+  call directly, and
+  [issue 04](/epic-5-remaining-adapters/issues/04-anthropic-deferred-tools.md),
+  [issue 06](/epic-5-remaining-adapters/issues/06-google-and-vertex-stream-and-params.md)
+  and [issue 08](/epic-5-remaining-adapters/issues/08-mistral-wire-and-header-parity.md)
+  need transitively through 03, 05 and 07. Issue 03 states the contradiction
+  with the paragraph below outright: "the epic file says epic 5 is independent
+  of Epic 4; that is true of the wire work and false of this one function" —
+  that is what forced this amendment.
 
-Independent of [Epic 4](/epic-4-openai-family-adapters/EPIC_4.md); the two can
-run concurrently once epic 2 has merged.
+The wire work stays independent: issues 01, 02, 10 and 11 touch no code that
+needs `ai/apis/internal/grammar`, so they and the rest of this epic can still
+run concurrently with Epic 4 once epic 2 has merged.
 
 ## Context
 
@@ -88,3 +106,35 @@ run concurrently once epic 2 has merged.
 - The governing principle: a deviation must be justified by structural
   non-portability, never by cost.
 - Upstream target frozen at `936aff00`.
+
+**Decisions taken while reconciling this epic with its issues** (epic 0 issue
+08), recorded because a later reader will otherwise re-open them — none of the
+five is structurally non-portable, so the governing principle above already
+rules out the cost-driven alternative in every case:
+
+- [Issue 06](/epic-5-remaining-adapters/issues/06-google-and-vertex-stream-and-params.md)
+  honors `opts.Fetch` (`TestGoogleHonorsInjectedFetch`) rather than porting
+  upstream's rejection. Matches Epic 4 issue 02, which honors `Fetch` for the
+  OpenAI family — the library gets one `Fetch` contract instead of two.
+- [Issue 08](/epic-5-remaining-adapters/issues/08-mistral-wire-and-header-parity.md)
+  adopts the 60s default request timeout rather than recording a `PORTING.md`
+  deviation. A hung Mistral SSE connection would otherwise block forever —
+  exactly the failure upstream's timeout bounds — and nothing makes a default
+  timeout structurally harder to add in Go than in TypeScript.
+- [Issue 09](/epic-5-remaining-adapters/issues/09-bedrock-stop-reasons-strict-tools-and-claude-5.md)
+  matches upstream's two-lookup shape for the thinking-budget default/override
+  split, rather than collapsing it to one lookup with an explanatory comment.
+  The two-lookup shape costs nothing extra to write and keeps this passage
+  diffable against upstream if the two lookups ever stop agreeing.
+- [Issue 02](/epic-5-remaining-adapters/issues/02-anthropic-stream-lifecycle.md)
+  emits the matching `TextDeltaEvent` / `ThinkingDeltaEvent` when
+  `content_block_start` carries non-empty prefilled text or thinking, rather
+  than only seeding the final content block. Every other content source in the
+  decode path reaches consumers as a delta before it reaches the final
+  message; a prefilled block that skipped that path would be the one
+  unannounced exception to it.
+- [Issue 11](/epic-5-remaining-adapters/issues/11-cloudflare-stream-classification.md)
+  ports the dispatch-time placeholder resolution rather than recording a
+  deviation. It is ~20 lines, idempotent against the existing auth-time pass,
+  and Epic 6 issue 03 (#172) already named the alternative a regression: a
+  literal `{CLOUDFLARE_ACCOUNT_ID}` shipping in a request URL.

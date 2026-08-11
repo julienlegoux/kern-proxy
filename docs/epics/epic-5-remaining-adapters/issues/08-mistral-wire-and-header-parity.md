@@ -3,7 +3,7 @@ type: Issue
 title: "mistral: request-shape and header parity with the SDK-free upstream client"
 description: "Send prefix and tool-call index on assistant replay, make x-affinity suppression case-insensitive across model and request headers, apply a default request timeout, and stop assuming streamed content parts are non-null."
 tags: [epic-5]
-timestamp: 2026-08-09T09:45:42Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 5
 issue: 08
 slug: mistral-wire-and-header-parity
@@ -58,11 +58,14 @@ Mistral, so it never inherited them. This PR closes that gap.
    `AbortSignal.timeout(options?.timeoutMs ?? 60_000)` for the whole request,
    including the SSE read. `httpretry` takes `Opts.Timeout` and applies it only
    until response headers arrive (`httpretry.go:172`, deliberate and
-   documented), and there is no default when `Timeout` is zero. Decide and
-   document: apply a 60s default in the Mistral adapter, or record the absence
-   as a deviation with its reason. **Do not leave it undecided** — a hung
-   Mistral SSE connection currently blocks forever, which is the failure
-   upstream's timeout exists to bound.
+   documented), and there is no default when `Timeout` is zero. **Apply a 60s
+   default in the Mistral adapter** — decided in
+   [EPIC_5.md](/epic-5-remaining-adapters/EPIC_5.md)'s `## Notes` — so a hung
+   Mistral SSE connection no longer blocks forever, which is the failure
+   upstream's timeout exists to bound. If `httpretry`'s header-only timeout
+   scope means the SSE-read portion needs its own bound to match upstream's
+   whole-request semantics, add it here rather than silently covering only the
+   header wait.
 
 4. **Streamed content parts are nullable.** Upstream added `?? []` / `?? ""`
    around `item.thinking` and `item.text` when it stopped trusting SDK types.
@@ -100,13 +103,14 @@ entry that replaces the stale reason.
     [issue 09](/epic-2-core-types-and-models-contracts/issues/09-models-request-transforms.md)'s
     case-insensitive header merging supersedes part of this — if it does, use it
     rather than writing a second implementation.
-  - `run` (`:98`) — the timeout decision from point 3.
+  - `run` (`:98`) — apply the 60s default timeout from point 3.
 - `ai/apis/mistral/stream.go` — `decodeContentItems` (`:240`) nil-safety
   verification.
 - Tests, offline `httptest`, in `ai/apis/mistral/transport_test.go`.
 - `docs/PORTING.md` — refresh the `mistral-conversations.ts` row: upstream is no
   longer SDK-based, so "ported (raw REST; no Go Mistral SDK)" now understates
-  the alignment. Record whichever deviations survive (error text, timeout).
+  the alignment. Record whichever error-text deviation survives point 4 below;
+  the 60s timeout is a straight port, not a deviation.
 - `// Ports:` headers stay accurate — in particular `statusError`'s comment if
   its rationale changes.
 
@@ -142,11 +146,9 @@ entry that replaces the stale reason.
 - [ ] `TestModelHeaderOverridesDefaultCaseInsensitively` — a
       `model.Headers["Content-Type"]` replaces the default `content-type`
       rather than adding a second entry.
-- [ ] `TestRequestTimeoutBoundsAStalledStream` (if the 60s default is adopted) —
-      an `httptest` server that accepts the request and then never writes ends
-      the stream with an error rather than hanging. If the default is **not**
-      adopted, `docs/PORTING.md` carries the deviation and its reason instead,
-      and the PR body says which was chosen.
+- [ ] `TestRequestTimeoutBoundsAStalledStream` — an `httptest` server that
+      accepts the request and then never writes ends the stream with an error
+      rather than hanging, within the 60s default.
 - [ ] `TestStreamThinkingPartWithoutTextIsHarmless` — an SSE chunk with
       `{"type":"thinking"}` and no `thinking` array, and one with
       `{"type":"text"}` and no `text`, produce no panic and no spurious delta
