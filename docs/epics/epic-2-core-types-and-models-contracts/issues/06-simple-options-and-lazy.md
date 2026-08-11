@@ -3,7 +3,7 @@ type: Issue
 title: "Update simple-options and lazy to 0.84.1"
 description: "Carry the new request knobs through BuildBaseOptions, export the min-answer-token constant, and make LazyStream forward the inner stream's result."
 tags: [epic-2]
-timestamp: 2026-08-11T13:10:00Z
+timestamp: 2026-08-11T16:20:00Z
 epic: 2
 issue: 06
 slug: simple-options-and-lazy
@@ -11,7 +11,7 @@ size: S
 status: open
 gh_issue: 134
 resource: https://github.com/kern-ia/kern-link/issues/134
-depends_on: [1, 5]
+depends_on: [1, 5, 13]
 ---
 
 # Update simple-options and lazy to 0.84.1
@@ -26,7 +26,7 @@ this epic rather than with the adapters. Both changed at `936aff00`:
 - `resolveSimpleOptions` now merges `samplingParams` (model defaults under
   per-request overrides) and forwards `fetch` (and `telemetryContext`, which
   kern-link does not port — see
-  [issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)).
+  [issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)).
 - `minOutputTokens` became the exported `MIN_ANSWER_TOKENS = 1024`, documented
   as "tokens always left for the answer when a thinking budget shares the
   response ceiling".
@@ -109,8 +109,9 @@ completed `outer`. Upstream now propagates the result explicitly.
 
 - **Blocked by**: [Issue 01](/epic-2-core-types-and-models-contracts/issues/01-widen-stopreason-and-thinkinglevel.md)
   (`ClampReasoning` edits the same function region) and
-  [Issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
-  (`Fetch` and `SamplingParams` must exist first).
+  [Issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
+  (`Fetch` and `SamplingParams` must exist first — issue 13, not issue 05,
+  since the split moved both fields there).
 - **Blocks**: Nothing inside this epic.
 
 ## PR size note

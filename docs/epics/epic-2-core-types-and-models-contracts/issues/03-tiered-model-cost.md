@@ -90,7 +90,7 @@ sync, so it ships as its own PR with its own arithmetic tests.
   rates) — epic 3 owns catalog validation.
 - `Model.samplingParams`, also new on `Model` at this revision — it belongs with
   the options work in
-  [issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md).
+  [issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md).
 
 ## Acceptance criteria / Definition of done
 

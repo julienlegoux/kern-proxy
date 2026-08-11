@@ -44,7 +44,7 @@ which is the shape of this change: provider sniffing turns into resolved compat.
   `prompt_cache_options: {mode: "explicit"}`.
 - Smaller riders: `tool_choice` passthrough from
   `ai.StreamOptions.OpenAIToolChoice` (declared as `any` by
-  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md);
+  [Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md);
   upstream types it `ResponseCreateParamsStreaming["tool_choice"]`,
   `packages/ai/src/api/openai-responses.ts:96` at `936aff00`);
   `reasoningEffort` accepts `max`;
@@ -147,7 +147,7 @@ which is the shape of this change: provider sniffing turns into resolved compat.
   [08](/epic-4-openai-family-adapters/issues/08-responses-shared-stream-decode.md);
   [Epic 2 issue 04](/epic-2-core-types-and-models-contracts/issues/04-compat-flags-and-bedrock-compat.md)
   and [issue 11](/epic-2-core-types-and-models-contracts/issues/11-deferred-tools-split.md);
-  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  [Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
   (`OpenAIToolChoice` on `ai.StreamOptions`). The Epic 2 edges live in prose
   because `depends_on` holds intra-epic numbers only.
 - **Blocks**: None.

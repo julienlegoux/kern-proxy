@@ -30,7 +30,7 @@ contract tightens.
 - **`tool_choice`** becomes `opts.OpenAIToolChoice` falling back to `"auto"`,
   instead of a hardcoded `"auto"` (`params.go:102`). The field is
   `ai.StreamOptions.OpenAIToolChoice`, declared as `any` by
-  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md);
+  [Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md);
   upstream's Codex options narrow it to `"auto" | "none" | "required"`
   (`packages/ai/src/api/openai-codex-responses.ts:91`, used at `:569` as
   `options?.toolChoice ?? "auto"`), but the Go field is shared with completions
@@ -137,7 +137,7 @@ contract tightens.
   [07](/epic-4-openai-family-adapters/issues/07-responses-shared-namespace-and-deferred-tools.md),
   [08](/epic-4-openai-family-adapters/issues/08-responses-shared-stream-decode.md);
   [Epic 2 issue 02](/epic-2-core-types-and-models-contracts/issues/02-message-model-deferred-fields.md)
-  (`EndTurn`), [issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  (`EndTurn`), [issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
   (`OpenAIToolChoice` on `ai.StreamOptions`), and
   [issue 11](/epic-2-core-types-and-models-contracts/issues/11-deferred-tools-split.md)
   (`SplitDeferredTools`) — cross-epic, so stated here rather than in

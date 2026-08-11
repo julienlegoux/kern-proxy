@@ -3,6 +3,8 @@
 ## 2026-08-11
 
 * **Started**: [Issue 05: Pre-split Epic 2 issues 05 and 08 into reviewable halves](/epic-0-plan-remediation/issues/05-pre-split-epic-2-issues-05-and-08.md) (#203) moved to `in-progress` on branch `issue-203-pre-split-epic-2-issues-05-and-08`.
+* **Creation**: Established [Epic 2 issue 13: Add Fetch and SamplingParams to the provider request base, and declare the deferred option variants](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md) (#225) — split out of Epic 2 issue 05 by [Epic 0 issue 05](/epic-0-plan-remediation/issues/05-pre-split-epic-2-issues-05-and-08.md).
+* **Creation**: Established [Epic 2 issue 14: Generation-check ModelsPublication so a superseded refresh returns false and mutates nothing](/epic-2-core-types-and-models-contracts/issues/14-refresh-generation-and-publication.md) (#226) — split out of Epic 2 issue 08 by [Epic 0 issue 05](/epic-0-plan-remediation/issues/05-pre-split-epic-2-issues-05-and-08.md).
 
 * **Started**: [Issue 07: Repair the Epic 4 issue set: provenance, the undeclared cross-epic blockers, and the renamed section heading](/epic-0-plan-remediation/issues/07-repair-the-epic-4-issue-set.md) (#205) moved to `in-progress` on branch `issue-07-epic0-epic4-recheck`.
 * **PR opened**: [Issue 07: Repair the Epic 4 issue set: provenance, the undeclared cross-epic blockers, and the renamed section heading](/epic-0-plan-remediation/issues/07-repair-the-epic-4-issue-set.md) (#205) moved to `pr-open` — [PR #220](https://github.com/kern-ia/kern-link/pull/220), targeting `develop`.

@@ -48,7 +48,7 @@ the SSE path, all independently observable:
 `createClient`. kern-link has no client object — the Go adapter talks raw HTTP
 through `ai/apis/internal/httpretry` — so this is about honoring
 `ProviderRequestOptions.Fetch` (Epic 2
-[issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md))
+[issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md))
 on the anthropic request path, the same way epic 4
 [issue 02](/epic-4-openai-family-adapters/issues/02-fetch-and-sampling-params.md)
 does for the OpenAI family.
@@ -181,7 +181,7 @@ PR's.
 
 - **Blocked by**: Epic 2 [issue 01](/epic-2-core-types-and-models-contracts/issues/01-widen-stopreason-and-thinkinglevel.md)
   (`StopReasonPending`), [issue 02](/epic-2-core-types-and-models-contracts/issues/02-message-model-deferred-fields.md)
-  (`RawStopReason`), [issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  (`RawStopReason`), [issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
   (`Fetch`).
 - **Blocks**: None. Issues 03 and 04 touch the request-building half of the same
   file; merge order between them is a rebase concern, not a logical dependency.

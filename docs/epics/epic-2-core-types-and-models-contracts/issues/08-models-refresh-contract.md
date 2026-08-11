@@ -1,9 +1,9 @@
 ---
 type: Issue
-title: "Port the Models refresh contract: RefreshModelsContext, ModelsPublication, and the provider overlay"
-description: "Replace refreshModels() with the generation-checked publish pipeline, add ModelsRefreshOptions/Result, and rebuild createProvider around a static baseline plus a dynamic overlay."
+title: "Port the Models refresh contract: the two-phase refresh, ModelsPublication types, and the provider overlay"
+description: "Replace refreshModels() with the context-carrying refresh contract, add ModelsRefreshOptions/Result, and rebuild createProvider around a static baseline plus a dynamic overlay — the generation-checked publish machinery is issue 14."
 tags: [epic-2]
-timestamp: 2026-08-09T04:31:17Z
+timestamp: 2026-08-11T16:20:00Z
 epic: 2
 issue: 08
 slug: models-refresh-contract
@@ -14,12 +14,11 @@ resource: https://github.com/kern-ia/kern-link/issues/136
 depends_on: [5, 7]
 ---
 
-# Port the Models refresh contract: RefreshModelsContext, ModelsPublication, and the provider overlay
+# Port the Models refresh contract: the two-phase refresh, ModelsPublication types, and the provider overlay
 
 ## Summary
 
-This is the largest single contract change in the sync. Upstream replaced
-`Provider.refreshModels(): Promise<void>` and
+Upstream replaced `Provider.refreshModels(): Promise<void>` and
 `Models.refresh(provider?): Promise<void>` with a transactional pipeline:
 
 ```ts
@@ -39,22 +38,19 @@ export interface ModelsRefreshOptions { allowNetwork?; providers?; force?; signa
 export interface ModelsRefreshResult { aborted: boolean; errors: ReadonlyMap<string, Error> }
 ```
 
-Four behaviors come with it, and none of them is optional if the contract is to
-mean anything:
-
-1. **Two phases per provider.** A cache-only phase (`allowNetwork: false`)
-   restores `context.stored` *before* auth resolution or any network access;
-   only then does the network phase run with the effective credential.
-2. **Generation-checked publication.** `setProvider`/`deleteProvider`/
-   `clearProviders` supersede an in-flight refresh; a superseded `publish()`
-   returns false and mutates nothing. Publications for one provider are
-   serialized.
-3. **Refresh no longer rejects.** Provider errors and cancellation come back in
-   `ModelsRefreshResult` instead of as a thrown `ModelsError`.
-4. **createProvider keeps a static baseline plus a dynamic overlay.** `getModels`
-   returns the baseline with dynamic entries merged in by model ID (dynamic wins
-   on collision, new IDs append), instead of the old wholesale replacement.
-   `refreshModels` on the provider is now derived from a `fetchModels` input.
+This issue is one half of a pre-split
+([Epic 0 issue 05](/epic-0-plan-remediation/issues/05-pre-split-epic-2-issues-05-and-08.md)):
+it ports the contract types, the two-phase refresh (cache-only restore before
+auth resolution, then the network phase), refresh-no-longer-rejects, and the
+`createProvider` baseline-plus-overlay rework. The generation-checked
+concurrency behind `publish()` — the part that makes a superseded refresh
+return `false` and mutate nothing, and cancellation of an in-flight refresh —
+is [issue 14](/epic-2-core-types-and-models-contracts/issues/14-refresh-generation-and-publication.md),
+which depends on this one and lands after it. There is no interim fallback: the
+split was decided before either PR opened, so this issue does not ship an
+"unconditional apply" stand-in for what issue 14 builds — `publish()` applies
+its `ModelsPublication` directly here, with the supersede check itself absent
+until issue 14 lands.
 
 kern-link has four dynamic providers (`openrouter`, `vercel-ai-gateway`,
 `nvidia`, `github-copilot`) whose native `RefreshModels` is itself a recorded
@@ -77,22 +73,29 @@ owns.
   failure, and its doc comment must say so in the contract style
   `ai/provider.go` already uses ("Must not fail", "Concurrent calls share one
   in-flight fetch").
-- `modelsImpl` — port the generation and publication machinery
-  (`refreshGenerations`, `refreshControllers`, `publicationChains` upstream) with
-  Go mechanisms: a per-provider generation counter under the existing mutex, a
-  `context.CancelFunc` per in-flight refresh, and serialized publication per
-  provider. **The observable contract is what must match** — superseded
-  publications return false and mutate nothing — not the JavaScript mechanism.
+- `modelsImpl` — port the two-phase refresh (`allowNetwork: false` restore of
+  `context.stored` before auth resolution or any network access, then the
+  network phase with the effective credential) and a `publish()` that applies
+  a `ModelsPublication` to the store and in-memory state. This issue's
+  `publish()` is **not** generation-checked — it has no supersede detection —
+  that is issue 14's entire scope.
 - `CreateProviderOptions` — `RefreshModels func(ctx) ([]*Model, error)`
   (`ai/provider.go:361`) becomes upstream's `FetchModels(ctx, rc) ([]*Model, error)`;
   `providerImpl` keeps `baselineModels` and `dynamicModels` and merges them in
-  `GetModels()` by ID.
+  `GetModels()` by ID (dynamic wins on collision, new IDs append).
 - Update the four dynamic bindings in `ai/providers` to the new
   `FetchModels` shape, mechanically — no behavior change beyond what the
   contract forces.
 
 ## Out of scope
 
+- **Generation-checked publication and cancellation.** `setProvider`/
+  `deleteProvider`/`clearProviders` superseding an in-flight refresh, a
+  `publish()` that returns `false` and mutates nothing when superseded, a
+  per-provider generation counter, serialized publications per provider, and
+  the `context.CancelFunc` machinery for an in-flight refresh — all of
+  [issue 14](/epic-2-core-types-and-models-contracts/issues/14-refresh-generation-and-publication.md),
+  which depends on the contract this issue ships.
 - **`Provider.filterModels` and `Models.getAvailable` / `checkAuth` / `login` /
   `logout`, and the `getAuth(providerId, …)` overload.** These arrive in the same
   upstream diff but depend on `AuthCheck`, `AuthType`, `AuthInteraction`, and
@@ -123,29 +126,30 @@ owns.
       via a fetch that records when it ran).
 - [ ] `TestRefreshPersistsFetchedCatalog` — after a successful network phase the
       store holds the fetched models with `CheckedAt` set.
-- [ ] `TestPublishReturnsFalseWhenProviderSuperseded` — replacing the provider
-      via `SetProvider` mid-refresh makes the in-flight `publish` return false
-      and leaves both the store and the provider's model list untouched.
 - [ ] `TestRefreshReturnsProviderErrorsWithoutFailing` — one failing provider
       among several yields a non-nil result whose error map has exactly that
       provider's ID, and `Refresh` itself does not return an error.
 - [ ] `TestRefreshHonorsProviderFilter` — `ModelsRefreshOptions.Providers`
       restricts the run; unknown and static providers are skipped silently.
-- [ ] `TestRefreshCancelledContextReportsAborted` — a cancelled `ctx` yields
-      `Aborted: true` and no partial publication.
 - [ ] `TestGetModelsMergesDynamicOverlayOverBaseline` — a dynamic model sharing
       an ID with a baseline model replaces it in place; a new ID appends; the
       baseline is never lost after a failed refresh.
 - [ ] The four dynamic bindings still list models:
       `GOTMPDIR=$PWD/.gotmp go test ./ai/providers/...` green.
 - [ ] `Models.Refresh`'s and `Provider.RefreshModels`' doc comments specify
-      failure and concurrency behavior to the bar set by `ai/provider.go:26-41`.
+      failure and concurrency behavior to the bar set by `ai/provider.go:26-41`,
+      and note explicitly that generation-checked supersede handling ships in
+      issue 14.
+- [ ] This issue's own test list above contains no supersede-detection or
+      cancellation-reporting test — both belong to
+      [issue 14](/epic-2-core-types-and-models-contracts/issues/14-refresh-generation-and-publication.md),
+      which names them.
 - [ ] CI green: `go test ./... -race -v` — **the race detector is the point
       here**, and its verdict only ever arrives from CI — plus
       `bash upstream/sync_test.sh` and `golangci-lint` v2.12.2.
 - [ ] `gofmt -l .` prints nothing; `ai/provider.go` keeps its `// Ports:` header.
 - [ ] Conventional Commit, e.g.
-      `feat(ai)!: publish model refreshes through a generation-checked store`.
+      `feat(ai)!: publish model refreshes through the two-phase refresh contract`.
 
 ## Relevant files / areas
 
@@ -169,15 +173,14 @@ owns.
   [Issue 07](/epic-2-core-types-and-models-contracts/issues/07-models-store.md).
 - **Blocks**: [Issue 09](/epic-2-core-types-and-models-contracts/issues/09-models-request-transforms.md),
   [Issue 10](/epic-2-core-types-and-models-contracts/issues/10-deferred-response-dispatch.md)
-  (both edit `ai/provider.go` in the same regions).
+  (both edit `ai/provider.go` in the same regions), and
+  [Issue 14](/epic-2-core-types-and-models-contracts/issues/14-refresh-generation-and-publication.md),
+  which hardens the `publish()` this issue ships with generation checking.
 
 ## PR size note
 
 Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. **Sized L deliberately**: the `Provider` interface change, the `modelsImpl`
-refresh rework, and the `createProvider` overlay are one contract — landing any
-one alone leaves the interface half-migrated and the dynamic bindings
-uncompilable. If it approaches ~1000 lines anyway, the natural cut is
-*contract + createProvider overlay* first, *generation/publication concurrency*
-second, with the interim `publish` implemented as an unconditional apply and the
-gap flagged in the PR body.
+PR. **Sized `L`**: the `Provider` interface change, the two-phase `modelsImpl`
+refresh, and the `createProvider` overlay are one contract — landing any one
+alone leaves the interface half-migrated and the dynamic bindings
+uncompilable.

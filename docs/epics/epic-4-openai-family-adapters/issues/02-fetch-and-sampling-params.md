@@ -18,7 +18,7 @@ depends_on: []
 
 ## Summary
 
-[Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+[Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
 adds `Fetch` and `SamplingParams` to the options structs and explicitly hands
 the wire behavior to this epic: *"Honoring `Fetch` and `SamplingParams` on the
 wire is Epic 4 and Epic 5."* This PR does the epic-4 half.
@@ -30,7 +30,7 @@ Both are one-line changes upstream and neither is one line in Go:
   httpretry.Config{Opts: opts, …})` (`openaicompletions.go:123`,
   `openairesponses.go:129`, `azure.go`, `codex.go:277`), so the honest place to
   honor an injected doer is `httpretry` itself — which is exactly where
-  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  [Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
   said it would plausibly land. Doing it there gives the epic-5 adapters the
   same behavior for free; that is a feature, but state it in the PR body rather
   than letting it look like scope creep.
@@ -130,7 +130,7 @@ Both are one-line changes upstream and neither is one line in Go:
 
 ## Dependencies
 
-- **Blocked by**: [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+- **Blocked by**: [Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
   (the `Fetch` and `SamplingParams` fields) and
   [Epic 2 issue 06](/epic-2-core-types-and-models-contracts/issues/06-simple-options-and-lazy.md)
   (the model/request merge).
