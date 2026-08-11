@@ -3,7 +3,7 @@ type: Issue
 title: "openai-responses shared: custom tool-call streaming, reasoning backfill, and stop-reason mapping"
 description: "Decode custom_tool_call input deltas into JSON tool-call deltas, backfill encrypted reasoning signatures at completion, split incomplete responses by reason, and account cache-write tokens."
 tags: [epic-4]
-timestamp: 2026-08-11T15:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 4
 issue: 08
 slug: responses-shared-stream-decode
@@ -155,9 +155,10 @@ stream that ends still `pending` as an error; that entry-point half is in issues
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR. **Sized L deliberately**: the five behaviors share one event loop and one
-finalizer, and landing them separately would mean three PRs each rewriting the
-same forty lines. If it does approach 1000, the clean cut is
-custom-tool-call streaming in one PR and the finalizer changes (backfill, usage,
-stop reason) in another.
+`L` — ~800 changed lines: five entangled behaviors inside the single event loop
+and finalizer of the 518-line `stream.go`, plus eight named tests on top of the
+existing 378-line `stream_test.go`. `L` is the ceiling, not the target: the five
+behaviors share that one loop and finalizer, and landing them separately would
+mean three PRs each rewriting the same forty lines. If it trends past ~1000 the
+honest cut is custom-tool-call streaming in one PR and the finalizer changes
+(backfill, usage, stop reason) in another.

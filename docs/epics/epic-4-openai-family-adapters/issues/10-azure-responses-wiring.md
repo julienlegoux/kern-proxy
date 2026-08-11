@@ -3,11 +3,11 @@ type: Issue
 title: "azure-openai-responses: grammar tools, strict resolution, and the pending stop reason"
 description: "Wire Azure onto the updated shared responses core — grammar tool properties, compat-driven strict mode, the pending start state and real error messages — and port the reasoning-replay coverage."
 tags: [epic-4]
-timestamp: 2026-08-11T15:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 4
 issue: 10
 slug: azure-responses-wiring
-size: S
+size: M
 status: open
 gh_issue: 156
 resource: https://github.com/kern-ia/kern-link/issues/156
@@ -109,5 +109,10 @@ reasoning-signature backfill through the Azure entry point.
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~300 changed lines: the adapter side is genuinely small (+52 upstream,
+landing as the grammar map, converter options, the `pending` guard and scratch
+cleanup across `run`, `buildParams` and `applyReasoning`), but the test side
+carries the +136-line reasoning-replay suite plus the +30 base-URL cases as six
+named Go tests, each needing its own SSE fixture. Raised from `S` on that count
+alone — REPORT_4's stated reason was circular, so this is judged from Scope and
+Relevant files instead. Split past ~500.

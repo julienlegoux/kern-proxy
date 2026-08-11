@@ -3,7 +3,7 @@ type: Issue
 title: "openai-responses shared: grammar custom tools and the tool-result output refactor"
 description: "Teach the shared responses converters the custom_tool_call / custom_tool_call_output wire shapes, the defer_loading flag, and one unified tool-result output builder."
 tags: [epic-4]
-timestamp: 2026-08-11T15:00:00Z
+timestamp: 2026-08-11T18:15:00Z
 epic: 4
 issue: 06
 slug: responses-shared-grammar-and-tool-results
@@ -141,5 +141,9 @@ Three things change:
 
 ## PR size note
 
-Target ~500 changed lines; if this grows past ~1000, split it before opening the
-PR.
+`M` — ~420 changed lines: six functions in the 444-line `messages.go`
+(`ConvertToolsOptions`, `ConvertTools`, `wireTool`, the two wire call/output
+structs, `convertAssistantMessage`, `convertToolResultMessage`), the extracted
+tool-result output builder, and seven named tests against a file carrying only
+107 lines of coverage today. Split past ~500, and the seam is the tool-result
+output refactor apart from the grammar wire shapes.
