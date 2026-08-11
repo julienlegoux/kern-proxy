@@ -2,6 +2,7 @@
 
 ## 2026-08-11
 
+* **Started**: [Issue 04: Repair the Epic 2 issue set: the criterion Go cannot satisfy, the missing edge, and the duplicated ownership](/epic-0-plan-remediation/issues/04-repair-the-epic-2-issue-set.md) (#202) moved to `in-progress` on branch `issue-04-repair-the-epic-2-issue-set`.
 * **Status**: [Issue 01: Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md) (#199) moved to `pr-open` — PR [#216](https://github.com/kern-ia/kern-link/pull/216) targets `develop`.
 * **PR opened**: [Issue 03: Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type](/epic-0-plan-remediation/issues/03-repair-the-epic-1-issue-set.md) (#201) — [PR #215](https://github.com/kern-ia/kern-link/pull/215).
 * **Completed**: [Issue 01: Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md) (#199) moved to `done` — [PR #216](https://github.com/kern-ia/kern-link/pull/216) merged into `develop` 2026-08-11.
