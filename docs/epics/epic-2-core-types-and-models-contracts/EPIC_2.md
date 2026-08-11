@@ -3,7 +3,7 @@ type: Epic
 title: "Core types and Models contracts"
 description: "Port the types.ts and models.ts surface, the new core catalog modules, and deferred tools in full — the foundation every other file in the sync compiles against."
 tags: [epic]
-timestamp: 2026-08-09T03:55:05Z
+timestamp: 2026-08-11T12:30:00Z
 epic: 2
 slug: core-types-and-models-contracts
 status: open
@@ -44,6 +44,17 @@ paid for in every subsequent epic.
 ## Out of scope
 
 - Adapter-side consumption of the new contracts — that is epics 4 and 5.
+- **A real adapter implementation of deferred responses**, in this epic or any
+  other. `FetchDeferred`/`CancelDeferred` ship as dispatch plumbing
+  ([issue 10](/epic-2-core-types-and-models-contracts/issues/10-deferred-response-dispatch.md))
+  proved end to end by `faux`
+  ([issue 12](/epic-2-core-types-and-models-contracts/issues/12-faux-deferred-responses.md)),
+  and no `ai/apis/*` package gains one. This is **parity, not a shortfall**: at
+  `936aff00` upstream's own `fetchDeferred`/`cancelDeferred` appear only in
+  `types.ts`, `models.ts`, `api/lazy.ts` (a forwarding shim) and
+  `providers/faux.ts` — no upstream adapter implements them either. Epics 4 and
+  5 cover deferred *tools*, a different capability. Recorded here because issue
+  10 previously deferred this to those epics, which never accepted it.
 - Regenerating the model catalog JSON, which epic 3 owns. This epic ships the Go
   structs that *read* the catalog; the regenerated tree fails validation at load
   if it arrives first.

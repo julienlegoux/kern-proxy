@@ -3,7 +3,7 @@ type: Issue
 title: "Honor MaxRetries and MaxRetryDelay in the OpenRouter images adapter"
 description: "Port upstream's retryProviderRequest wrapping of the images request by making the shared httpretry loop reachable from ai/images, with offline httptest coverage."
 tags: [epic-3]
-timestamp: 2026-08-09T04:52:00Z
+timestamp: 2026-08-11T12:30:00Z
 epic: 3
 issue: 06
 slug: images-adapter-retry
@@ -90,13 +90,19 @@ correct the claim in SPECS.md as part of this PR.
   kern-link's `capRetryDelay` (`httpretry.go:296-303`) clamps, upstream's
   `validateServerRetryDelayMs` throws. Pre-existing, applies to every adapter,
   and belongs to the same epic 9 reconciliation. Do not change it here.
-- `fetch` injection into the images client — epic 2
-  [issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
-  owns `ProviderRequestOptions`, which is where upstream's new `fetch` option
-  comes from.
+- `fetch` injection into the images client —
+  [issue 07](/epic-3-catalog-schema-and-export-tooling/issues/07-images-options-base-and-auth-overrides.md)
+  (#218), which lands after this one and injects `Options.Fetch` into the retry
+  loop this PR introduces.
+  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  declares `ProviderRequestOptions` and `FetchFunction`; it does not touch
+  `ai/images`.
 - OpenRouter images **OAuth** — [Epic 7](/epic-7-four-new-oauth-flows/EPIC_7.md).
 - The `getAuth(providerId | model, overrides)` overload and
-  `AuthResolutionOverrides` — [Epic 6](/epic-6-auth-core-and-env-api-key-bindings/EPIC_6.md).
+  `AuthResolutionOverrides` on the images `Models` —
+  [issue 07](/epic-3-catalog-schema-and-export-tooling/issues/07-images-options-base-and-auth-overrides.md)
+  (#218). [Epic 6](/epic-6-auth-core-and-env-api-key-bindings/EPIC_6.md) owns
+  the chat-side auth restructure and disclaims `ai/images`.
 - Catalog regeneration —
   [issues 04](/epic-3-catalog-schema-and-export-tooling/issues/04-regenerate-model-catalog.md)
   and [05](/epic-3-catalog-schema-and-export-tooling/issues/05-regenerate-image-catalog.md).
@@ -173,7 +179,10 @@ correct the claim in SPECS.md as part of this PR.
 - **Blocked by**: None. Independent of issues 01–05 — it touches no catalog data
   and no export tooling. In practice it will rebase over whichever of them lands
   first only where both touch `ai/images`.
-- **Blocks**: Nothing. Note for [Epic 9](/epic-9-classifier-audit-and-release/EPIC_9.md):
+- **Blocks**: [Issue 07](/epic-3-catalog-schema-and-export-tooling/issues/07-images-options-base-and-auth-overrides.md)
+  (#218) — it injects `Options.Fetch` into the retry loop this PR introduces, so
+  it rebases on this one. Note for
+  [Epic 9](/epic-9-classifier-audit-and-release/EPIC_9.md):
   the `provider-retry.ts` reconciliation it owns will be against
   `ai/internal/httpretry` after this PR, not `ai/apis/internal/httpretry`.
 

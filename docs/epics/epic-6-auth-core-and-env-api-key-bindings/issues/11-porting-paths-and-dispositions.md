@@ -1,9 +1,9 @@
 ---
 type: Issue
 title: "Point docs/PORTING.md at upstream's src/auth/* paths and disposition the new auth files"
-description: "Rewrite the mapping table's deleted src/utils/oauth/* entries to upstream's current locations and give every new or changed auth file in range a disposition."
+description: "Rewrite the mapping table's deleted src/utils/oauth/* entries to upstream's current locations, give every new or changed auth file in range a disposition, and bring docs/auth.md's env-key table and resolution-order section back in line with what this epic changed."
 tags: [epic-6]
-timestamp: 2026-08-09T10:24:00Z
+timestamp: 2026-08-11T12:30:00Z
 epic: 6
 issue: 11
 slug: porting-paths-and-dispositions
@@ -71,6 +71,34 @@ but `utils/oauth/` can never match again. Leave it or drop it; if you drop it,
   - `AuthOperationOptions` and `ProviderAuthInteraction` folded into the
     existing `ctx` deviation
     ([issue 01](/epic-6-auth-core-and-env-api-key-bindings/issues/01-auth-contract-surface.md)).
+- **`docs/auth.md`'s env-key table (`:34-59`) and its resolution-order section
+  (`:15-30`).** Three of this epic's issues change what those two sections
+  state, and nothing else in the program updates them —
+  [Epic 7 issue 06](/epic-7-four-new-oauth-flows/issues/06-auth-docs-and-porting.md)
+  covers the *terms-of-service* sections for the four new flows and says so in
+  its own `## Out of scope`. So they land here, with the epic's other
+  documentation, and last:
+  - `ANTHROPIC_AUTH_TOKEN` goes **first** in the `anthropic` row's precedence
+    list (`docs/auth.md:36`, today `ANTHROPIC_OAUTH_TOKEN, ANTHROPIC_API_KEY`),
+    per [issue 07](/epic-6-auth-core-and-env-api-key-bindings/issues/07-anthropic-auth-token.md).
+    Note in the row that it resolves as an `Authorization: Bearer` header
+    rather than an api key — the table's "Env var(s), in precedence order"
+    heading does not say that on its own.
+  - Rows for the four providers
+    [issue 10](/epic-6-auth-core-and-env-api-key-bindings/issues/10-env-api-key-bindings.md)
+    binds: `baseten` (`BASETEN_API_KEY`), `qwen-token-plan`,
+    `qwen-token-plan-cn` and `qwen-token-plan-individual`. Copy the env-var
+    names from the landed bindings, not from this list.
+  - The resolution-order section's line 3 claim — "A stored credential *owns*
+    the provider — there is no silent env fallback behind it"
+    (`docs/auth.md:22-24`) — is contradicted by the per-field
+    credential→env merge
+    [issue 03](/epic-6-auth-core-and-env-api-key-bindings/issues/03-provider-scoped-apikey-resolution.md)
+    introduces for the Cloudflare resolvers. Rewrite it to state the rule that
+    actually holds after this epic: a stored credential owns the provider's
+    *key*, and a credential that does not carry a given configuration field
+    falls through to the environment for that field. Name the fields it applies
+    to; do not turn a narrow, deliberate exception into a general one.
 - Check the file for rows this epic's other issues already amended (issues 03,
   07 and 09 each touch it) and reconcile rather than duplicate. **Land this
   last.**
@@ -87,8 +115,13 @@ but `utils/oauth/` can never match again. Leave it or drop it; if you drop it,
   [decision 17](../../../planning/scope/17-upstream-lock-and-weekly-job.md)'s,
   in epic 9. Do not touch it here — the whole program is still building against
   `936aff00`.
-- Rewriting `docs/auth.md`. Its terms-of-service treatment is per-flow and
-  belongs with the flows ([Epic 7](/epic-7-four-new-oauth-flows/EPIC_7.md)).
+- `docs/auth.md`'s **OAuth** sections — the CLI OAuth table (`:91-116`) and the
+  credential-modes / terms-of-service treatment (`:117-163`). Those are per-flow
+  and belong with the flows:
+  [Epic 7 issue 06](/epic-7-four-new-oauth-flows/issues/06-auth-docs-and-porting.md)
+  (#186). This issue owns the env-key table and the resolution-order section
+  only; the two halves of the file are edited by two issues in two epics, so
+  keep to yours.
 
 ## Acceptance criteria / Definition of done
 
@@ -107,6 +140,20 @@ but `utils/oauth/` can never match again. Leave it or drop it; if you drop it,
       carries a revisit trigger (a version or an event, never "later" —
       `../_shared` drift conventions and
       [decision 02](../../../planning/scope/02-parity-bar.md)).
+- [ ] `docs/auth.md`'s `anthropic` row names `ANTHROPIC_AUTH_TOKEN` first and
+      says it resolves as a bearer header:
+      `grep -n 'ANTHROPIC_AUTH_TOKEN' docs/auth.md` returns a line inside the
+      env-key table.
+- [ ] The env-key table has a row for each provider issue 10 bound —
+      `for p in baseten qwen-token-plan qwen-token-plan-cn
+      qwen-token-plan-individual; do grep -qn "\`$p\`" docs/auth.md || echo
+      "MISSING $p"; done` prints nothing — and each env var matches the landed
+      binding, not this issue's text.
+- [ ] `grep -n 'no silent env fallback' docs/auth.md` returns nothing, or
+      returns a line that scopes the claim to the fields it still holds for.
+      The resolution-order section and
+      [issue 03](/epic-6-auth-core-and-env-api-key-bindings/issues/03-provider-scoped-apikey-resolution.md)'s
+      per-field merge must not state opposite rules.
 - [ ] `bash upstream/sync_test.sh` passes, whether or not the auth bucket regex
       was touched.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
@@ -117,6 +164,9 @@ but `utils/oauth/` can never match again. Leave it or drop it; if you drop it,
 
 ## Relevant files / areas
 
+- `docs/auth.md:15-30` the resolution-order section (`:22-24` the
+  stored-credential claim), `:34-59` the env-key table (`:36` the `anthropic`
+  row).
 - `docs/PORTING.md:40` (auth core), `:41` (filestore), `:42` (helpers), `:43`
   (`src/utils/oauth/*` + `src/oauth.ts`), `:59` (`src/env-api-keys.ts`), and the
   "Intentional deviations" section below the table.
@@ -131,7 +181,8 @@ but `utils/oauth/` can never match again. Leave it or drop it; if you drop it,
 
 - **Blocked by**: None mechanically, but it should land **last** in the epic —
   issues 03, 07 and 09 each amend `docs/PORTING.md`, and this issue reconciles
-  the file as a whole.
+  the file as a whole. The `docs/auth.md` half sharpens that: it documents what
+  issues 03, 07 and 10 landed, so all three must be merged before it is written.
 - **Blocks**: Nothing.
 
 ## PR size note

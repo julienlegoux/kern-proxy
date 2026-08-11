@@ -3,7 +3,7 @@ type: Issue
 title: "Introduce ProviderRequestOptions as the shared request base, with fetch injection and samplingParams"
 description: "Refactor ai/options.go so transport, auth, and lifecycle knobs live in one reusable base that StreamOptions and the deferred options extend, add the fetch and samplingParams knobs, and record the telemetry deviation."
 tags: [epic-2]
-timestamp: 2026-08-10T09:20:00Z
+timestamp: 2026-08-11T12:30:00Z
 epic: 2
 issue: 05
 slug: provider-request-options
@@ -121,10 +121,18 @@ they thread through the same struct: `fetch` (an injectable HTTP client) and
   behavior. Honoring `Fetch` and `SamplingParams` on the wire is
   [Epic 4](/epic-4-openai-family-adapters/EPIC_4.md) and
   [Epic 5](/epic-5-remaining-adapters/EPIC_5.md).
-- **`ai/images`.** Upstream reshaped `ImagesOptions` onto the same base;
-  [Epic 3](/epic-3-catalog-schema-and-export-tooling/EPIC_3.md) owns the images
-  surface ([decision 14](../../../planning/scope/14-images-surface.md)). Touch it
-  only if the refactor breaks compilation, and say so in the PR body.
+- **`ai/images`.** Upstream reshaped `ImagesOptions` onto the same base
+  (`packages/ai/src/types.ts:293-299` at `936aff00`), but this PR does **not**
+  touch `ai/images` — unconditionally. The earlier "touch it only if the
+  refactor breaks compilation" reading could never fire: `images.Options`
+  (`ai/images/types.go:81-106`) is a standalone struct that hand-duplicates the
+  transport fields rather than embedding `ai.StreamOptions`, so splitting
+  `StreamOptions` leaves it compiling untouched, and the reshape would simply
+  never happen. It is owned by
+  [Epic 3 issue 07](/epic-3-catalog-schema-and-export-tooling/issues/07-images-options-base-and-auth-overrides.md)
+  (#218), which is where
+  [decision 14](../../../planning/scope/14-images-surface.md)'s Verdict puts the
+  images surface.
 - `ModelsRequestTransforms` and the `Models`-level option aliases — 
   [issue 09](/epic-2-core-types-and-models-contracts/issues/09-models-request-transforms.md).
 - Idiomatic-Go cleanups of the flat per-adapter option fields. Upstream's shape
@@ -197,7 +205,10 @@ they thread through the same struct: `fetch` (an injectable HTTP client) and
   [Epic 4 issues 05](/epic-4-openai-family-adapters/issues/05-completions-deferred-tools-and-finish-reason.md),
   [09](/epic-4-openai-family-adapters/issues/09-openai-responses-compat-and-wiring.md)
   and [11](/epic-4-openai-family-adapters/issues/11-codex-request-body-and-stop-reasons.md)
-  (`OpenAIToolChoice`).
+  (`OpenAIToolChoice`), and
+  [Epic 3 issue 07](/epic-3-catalog-schema-and-export-tooling/issues/07-images-options-base-and-auth-overrides.md)
+  (#218), which puts `images.Options` on the base declared here and consumes
+  `FetchFunction`.
 
 ## PR size note
 

@@ -3,7 +3,7 @@ type: Epic
 title: "OpenAI-family adapters"
 description: "Sync the four adapters built on the shared OpenAI responses core — completions, responses, Azure and Codex — together with constrained sampling."
 tags: [epic]
-timestamp: 2026-08-10T09:20:00Z
+timestamp: 2026-08-11T12:30:00Z
 epic: 4
 slug: openai-family-adapters
 status: open
@@ -43,6 +43,16 @@ diverge from upstream.
   adapter epic, by the hand-off
   [Epic 2 issue 02](/epic-2-core-types-and-models-contracts/issues/02-message-model-deferred-fields.md)
   already recorded in its `## Out of scope`.
+- **Plus `src/utils/uuid.ts` → `ai/uuid.go`**, orphaned by the epic split.
+  Upstream deleted `createCodexRequestId()` in favour of a new `uuidv7()`
+  re-exported from `src/index.ts`, so it is public API rather than an adapter
+  internal — but Codex is its only in-repo consumer at `936aff00`, and no other
+  epic claims it. This epic accepts it explicitly rather than leaving the
+  ownership recorded only inside an issue's Summary;
+  [issue 12](/epic-4-openai-family-adapters/issues/12-codex-session-ids-and-continuation-retry.md)
+  (#158) does the work, and the exported `ai.UUIDv7` it adds is the second piece
+  of package-`ai` public surface this epic ships, on the same hand-off as
+  `ai.Tool` above.
 
 ## Out of scope
 
