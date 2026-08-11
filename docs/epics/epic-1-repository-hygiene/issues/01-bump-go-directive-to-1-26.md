@@ -3,7 +3,7 @@ type: Issue
 title: "Bump the go directive from 1.25.0 to 1.26"
 description: "Raise the go.mod language version to 1.26 to align with the other Kern packages, and prove CI is green on the new toolchain before the module-path rename lands."
 tags: [epic-1]
-timestamp: 2026-08-09T04:20:00Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 1
 issue: 01
 slug: bump-go-directive-to-1-26
@@ -70,7 +70,7 @@ signal from noise.
       CI**; a green local run is not evidence.
 - [ ] `gofmt -l .` prints nothing.
 - [ ] The commit follows Conventional Commits with a scope, e.g.
-      `build: bump the go directive to 1.26`. No tool-signature trailer
+      `chore(go): bump the go directive to 1.26`. No tool-signature trailer
       (`Co-Authored-By`, `Claude-Session`) — the git author is enough.
 
 ## Relevant files / areas
