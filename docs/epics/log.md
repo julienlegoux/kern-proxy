@@ -40,6 +40,7 @@
 * **Started**: [Issue 13: Rewrite the PR size note in every issue against its own band, and correct the mis-declared sizes](/epic-0-plan-remediation/issues/13-rewrite-the-pr-size-notes.md) (#211) moved to `in-progress` on branch `issue-211-rewrite-the-pr-size-notes`.
 * **PR opened**: [Issue 13: Rewrite the PR size note in every issue against its own band, and correct the mis-declared sizes](/epic-0-plan-remediation/issues/13-rewrite-the-pr-size-notes.md) (#211) moved to `pr-open` — [PR #229](https://github.com/kern-ia/kern-link/pull/229), targeting `develop`. Rewrites the size note in all 74 epic 1-9 issues, re-declares 11 sizes, and states the generated-catalog rule in `EPIC_3.md`.
 * **Completed**: [Issue 13: Rewrite the PR size note in every issue against its own band, and correct the mis-declared sizes](/epic-0-plan-remediation/issues/13-rewrite-the-pr-size-notes.md) (#211) moved to `done` — [PR #229](https://github.com/kern-ia/kern-link/pull/229) merged into `develop` 2026-08-11.
+* **Started**: [Issue 14: Normalize the in-bundle link form and the depends_on representation, and record the branch conventions once per epic](/epic-0-plan-remediation/issues/14-normalize-links-depends-on-and-branch-notes.md) (#212) moved to `in-progress` on branch `issue-14-normalize-links-depends-on-and-branch-notes`.
 
 ## 2026-08-10
 

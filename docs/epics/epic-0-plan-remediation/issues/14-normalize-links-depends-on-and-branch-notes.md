@@ -3,12 +3,12 @@ type: Issue
 title: "Normalize the in-bundle link form and the depends_on representation, and record the branch conventions once per epic"
 description: "Rewrite the nine issues/index.md files onto the leading-slash link form, express depends_on and issue in one identifier form across the bundle, and put the branch, base-branch and status-commit conventions in each epic's Notes."
 tags: [epic-0]
-timestamp: 2026-08-10T03:10:00Z
+timestamp: 2026-08-11T19:50:00Z
 epic: 0
 issue: 14
 slug: normalize-links-depends-on-and-branch-notes
 size: S
-status: open
+status: in-progress
 gh_issue: 212
 resource: https://github.com/kern-ia/kern-link/issues/212
 depends_on: [13]
