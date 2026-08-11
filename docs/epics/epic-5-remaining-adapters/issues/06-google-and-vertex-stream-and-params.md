@@ -3,7 +3,7 @@ type: Issue
 title: "google + vertex: pending and raw stop reasons, toolConfig wiring, and the max thinking level"
 description: "Start both Google streams at pending, surface the raw Gemini finish reason in the error text, emit toolConfig from the resolved function-calling mode, and clamp the new max thinking level."
 tags: [epic-5]
-timestamp: 2026-08-09T09:45:42Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 5
 issue: 06
 slug: google-and-vertex-stream-and-params
@@ -64,12 +64,11 @@ same review twice.
    *supportable*. **Honor it** (matching epic 4
    [issue 02](/epic-4-openai-family-adapters/issues/02-fetch-and-sampling-params.md),
    which honors `Fetch` for the OpenAI family) rather than porting a rejection
-   that only ever encoded an SDK limitation. Record it in `docs/PORTING.md` as a
-   deviation with that reason — the governing principle is that a deviation
-   needs structural grounds, and "upstream's constraint does not exist in Go" is
-   exactly that. If the implementer disagrees and ports the rejection, that is
-   also defensible: decide explicitly, write the reason down, and do not leave
-   the field silently ignored.
+   that only ever encoded an SDK limitation — decided in
+   [EPIC_5.md](/epic-5-remaining-adapters/EPIC_5.md)'s `## Notes`. Record it in
+   `docs/PORTING.md` as a deviation with that reason: the governing principle is
+   that a deviation needs structural grounds, and "upstream's constraint does
+   not exist in Go" is exactly that.
 
 ## Scope
 
@@ -125,9 +124,10 @@ same review twice.
       same for Vertex.
 - [ ] `TestGoogleClampsMaxThinkingLevel` — `ai.ThinkingMax` produces the same
       request body as `ai.ThinkingXHigh` in both adapters.
-- [ ] `TestGoogleHonorsInjectedFetch` (or `TestGoogleRejectsCustomFetch`,
-      matching whichever way the decision above went) — and `docs/PORTING.md`
-      records the choice either way.
+- [ ] `TestGoogleHonorsInjectedFetch` — a request with `opts.Fetch` set is
+      dispatched through it in both the Google and Vertex adapters, and
+      `docs/PORTING.md` records honoring `Fetch` as a deviation with its
+      reason.
 - [ ] Ported upstream coverage: both cases of
       `test/google-raw-stop-reason.test.ts` come across as discrete Go tests.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green

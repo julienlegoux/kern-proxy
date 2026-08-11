@@ -3,7 +3,7 @@ type: Issue
 title: "bedrock: pending and raw stop reasons, strict tool schemas, and the Claude 5 model matrix"
 description: "Start the Bedrock stream at pending, surface the raw stop reason in the error text, send strict tool specs behind the Bedrock compat flag, and recognise opus-5 and sonnet-5 across the thinking and cache matrices."
 tags: [epic-5]
-timestamp: 2026-08-09T09:45:42Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 5
 issue: 09
 slug: bedrock-stop-reasons-strict-tools-and-claude-5
@@ -86,9 +86,11 @@ all in the request/stream path:
     `ai.ThinkingHigh` alongside `ai.ThinkingXHigh` (`:139`), and make sure
     `defaultThinkingBudgets` yields 16384 for both. Upstream looks the default
     up by the **unclamped** level and the custom override by the **clamped**
-    one; the Go code uses the clamped level for both. Confirm they agree for
-    every level (they do today because xhigh and max both default to 16384) and
-    leave a comment saying so, or match upstream's two-lookup shape.
+    one; the Go code uses the clamped level for both. **Match upstream's
+    two-lookup shape** rather than leaving a comment that they happen to agree
+    today — decided in [EPIC_5.md](/epic-5-remaining-adapters/EPIC_5.md)'s
+    `## Notes`, since the two-lookup shape costs nothing extra and stays
+    diffable against upstream if the two ever stop agreeing.
 - Tests, offline, in `ai/apis/bedrock/stop_reason_test.go` plus the existing
   `thinking_test.go` and `messages_test.go`.
 - `// Ports:` headers stay accurate.
@@ -138,6 +140,8 @@ all in the request/stream path:
       `test/bedrock-raw-stop-reason.test.ts` and the four new `opus-5` /
       `sonnet-5` cases of `test/bedrock-thinking-payload.test.ts` come across as
       discrete Go tests.
+- [ ] `docs/PORTING.md`'s row for `src/api/bedrock-converse-stream.ts` still
+      describes the Go code after this change (unchanged: already `ported`).
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

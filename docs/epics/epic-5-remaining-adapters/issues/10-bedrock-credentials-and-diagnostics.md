@@ -3,7 +3,7 @@ type: Issue
 title: "bedrock: profile precedence over ambient keys, apiKey as a bearer token, and the response-failure diagnostic"
 description: "Let an explicitly configured AWS profile win over ambient access keys, accept options.apiKey as a Bedrock bearer token, and attach a structured bedrock_response_failure diagnostic without touching errorMessage."
 tags: [epic-5]
-timestamp: 2026-08-09T09:45:42Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 5
 issue: 10
 slug: bedrock-credentials-and-diagnostics
@@ -76,11 +76,11 @@ named upstream failure behind them.
     `firstNonEmptyString(opts.BedrockProfile, providerEnvValue("AWS_PROFILE", env))`
     where `env` is the **scoped** `opts.Env` only, separate from the existing
     `cfg.Profile` computation which may also fall through to ambient. Gate the
-    `getConfiguredBedrockCredentials` assignment (`:147`) on `optionsProfile ==
-    ""`. Do not disturb `hasAmbientConfiguredProfile` (`:123`) — its doc comment
+    `getConfiguredBedrockCredentials` assignment (`:148`) on `optionsProfile ==
+    ""`. Do not disturb `hasAmbientConfiguredProfile` (`:124`) — its doc comment
     already records why it reads only the real process environment, and that
     stays true.
-  - `bearerToken` (`:132`) — insert `opts.APIKey` between `opts.BedrockBearerToken`
+  - `bearerToken` (`:133`) — insert `opts.APIKey` between `opts.BedrockBearerToken`
     and the env var, preserving that exact order.
 - `ai/apis/bedrock/errors.go` — the diagnostic builder:
   - `normalizeDiagnosticValue(string) (string, bool)` — trim; reject empty and
@@ -154,6 +154,8 @@ named upstream failure behind them.
 - [ ] Ported upstream coverage: all nine cases of
       `test/bedrock-error-metadata.test.ts` and all three of
       `test/bedrock-credentials.test.ts` come across as discrete Go tests.
+- [ ] `docs/PORTING.md`'s row for `src/api/bedrock-converse-stream.ts` still
+      describes the Go code after this change (unchanged: already `ported`).
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.
@@ -163,8 +165,8 @@ named upstream failure behind them.
 ## Relevant files / areas
 
 - `ai/apis/bedrock/clientauth.go` (211 lines) — `:95` `resolveClientConfig`,
-  `:117` the `cfg.Profile` computation, `:123` `hasAmbientConfiguredProfile` and
-  its doc comment, `:132` the bearer token, `:147` the credentials assignment,
+  `:117` the `cfg.Profile` computation, `:124` `hasAmbientConfiguredProfile` and
+  its doc comment, `:133` the bearer token, `:148` the credentials assignment,
   `:172` `getConfiguredBedrockCredentials`.
 - `ai/apis/bedrock/bedrock.go:146` — `run`, its `fail` closure (`:155`) and the
   SDK send.

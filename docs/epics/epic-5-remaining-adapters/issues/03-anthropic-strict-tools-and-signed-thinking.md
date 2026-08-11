@@ -3,7 +3,7 @@ type: Issue
 title: "anthropic: strict tool schemas and signature-only thinking blocks"
 description: "Resolve per-tool strict JSON-schema sampling into the Anthropic tool wire shape behind SupportsStrictTools, and stop dropping an empty thinking block that carries a signature."
 tags: [epic-5]
-timestamp: 2026-08-09T09:45:42Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 5
 issue: 03
 slug: anthropic-strict-tools-and-signed-thinking
@@ -130,6 +130,8 @@ converters:
       `test/anthropic-eager-tool-input-compat.test.ts` ("only sends the full
       input schema for strict JSON-schema tools") comes across as a discrete Go
       test.
+- [ ] `docs/PORTING.md`'s row for `src/api/anthropic-messages.ts` still
+      describes the Go code after this change (unchanged: already `ported`).
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

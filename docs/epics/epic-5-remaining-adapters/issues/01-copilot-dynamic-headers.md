@@ -3,7 +3,7 @@ type: Issue
 title: "Close the Copilot dynamic-headers gap: port github-copilot-headers.ts and wire its three call sites"
 description: "Port the unported X-Initiator / Openai-Intent / Copilot-Vision-Request header builder and apply it in the anthropic, openai-completions and openai-responses adapters."
 tags: [epic-5]
-timestamp: 2026-08-09T09:45:42Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 5
 issue: 01
 slug: copilot-dynamic-headers
@@ -86,9 +86,11 @@ three call sites — including the two in packages epic 4 otherwise owns.
   - `ai/apis/openairesponses` — same gate, in the package's header builder.
 - **`docs/PORTING.md:46`** — the row currently reads
   `| src/api/github-copilot-headers.ts | none | **not ported** (…; open follow-up) |`.
-  Replace it with a `ported` disposition naming the new package, and remove the
-  matching "known gap" line from `docs/planning/SPECS.md` if one is still there.
-  This row going green is the point of the issue, not bookkeeping after it.
+  Replace it with a `ported` disposition naming the new package. This row going
+  green is the point of the issue, not bookkeeping after it. Do not edit
+  `docs/planning/SPECS.md` in this PR — a merge-blocking `docs/planning/` edit
+  goes through a drift record, not an implementation PR, and `EPIC_5.md` never
+  authorized this one.
 
 ## Out of scope
 
@@ -135,8 +137,10 @@ three call sites — including the two in packages epic 4 otherwise owns.
 - `ai/apis/openaicompletions/` and `ai/apis/openairesponses/` — the header
   builders (find them by their session-affinity header block; upstream puts the
   Copilot block immediately above it).
-- `ai/apis/internal/httpretry`, `ai/apis/internal/grammar` — the two existing
-  precedents for a shared, consumer-invisible adapter helper package.
+- `ai/apis/internal/httpretry` — the existing precedent for a shared,
+  consumer-invisible adapter helper package; `ai/apis/internal/grammar` is not
+  a second one yet — it is the package Epic 4 issue 01 creates, following the
+  same layout.
 - `ai/headers.go` — `ai.MergeProviderHeaders` and its null-deletion semantics.
 - `docs/PORTING.md:46` — the row this issue closes.
 - Upstream: `packages/ai/src/api/github-copilot-headers.ts` (unchanged in

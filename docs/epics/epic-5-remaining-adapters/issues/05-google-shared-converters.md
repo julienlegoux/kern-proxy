@@ -3,7 +3,7 @@ type: Issue
 title: "google-shared: Gemini 3 tool-call ids, signature-bearing empty blocks, and the VALIDATED function-calling mode"
 description: "Require tool-call ids on Gemini 3+, stop dropping empty text and thinking parts that carry a thought signature, and resolve the function-calling mode from strict tool sampling."
 tags: [epic-5]
-timestamp: 2026-08-09T09:45:42Z
+timestamp: 2026-08-10T04:00:00Z
 epic: 5
 issue: 05
 slug: google-shared-converters
@@ -133,6 +133,8 @@ way.
 - [ ] Ported upstream coverage: all four cases of
       `test/google-shared-signed-empty-blocks.test.ts` and the three cases of
       `test/google-shared-retry.test.ts` come across as discrete Go tests.
+- [ ] `docs/PORTING.md`'s row for `src/api/google-shared.ts` still describes
+      the Go code after this change (unchanged: already `ported`).
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.
