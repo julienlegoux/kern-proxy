@@ -3,7 +3,7 @@ type: Issue
 title: "Provider-scope api-key resolution: drop Model from APIKeyResolveInput and rebuild the Cloudflare resolvers"
 description: "Follow upstream in making auth resolution provider-scoped rather than model-scoped, and move Cloudflare's account/gateway placeholder substitution off the auth path it can no longer reach."
 tags: [epic-6]
-timestamp: 2026-08-09T10:24:00Z
+timestamp: 2026-08-11T13:05:00Z
 epic: 6
 issue: 03
 slug: provider-scoped-apikey-resolution
@@ -134,6 +134,10 @@ this is where it lands.
 - [ ] `docs/PORTING.md`'s `src/api/cloudflare.ts` row (`:45`) no longer claims
       the templates are "resolved at runtime by `resolveCloudflareBaseURL`" if
       that stopped being true.
+- [ ] `ai/auth.go`, `ai/resolve.go`, `ai/provider.go` and
+      `ai/providers/cloudflare_auth.go` keep their `// Ports:` headers, still
+      describing what each file ports after this change — `ai/resolve.go`'s in
+      particular, since this issue changes what it ports.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.
@@ -164,7 +168,9 @@ this is where it lands.
 - **Blocks**: [Issue 04](/epic-6-auth-core-and-env-api-key-bindings/issues/04-oauth-refresh-window.md),
   [05](/epic-6-auth-core-and-env-api-key-bindings/issues/05-models-availability.md),
   [06](/epic-6-auth-core-and-env-api-key-bindings/issues/06-models-login-logout.md),
-  [07](/epic-6-auth-core-and-env-api-key-bindings/issues/07-anthropic-auth-token.md).
+  [07](/epic-6-auth-core-and-env-api-key-bindings/issues/07-anthropic-auth-token.md),
+  [11](/epic-6-auth-core-and-env-api-key-bindings/issues/11-porting-paths-and-dispositions.md)
+  (which amends `docs/PORTING.md` after this issue's edit).
 - **Coordinate with**: Epic 5's `#169`, per the Summary.
 
 ## PR size note

@@ -3,7 +3,7 @@ type: Issue
 title: "Add Models.Login, Models.Logout, and the provider-id GetAuth overload, and drive pi-ai login through them"
 description: "Port the mutating half of upstream's Models auth surface — login persists through the credential store, logout deletes, GetAuth answers for a bare provider id — and make cmd/pi-ai use it instead of calling flows directly."
 tags: [epic-6]
-timestamp: 2026-08-09T10:24:00Z
+timestamp: 2026-08-11T13:05:00Z
 epic: 6
 issue: 06
 slug: models-login-logout
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 175
 resource: https://github.com/kern-ia/kern-link/issues/175
-depends_on: [1, 3]
+depends_on: [1, 3, 5]
 ---
 
 # Add Models.Login, Models.Logout, and the provider-id GetAuth overload, and drive pi-ai login through them
@@ -126,6 +126,9 @@ it in `docs/PORTING.md` via
 - [ ] `cmd/pi-ai` tests still pass, and one asserts the CLI no longer writes to
       the store directly: `TestRunLoginPersistsViaModels` (drive it with a stub
       store that counts `Modify` calls).
+- [ ] `ai/provider.go` and `cmd/pi-ai/oauth.go` keep their `// Ports:` headers,
+      still describing what each file ports after this change — this issue
+      changes what `cmd/pi-ai/oauth.go` does.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.
@@ -148,12 +151,14 @@ it in `docs/PORTING.md` via
 - **Blocked by**: [Issue 01](/epic-6-auth-core-and-env-api-key-bindings/issues/01-auth-contract-surface.md)
   (`AuthType`, `AuthInteraction`),
   [issue 03](/epic-6-auth-core-and-env-api-key-bindings/issues/03-provider-scoped-apikey-resolution.md)
-  (`ResolveProviderAuth`'s signature).
+  (`ResolveProviderAuth`'s signature),
+  [issue 05](/epic-6-auth-core-and-env-api-key-bindings/issues/05-models-availability.md)
+  — both this issue and issue 05 rewrite the `Models` interface and
+  `modelsImpl` in `ai/provider.go`; land 05 first and rebase this issue's
+  additions onto it rather than running the two concurrently.
 - **Blocks**: Nothing in this epic. [Epic 7](/epic-7-four-new-oauth-flows/EPIC_7.md)
   wires four more flows into `cmd/pi-ai login`; landing this first means it
   wires them into `Models.Login` rather than into code about to be replaced.
-- Conflicts with [issue 05](/epic-6-auth-core-and-env-api-key-bindings/issues/05-models-availability.md)
-  in `ai/provider.go`. Sequence them; do not run both in parallel.
 
 ## PR size note
 

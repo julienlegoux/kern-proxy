@@ -3,7 +3,7 @@ type: Issue
 title: "Bind baseten and the three qwen-token-plan providers"
 description: "Add the four new env-API-key provider bindings upstream shipped in range, each one EnvAPIKeyAuth over the openai-completions adapter, and register them in ai/providers/all.go."
 tags: [epic-6]
-timestamp: 2026-08-11T12:30:00Z
+timestamp: 2026-08-11T13:05:00Z
 epic: 6
 issue: 10
 slug: env-api-key-bindings
@@ -43,11 +43,14 @@ cosmetic.
 **This issue does not create catalog data.**
 [Epic 3 issue 04](/epic-3-catalog-schema-and-export-tooling/issues/04-regenerate-model-catalog.md)
 (`#144`) regenerates the embedded catalog "35 to 39 provider files" — those four
-are these four. `catalog.BuiltinModels(id)` returns an empty slice for a
-provider with no data file (`ai/catalog/catalog.go:86-89`), so a binding landing
-first compiles and registers but serves nothing. That is a real ordering
-constraint, not a nice-to-have: land `#144` first, or accept that these four
-providers are empty until it does and say so in the PR body.
+are these four. `catalog.BuiltinModels(id)` returns **nil** for a provider with
+no data file, per its own doc comment (`ai/catalog/catalog.go:84-89`), so a
+binding landing first compiles and registers but serves nothing. That is a real
+ordering constraint, not a nice-to-have: land `#144` first, or accept that these
+four providers are empty until it does and say so in the PR body — either way,
+`EPIC_6.md`'s acceptance criterion 4 ("each has a catalog entry") is checked by
+this issue's own `TestNewBindingsServeCatalogModels` below, not left to Epic 3
+to prove.
 
 ## Scope
 
@@ -101,6 +104,11 @@ providers are empty until it does and say so in the PR body.
       exactly, including `qwen-token-plan-individual` sharing
       `ap-southeast-1` with `qwen-token-plan`.
 - [ ] Each binding's `Auth().OAuth` is nil and `Auth().APIKey` is non-nil.
+- [ ] `TestNewBindingsServeCatalogModels` — each of the four ids returns a
+      non-empty `catalog.BuiltinModels(id)`. If
+      [Epic 3 issue 04](/epic-3-catalog-schema-and-export-tooling/issues/04-regenerate-model-catalog.md)
+      (`#144`) has not merged yet, skip the test with `t.Skip` naming `#144`
+      and say so in the PR body — do not delete or weaken the assertion.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

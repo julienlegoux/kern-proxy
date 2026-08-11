@@ -3,7 +3,7 @@ type: Issue
 title: "Add CredentialStore.List and CredentialInfo across the in-memory and file stores"
 description: "Port credential-store.ts's new list() enumeration — non-secret credential metadata — onto the CredentialStore interface and both implementations."
 tags: [epic-6]
-timestamp: 2026-08-09T10:24:00Z
+timestamp: 2026-08-11T13:05:00Z
 epic: 6
 issue: 02
 slug: credential-store-list
@@ -99,6 +99,9 @@ and both implementations change in one compiling PR.
 - [ ] `auth.json`'s file mode is untouched by a `List` call: extend or mirror
       the existing mode assertion (`t.Errorf("auth.json mode = %o, want 600",
       perm)`) so listing cannot create the file.
+- [ ] `ai/auth.go`, `ai/credentialstore.go` and `ai/auth/filestore.go` keep
+      their `// Ports:` headers, still describing what each file ports after
+      this change.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.
