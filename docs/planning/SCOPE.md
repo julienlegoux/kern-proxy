@@ -3,7 +3,7 @@ type: Scope
 title: "kern-link — Upstream sync 0.80.3 → 0.84.1"
 description: "Bringing the Go port to full parity with @earendil-works/pi-ai v0.84.1, shipped as a breaking v0.2.0 under the kern-ia module path."
 tags: [planning, scope]
-timestamp: 2026-08-09T01:30:23Z
+timestamp: 2026-08-10T09:20:00Z
 status: final
 ---
 
@@ -197,8 +197,15 @@ These four move together or the shared layer is ported twice
 - **Constrained sampling** ([decision](/scope/12-constrained-sampling.md)):
   `api/constrained-sampling.ts` (+148), `GrammarFormat`, `GrammarVariants`,
   `ConstrainedSamplingConfig`. The formats are OpenAI-specific and the request
-  builders are being rewritten here anyway. `ConstrainedSamplingConfig` lands in
-  `ai.StreamOptions`, continuing the established per-adapter-options deviation.
+  builders are being rewritten here anyway. `ConstrainedSamplingConfig` lands on
+  `ai.Tool`, **not** in `ai.StreamOptions`: upstream at `936aff00` declares
+  `constrainedSampling?: false | ConstrainedSamplingConfig` on the `Tool`
+  interface (`packages/ai/src/types.ts:506`), and `StreamOptions` (`:175-219`)
+  carries no such field — it is per tool, not per request, so no
+  per-adapter-options deviation is needed. Corrected 2026-08-10 against the
+  frozen upstream ref; the original text is the one
+  [decision 12](/scope/12-constrained-sampling.md) carried before the shape was
+  read.
 
 ## Milestone 5: Remaining adapters
 

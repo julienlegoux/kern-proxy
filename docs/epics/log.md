@@ -2,11 +2,16 @@
 
 ## 2026-08-11
 
+* **Status**: [Issue 01: Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md) (#199) moved to `pr-open` — PR [#216](https://github.com/kern-ia/kern-link/pull/216) targets `develop`.
 * **PR opened**: [Issue 03: Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type](/epic-0-plan-remediation/issues/03-repair-the-epic-1-issue-set.md) (#201) — [PR #215](https://github.com/kern-ia/kern-link/pull/215).
+* **Completed**: [Issue 01: Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md) (#199) moved to `done` — [PR #216](https://github.com/kern-ia/kern-link/pull/216) merged into `develop` 2026-08-11.
+* **Completed**: [Issue 03: Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type](/epic-0-plan-remediation/issues/03-repair-the-epic-1-issue-set.md) (#201) moved to `done` — [PR #215](https://github.com/kern-ia/kern-link/pull/215) merged into `develop` 2026-08-11.
+* **Completed**: [Issue 11: Repair the Epic 8 issues: provenance on ported tests, the unsatisfiable grep, and the two missing scope files](/epic-0-plan-remediation/issues/11-repair-the-epic-8-issue-set.md) (#209) moved to `done` — [PR #214](https://github.com/kern-ia/kern-link/pull/214) merged into `develop` 2026-08-10.
 * **PR opened**: [Issue 08: Reconcile EPIC_5.md with its issues, and settle the five criteria that pass whichever way the implementer decides](/epic-0-plan-remediation/issues/08-reconcile-epic-5-with-its-issues.md) (#206) — [PR #217](https://github.com/kern-ia/kern-link/pull/217).
 
 ## 2026-08-10
 
+* **Status**: [Issue 01: Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md) (#199) moved to `in-progress` on branch `issue-199-epic-4-core-type-contracts`.
 * **Creation**: Established [Epic 0: Plan remediation](/epic-0-plan-remediation/EPIC_0.md).
   Consumed reports 1-9 (`docs/REPORT_1.md`-`docs/REPORT_9.md`): 97 findings extracted,
   0 dropped as stale, 0 `won't-fix`, 0 drift, 97 grouped into 17 repairs. Plan repairs

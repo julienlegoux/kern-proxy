@@ -3,12 +3,12 @@ type: Issue
 title: "Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type"
 description: "Make EPIC_1.md's AC 2 and AC 4 satisfiable by the two issues that implement them, give the SPECS.md rewrite a criterion, and drop the build: commit type the repo does not use."
 tags: [epic-0]
-timestamp: 2026-08-10T05:00:00Z
+timestamp: 2026-08-11T10:05:00Z
 epic: 0
 issue: 03
 slug: repair-the-epic-1-issue-set
 size: S
-status: pr-open
+status: done
 gh_issue: 201
 gh_pr: 215
 resource: https://github.com/kern-ia/kern-link/issues/201

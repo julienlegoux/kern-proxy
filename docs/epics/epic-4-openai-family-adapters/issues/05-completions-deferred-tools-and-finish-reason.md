@@ -3,7 +3,7 @@ type: Issue
 title: "openai-completions: Kimi deferred tools, finish-reason inference, and item-unique tool call ids"
 description: "Withhold transcript-loaded tools and re-announce them in a Kimi system message, infer the stop reason when a provider omits finish_reason, record rawStopReason, and stop collapsing distinct tool calls onto one id."
 tags: [epic-4]
-timestamp: 2026-08-09T05:17:46Z
+timestamp: 2026-08-10T09:20:00Z
 epic: 4
 issue: 05
 slug: completions-deferred-tools-and-finish-reason
@@ -44,9 +44,14 @@ Four changes to the chat-completions request/response contract, all in
    joins both halves (`callId_itemId`) when the result fits in 40 chars, and
    otherwise falls back to `callIdPrefix_<8-char shortHash(fullId)>`.
 
-Also here, because it is a one-line type widening on the same options struct:
-`toolChoice` accepts the full OpenAI tool-choice union rather than the four
-hand-listed shapes.
+Also here, because it is a one-line change on the same options struct: this
+adapter starts reading `ai.StreamOptions.OpenAIToolChoice` (declared by
+[Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+as `any`), so `tool_choice` accepts the full OpenAI tool-choice union
+(upstream: `OpenAICompletionsOptions.toolChoice?:
+OpenAI.Chat.Completions.ChatCompletionToolChoiceOption`,
+`packages/ai/src/api/openai-completions.ts:143` at `936aff00`) rather than the
+four hand-listed shapes.
 
 ## Scope
 
@@ -74,9 +79,11 @@ hand-listed shapes.
     missing-`finish_reason` error.
   - `decodeEvents` (`:1045`) — set `output.RawStopReason` from the raw
     `finish_reason` before mapping it.
-  - The `toolChoice` option's type widening on `ai.StreamOptions`' completions
-    field (or wherever the flat per-adapter field lives), keeping the wire
-    encoding permissive.
+  - `buildParams` (`:340`) again — send `tool_choice` from
+    `opts.OpenAIToolChoice` (`ai.StreamOptions`, `any`, nil means unset),
+    marshalled through unchanged so any shape of the OpenAI union survives.
+    Upstream's guard is `if (options?.toolChoice) params.tool_choice =
+    options.toolChoice` (`openai-completions.ts:744-745`).
 - Tests: port `test/openai-completions-raw-stop-reason.test.ts` (+79) and the
   relevant halves of `test/openai-completions-tool-choice.test.ts` (+218) and
   `test/deferred-tools.test.ts`; offline `httptest` only.
@@ -144,7 +151,10 @@ hand-listed shapes.
   [Epic 2 issue 02](/epic-2-core-types-and-models-contracts/issues/02-message-model-deferred-fields.md)
   for `RawStopReason` and `AddedToolNames`;
   [Epic 2 issue 04](/epic-2-core-types-and-models-contracts/issues/04-compat-flags-and-bedrock-compat.md)
-  for `SupportsFinishReason` / `DeferredToolsMode`.
+  for `SupportsFinishReason` / `DeferredToolsMode`;
+  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  (`OpenAIToolChoice` on `ai.StreamOptions`). The two cross-epic edges cannot sit
+  in `depends_on`, which holds intra-epic numbers only.
 - **Blocks**: None.
 
 ## PR size note

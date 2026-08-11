@@ -3,7 +3,7 @@ type: Issue
 title: "openai-codex-responses: grammar and deferred tools in the request body, end_turn and stop-reason guards"
 description: "Wire Codex onto the updated shared responses core, add tool_choice, and record end_turn plus the pending/error stop-reason guards on every transport."
 tags: [epic-4]
-timestamp: 2026-08-09T05:17:46Z
+timestamp: 2026-08-10T09:20:00Z
 epic: 4
 issue: 11
 slug: codex-request-body-and-stop-reasons
@@ -27,8 +27,14 @@ contract tightens.
   with `SplitDeferredTools`, sends only the immediate ones, and passes
   `{strict: null, supportsStrictMode, supportsOpenAIGrammarTools}` to the
   converters. `strict: null` is Codex's existing default and stays.
-- **`tool_choice`** becomes `options.toolChoice ?? "auto"` instead of a
-  hardcoded `"auto"`.
+- **`tool_choice`** becomes `opts.OpenAIToolChoice` falling back to `"auto"`,
+  instead of a hardcoded `"auto"` (`params.go:102`). The field is
+  `ai.StreamOptions.OpenAIToolChoice`, declared as `any` by
+  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md);
+  upstream's Codex options narrow it to `"auto" | "none" | "required"`
+  (`packages/ai/src/api/openai-codex-responses.ts:91`, used at `:569` as
+  `options?.toolChoice ?? "auto"`), but the Go field is shared with completions
+  and responses, so Codex simply passes through whatever it is given.
 - **`end_turn`** — `response.done` / `.completed` / `.incomplete` events carry a
   boolean `end_turn`, which is recorded on the assistant message.
   [Epic 2 issue 02](/epic-2-core-types-and-models-contracts/issues/02-message-model-deferred-fields.md)
@@ -43,9 +49,11 @@ contract tightens.
 
 - `ai/apis/codex/params.go`:
   - `buildRequestBody` (`:66`) — the grammar map, the strict/grammar converter
-    options, the deferred-tool split and mode, `tool_choice`.
-  - `wireRequest` (`:38`) — `tool_choice` as a free-form value rather than a
-    fixed string.
+    options, the deferred-tool split and mode, and `tool_choice` from
+    `opts.OpenAIToolChoice` (currently hardcoded `"auto"` at `:102`).
+  - `wireRequest` (`:38`) — widen its `tool_choice` member (`params.go:47`,
+    today `string` with `json:"tool_choice,omitempty"`) to a free-form value, so
+    any shape `OpenAIToolChoice` carries survives to the wire.
 - `ai/apis/codex/codex.go`:
   - `run` (`:75`) — start `output.StopReason` at `ai.StopReasonPending`, build
     the grammar map once and thread it into the shared converters and decoder.
@@ -91,8 +99,9 @@ contract tightens.
 - [ ] `TestCodexDeferredToolsWithheldFromRequest` — with
       `SupportsAdditionalTools`, an announced-but-unused tool is absent from
       `tools` and appears as an `additional_tools` transcript item.
-- [ ] `TestCodexToolChoiceOverridesAuto` — an explicit tool choice replaces
-      `"auto"`; unset still sends `"auto"`.
+- [ ] `TestCodexToolChoiceOverridesAuto` — an explicit
+      `ai.StreamOptions.OpenAIToolChoice` replaces `"auto"` in the body; unset
+      (nil) still sends `"auto"`.
 - [ ] `TestCodexRecordsEndTurn` — a terminal event with `"end_turn": false`
       leaves `EndTurn` false on the message and `true` sets it; an event without
       the key leaves it unset.
@@ -125,7 +134,10 @@ contract tightens.
 
 - **Blocked by**: issues [06](/epic-4-openai-family-adapters/issues/06-responses-shared-grammar-and-tool-results.md),
   [07](/epic-4-openai-family-adapters/issues/07-responses-shared-namespace-and-deferred-tools.md),
-  [08](/epic-4-openai-family-adapters/issues/08-responses-shared-stream-decode.md).
+  [08](/epic-4-openai-family-adapters/issues/08-responses-shared-stream-decode.md);
+  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  (`OpenAIToolChoice` on `ai.StreamOptions`) — cross-epic, so it is stated here
+  rather than in `depends_on`, which holds intra-epic numbers only.
 - **Blocks**: [Issue 12](/epic-4-openai-family-adapters/issues/12-codex-session-ids-and-continuation-retry.md).
 
 ## PR size note
