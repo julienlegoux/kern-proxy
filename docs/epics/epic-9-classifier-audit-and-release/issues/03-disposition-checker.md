@@ -3,7 +3,7 @@ type: Issue
 title: "Add upstream/disposition_check.sh and its offline test"
 description: "A checker that reads docs/PORTING.md's mapping table and reports any in-range upstream file with no disposition, plus any Go target that does not exist — so the 232-file criterion is verified mechanically rather than by hand."
 tags: [epic-9]
-timestamp: 2026-08-09T16:30:00Z
+timestamp: 2026-08-11T15:10:00Z
 epic: 9
 issue: 03
 slug: disposition-checker
@@ -15,6 +15,15 @@ depends_on: []
 ---
 
 # Add upstream/disposition_check.sh and its offline test
+
+**Assumption beyond `EPIC_9.md`.** Neither `EPIC_9.md`'s `## Scope` nor its
+`## Acceptance criteria` asks for this tooling — the epic only requires
+criterion 3 (all 232 files dispositioned) to be true, not mechanically
+checked. Epic 0's plan-remediation triage decided to keep this issue anyway
+(`docs/epics/epic-0-plan-remediation/EPIC_0.md`, `## Notes`): without a
+mechanical arbiter, "dispositioned" is a judgement call a reviewer cannot
+falsify, which would make the epic's second completion gate a judgement call
+again. `EPIC_9.md`'s `## Scope` now carries the authorizing line.
 
 ## Summary
 
@@ -35,10 +44,15 @@ the precedent already in the repo: `upstream/sync.sh` does the network work,
 - **`upstream/disposition_check.sh`** — same shape and header-comment style as
   `upstream/sync.sh` (`#!/usr/bin/env bash`, `set -euo pipefail`, a usage and
   env-override block at the top):
-  - Enumerate every file under `packages/ai` in the upstream tree at a given ref
-    (default: the lock's `commit=`), via
-    `git -C "$workdir" ls-tree -r --name-only "$ref" -- packages/ai`, reusing
-    the clone `sync.sh` creates rather than cloning a second one.
+  - Enumerate the **in-range diff**, not the whole upstream tree: the files
+    that changed between the lock's pinned commit and a given target ref, via
+    `git -C "$workdir" diff --name-status "$pinned..$ref" -- packages/ai`,
+    mirroring `sync.sh`'s own diff (`sync.sh:39`) and reusing the clone
+    `sync.sh` creates rather than cloning a second one. Keep every `D` entry as
+    an in-range path still needing a disposition row — a file upstream deleted
+    orphans its Go counterpart, and a whole-tree enumeration at the new ref
+    alone can never produce that path to check, because it is no longer there
+    to enumerate.
   - Parse the **first column** of the mapping table in `docs/PORTING.md` into
     the set of upstream patterns, treating each cell's backticked paths as
     glob patterns (`src/api/*.lazy.ts`, `src/providers/*.models.ts`, and the
@@ -51,8 +65,10 @@ the precedent already in the repo: `upstream/sync.sh` does the network work,
     row, and this catches renames the sweep would otherwise leave stale. Cells
     reading `n/a`, `none`, or naming a package directory are matched as
     directories or skipped explicitly.
-  - Print a one-line summary (`N files in range, M unaccounted, K missing`) so
-    the 232 number is observable rather than asserted.
+  - Print a one-line summary (`N files in range, M unaccounted, K missing`),
+    where `N` is the in-range diff's own file count — the same measurement
+    the epic's **232** claims, not a second definition of "in range" — so the
+    232 number is checkable against `N` rather than asserted separately.
   - Env overrides mirroring `sync.sh`: `UPSTREAM_LOCK_FILE`,
     `UPSTREAM_CLONE_DIR`, plus `UPSTREAM_PORTING_FILE` (which table to read) and
     `UPSTREAM_FILE_LIST` (read the in-range file list from a file instead of
@@ -61,10 +77,13 @@ the precedent already in the repo: `upstream/sync.sh` does the network work,
   `upstream/sync_test.sh`: fixture `PORTING.md` tables and fixture file lists in
   a temp dir, asserting the accounted/unaccounted/missing verdicts and the exit
   codes. No network, no clone.
-- Wire `bash upstream/disposition_check_test.sh` into
-  `.github/workflows/test.yml` beside the existing
-  `bash upstream/sync_test.sh` step. The *checker* stays manual — it needs the
-  upstream clone, and CI runs offline — but its logic is gated like `sync.sh`'s.
+- Wire `bash upstream/disposition_check_test.sh` into the `test` job of
+  `.github/workflows/test.yml` beside the existing `bash upstream/sync_test.sh`
+  step — the `test` job's step list grows by one `run:` step (currently
+  `go test ./... -race -v` then `sync_test.sh`; this adds a third alongside
+  them). The *checker* itself (`disposition_check.sh`) stays manual — it needs
+  the upstream clone, and CI runs offline — only its offline test is gated
+  like `sync.sh`'s.
 - `docs/PORTING.md`'s sync-procedure section (`:119-129`) gains a step naming
   the checker, so the next sync runs it instead of rediscovering it.
 
@@ -74,9 +93,14 @@ the precedent already in the repo: `upstream/sync.sh` does the network work,
   [issue 04](/epic-9-classifier-audit-and-release/issues/04-disposition-sweep.md).
   This PR may well leave the checker failing loudly; that is the expected state
   until 04 lands.
-- Making the checker a required CI gate. It cannot be: it needs network access
-  to an upstream clone, and the three gates `CONVENTIONS.md` names stay the
-  three gates.
+- Making the *checker* (`disposition_check.sh`) a required CI gate. It cannot
+  be: it needs network access to an upstream clone. The three gates
+  `CONVENTIONS.md` names by name — `go test ./... -race -v`,
+  `bash upstream/sync_test.sh`, `golangci-lint` v2.12.2 — stay exactly those
+  three; none is renamed, replaced, or joined by a fourth *named* gate. This
+  does add one more offline, self-contained `run:` step to the `test` job
+  (`disposition_check_test.sh`, next to `sync_test.sh`, above) — a step, not a
+  gate, and not this bullet's subject.
 - Restructuring the mapping table into a machine-readable format (YAML, TSV).
   The table is the human-facing artifact; the parser adapts to it, not the
   reverse.
