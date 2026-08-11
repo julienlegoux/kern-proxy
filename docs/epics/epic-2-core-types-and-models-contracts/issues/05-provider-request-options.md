@@ -3,7 +3,7 @@ type: Issue
 title: "Introduce ProviderRequestOptions as the shared request base, with fetch injection and samplingParams"
 description: "Refactor ai/options.go so transport, auth, and lifecycle knobs live in one reusable base that StreamOptions and the deferred options extend, add the fetch and samplingParams knobs, and record the telemetry deviation."
 tags: [epic-2]
-timestamp: 2026-08-09T04:31:17Z
+timestamp: 2026-08-10T09:20:00Z
 epic: 2
 issue: 05
 slug: provider-request-options
@@ -58,6 +58,38 @@ they thread through the same struct: `fetch` (an injectable HTTP client) and
     callbacks against `ImagesModel`. Go's `OnPayload`/`OnResponse` already take
     `*Model`; whether to generify, duplicate, or leave images alone is an
     implementer call — **record it in `docs/PORTING.md`'s deviations either way.**
+- **The two OpenAI-family flat-merge fields Epic 4 waits on.** Declare both on
+  `StreamOptions`, in the existing
+  `--- openai-completions / openai-responses ---` block beside `ReasoningEffort`
+  (`ai/options.go:142-154`). Both are declarations only; the wire work is
+  [Epic 4](/epic-4-openai-family-adapters/EPIC_4.md)'s issues 04, 05, 09 and 11.
+  - `OpenAIToolChoice any` — upstream types `toolChoice` per adapter as an open
+    union: `OpenAI.Chat.Completions.ChatCompletionToolChoiceOption`
+    (`packages/ai/src/api/openai-completions.ts:143` at `936aff00`),
+    `ResponseCreateParamsStreaming["tool_choice"]`
+    (`openai-responses.ts:96`), and `"auto" | "none" | "required"`
+    (`openai-codex-responses.ts:91`). One `any` carries all three and marshals
+    through unchanged; nil means unset. This is the one place the
+    `<Vendor>ToolChoice string` + `<Vendor>ToolChoiceFunction string` pattern
+    (`GoogleToolChoice` `ai/options.go:202`, `MistralToolChoice` `:227`,
+    `BedrockToolChoice` `:265`) deliberately does **not** apply: those vendors'
+    unions are closed and enumerable, OpenAI's is not, and
+    [Epic 4 issue 09](/epic-4-openai-family-adapters/issues/09-openai-responses-compat-and-wiring.md)
+    requires an arbitrary tool-choice value to round-trip into the body
+    unchanged. Record that reasoning in the field's doc comment.
+  - `OpenAIThinkingBudgets *ThinkingBudgets` — upstream's
+    `OpenAICompletionsOptions.thinkingBudgets` (`openai-completions.ts:146`),
+    mirroring the existing `BedrockThinkingBudgets *ThinkingBudgets`
+    (`ai/options.go:276-278`). `SimpleStreamOptions.ThinkingBudgets` (`:325-326`)
+    is **not** this field and cannot stand in for it:
+    `buildParams(model, chat, opts *ai.StreamOptions)`
+    (`ai/apis/openaicompletions/openaicompletions.go:340`) only ever sees a
+    `*StreamOptions`, which is exactly why bedrock already needs its own copy
+    (`ai/apis/bedrock/bedrock.go:93-127` copies `opts.ThinkingBudgets` across on
+    every branch).
+  - No struct tag on either: `StreamOptions` carries no JSON tags at all
+    (`grep -c 'json:"' ai/options.go` returns `2`, both on `ProviderResponse`
+    at `:43-44`), and these two keep that.
 - **`FetchFunction`** — upstream's `typeof globalThis.fetch`. In Go the
   equivalent is an injectable HTTP doer. Add `Fetch` to
   `ProviderRequestOptions` as a narrow interface or func type (e.g.
@@ -115,6 +147,11 @@ they thread through the same struct: `fetch` (an injectable HTTP client) and
       silently drop it.
 - [ ] `TestSamplingParamsPerRequestOverridesModel` — merge precedence is
       asserted at whichever layer this PR places it.
+- [ ] `ai.StreamOptions` declares `OpenAIToolChoice any` and
+      `OpenAIThinkingBudgets *ThinkingBudgets`
+      (`grep -n 'OpenAIToolChoice\|OpenAIThinkingBudgets' ai/options.go` returns
+      both), each with the doc comment described in `## Scope`. No adapter reads
+      them yet.
 - [ ] `docs/PORTING.md` records **two** entries: the `telemetryContext`
       non-port, and the `TModel` generic decision.
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
@@ -151,6 +188,16 @@ they thread through the same struct: `fetch` (an injectable HTTP client) and
   [Issue 08](/epic-2-core-types-and-models-contracts/issues/08-models-refresh-contract.md),
   [Issue 09](/epic-2-core-types-and-models-contracts/issues/09-models-request-transforms.md),
   [Issue 10](/epic-2-core-types-and-models-contracts/issues/10-deferred-response-dispatch.md).
+  Cross-epic, through the two fields declared above (`depends_on` carries
+  intra-epic numbers only, so the edge lives here in prose):
+  [Epic 4 issue 02](/epic-4-openai-family-adapters/issues/02-fetch-and-sampling-params.md)
+  (`Fetch`, `SamplingParams`),
+  [Epic 4 issue 04](/epic-4-openai-family-adapters/issues/04-completions-thinking-formats.md)
+  (`OpenAIThinkingBudgets`), and
+  [Epic 4 issues 05](/epic-4-openai-family-adapters/issues/05-completions-deferred-tools-and-finish-reason.md),
+  [09](/epic-4-openai-family-adapters/issues/09-openai-responses-compat-and-wiring.md)
+  and [11](/epic-4-openai-family-adapters/issues/11-codex-request-body-and-stop-reasons.md)
+  (`OpenAIToolChoice`).
 
 ## PR size note
 

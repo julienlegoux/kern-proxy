@@ -3,7 +3,7 @@ type: Decision
 title: "Constrained sampling / grammars"
 description: "Whether upstream's grammar-constrained sampling support is ported in this sync."
 tags: [decision, scope]
-timestamp: 2026-08-09T01:30:23Z
+timestamp: 2026-08-10T09:20:00Z
 phase: scope
 decision: 12
 slug: constrained-sampling
@@ -55,7 +55,9 @@ Note the Go-side shape question the epic must settle: `ConstrainedSamplingConfig
 would land in `ai.StreamOptions`, which `docs/PORTING.md` records as already
 carrying the Anthropic-specific knobs because "Go can't overload the single
 `StreamFunc` signature". This continues an established deviation rather than
-creating a new one.
+creating a new one. *(Superseded — see the Verdict: the field is
+`Tool.constrainedSampling` upstream, so it lands on `ai.Tool` and no deviation is
+involved. This paragraph is kept as the record of what was recommended.)*
 
 # Verdict
 
@@ -74,8 +76,18 @@ than its own: the two grammar formats are OpenAI-specific, and the request
 builders they attach to are being rewritten there anyway. Porting it later would
 mean reopening the same files and re-deriving the same wire shapes.
 
-The Go-side shape question stands for the epic to settle:
-`ConstrainedSamplingConfig` lands in `ai.StreamOptions`, which `docs/PORTING.md`
-records as already carrying the Anthropic-specific knobs because Go cannot
-overload the single `StreamFunc` signature. This continues an established
-deviation rather than creating a new one.
+The Go-side shape question is settled, and **not** the way this decision first
+recorded it. Amended 2026-08-10 against upstream at `936aff00`:
+`packages/ai/src/types.ts:506` declares
+`constrainedSampling?: false | ConstrainedSamplingConfig` on the `Tool`
+interface (`:501-507`, with `ConstrainedSamplingConfig` at `:492-500`), while
+`StreamOptions` (`:175-219`) carries no such field. The configuration is per
+**tool**, not per request, so `ConstrainedSamplingConfig` lands on `ai.Tool`
+(`ai/types.go:243-247`) and the per-adapter-options deviation `docs/PORTING.md`
+records for the Anthropic knobs is **not** involved — nothing is deviated from
+here.
+
+The earlier reading ("lands in `ai.StreamOptions`, continuing the established
+deviation") was written before the upstream shape was read; it is corrected here,
+in [EPIC_4.md](../../epics/epic-4-openai-family-adapters/EPIC_4.md) and in
+[SCOPE.md](/SCOPE.md)'s milestone-4 bullet, so the question is not re-opened.
