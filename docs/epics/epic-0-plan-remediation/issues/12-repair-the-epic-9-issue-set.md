@@ -3,12 +3,12 @@ type: Issue
 title: "Repair the Epic 9 issue set: the checker's file set, the classifier row count, and the release escape hatch"
 description: "Derive the disposition checker's candidate set from the 232-file range instead of the whole upstream tree, label it an assumption, fix the unsatisfiable row-count criterion, and close the gap that lets an unported file ship as a recorded deviation."
 tags: [epic-0]
-timestamp: 2026-08-10T03:10:00Z
+timestamp: 2026-08-11T15:05:00Z
 epic: 0
 issue: 12
 slug: repair-the-epic-9-issue-set
 size: M
-status: open
+status: in-progress
 gh_issue: 210
 resource: https://github.com/kern-ia/kern-link/issues/210
 depends_on: [6]
