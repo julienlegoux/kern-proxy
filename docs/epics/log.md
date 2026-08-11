@@ -8,6 +8,7 @@
 * **Completed**: [Issue 11: Repair the Epic 8 issues: provenance on ported tests, the unsatisfiable grep, and the two missing scope files](/epic-0-plan-remediation/issues/11-repair-the-epic-8-issue-set.md) (#209) moved to `done` — [PR #214](https://github.com/kern-ia/kern-link/pull/214) merged into `develop` 2026-08-10.
 * **Completed**: [Issue 01: Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md) (#199) moved to `done` — [PR #216](https://github.com/kern-ia/kern-link/pull/216) merged into `develop` 2026-08-11.
 * **Started**: [Issue 02: Adopt the six orphaned scope items, or record each as out of scope with a reason](/epic-0-plan-remediation/issues/02-adopt-the-orphaned-scope-items.md) (#200) moved to `in-progress` on branch `epic0-issue02-orphaned-scope`.
+* **Creation**: Established [Issue 07: Reshape ai/images.Options onto ProviderRequestOptions, honor the fetch override, and carry the getAuth overrides](/epic-3-catalog-schema-and-export-tooling/issues/07-images-options-base-and-auth-overrides.md) (#218) — the owner Epic 0 issue 02 gives the `ImagesOptions` reshape and the images `getAuth` overrides.
 
 ## 2026-08-10
 

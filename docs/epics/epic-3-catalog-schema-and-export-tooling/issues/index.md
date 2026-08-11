@@ -6,3 +6,4 @@
 * [Regenerate the embedded model catalog from upstream 936aff00 (35 to 39 provider files)](./04-regenerate-model-catalog.md) - L, open, [#144](https://github.com/kern-ia/kern-link/issues/144)
 * [Regenerate the image catalog from upstream 936aff00 and cover its decode path](./05-regenerate-image-catalog.md) - S, open, [#145](https://github.com/kern-ia/kern-link/issues/145)
 * [Honor MaxRetries and MaxRetryDelay in the OpenRouter images adapter](./06-images-adapter-retry.md) - M, open, [#146](https://github.com/kern-ia/kern-link/issues/146)
+* [Reshape ai/images.Options onto ProviderRequestOptions, honor the fetch override, and carry the getAuth overrides](./07-images-options-base-and-auth-overrides.md) - M, open, [#218](https://github.com/kern-ia/kern-link/issues/218)
