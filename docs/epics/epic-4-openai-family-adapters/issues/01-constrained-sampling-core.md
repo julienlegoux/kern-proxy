@@ -3,7 +3,7 @@ type: Issue
 title: "Port constrained-sampling.ts as a shared grammar package, with Tool.ConstrainedSampling"
 description: "Add the GrammarFormat / GrammarVariants / ConstrainedSamplingConfig types on ai.Tool and port upstream's grammar resolution and JSON-delta buffer, with its 229-line test."
 tags: [epic-4]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T21:30:00Z
 epic: 4
 issue: 01
 slug: constrained-sampling-core
@@ -154,9 +154,11 @@ re-derive it.
 - `ai/types.go:243-247` — the `Tool` struct.
 - `ai/json.go` — where a custom marshaller would go if the `false` literal must
   survive.
-- `ai/apis/internal/` — currently holds only `httpretry` (which
-  [Epic 3 issue 06](/epic-3-catalog-schema-and-export-tooling/issues/06-images-adapter-retry.md)
-  moves to `ai/internal/httpretry`); the new `grammar` package sits beside it.
+- `ai/apis/internal/` — currently holds only `httpretry`, which stays at
+  `ai/apis/internal/httpretry` for this program
+  ([Epic 3 issue 06](/epic-3-catalog-schema-and-export-tooling/issues/06-images-adapter-retry.md)
+  reaches it through a thin exported shim in `package apis` rather than moving
+  it); the new `grammar` package sits beside it.
 - `ai/hash.go:14` `ShortHash` — not needed here, but the same helper later
   issues use.
 - Upstream: `packages/ai/src/api/constrained-sampling.ts`,

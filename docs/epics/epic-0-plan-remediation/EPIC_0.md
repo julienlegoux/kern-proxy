@@ -3,7 +3,7 @@ type: Epic
 title: "Plan remediation"
 description: "Repair the 97 findings the nine issue-review reports raised against the epic and issue bundle, so the sync program implements against a plan that agrees with itself."
 tags: [epic, remediation]
-timestamp: 2026-08-11T20:10:00Z
+timestamp: 2026-08-11T21:30:00Z
 epic: 0
 slug: plan-remediation
 status: open
@@ -121,8 +121,9 @@ written against it.
 
 **Sweeps**
 
-13. **Rewrite the `## PR size note` in all 71 issues against its own band, and correct
-    the mis-declared `size` values and their index bullets.** Seventy of seventy-one
+13. **Rewrite the `## PR size note` in all 74 issues against its own band, and correct
+    the mis-declared `size` values and their index bullets.** (71 at triage; the three
+    issues this epic itself created bring the sweep to 74.) Seventy of seventy-one
     files carry one identical sentence — "Target ~500 changed lines; if this grows past
     ~1000, split it before opening the PR" — which describes an `L`, quoted verbatim
     at `S` and `M` issues alike. Includes pre-splitting Epic 2 issue 08 rather than
@@ -189,7 +190,7 @@ written against it.
 8. Every issue that edits or creates a ported file requires the `// Ports:` header to
    still describe it, and every issue whose change alters a `docs/PORTING.md` row says
    so — test files included.
-9. `depends_on` and the `## Dependencies` prose agree in both directions for all 71
+9. `depends_on` and the `## Dependencies` prose agree in both directions for all 74
    issues, and no behaviour, test or merge is claimed by two issues.
 10. `git grep -n "No epic in this program"` over `docs/epics/` returns nothing that a
     live issue number contradicts, and every cross-epic contract conflict is recorded
@@ -284,3 +285,133 @@ gets its own `docs(epics): …` commit, separate from the implementation commit
 (`:221-224`). `Closes #N` will not auto-close the issue, because PRs merge into
 `develop` rather than the repo's default branch — Epic 1 is the first epic to exercise
 that path; the explicit close at reconcile is the normal route, not a fallback.
+
+### The finding ledger — all 97 accounted for
+
+Written by [issue 15](/epic-0-plan-remediation/issues/15-reconcile-github-state-with-the-files.md)
+at epic close, satisfying acceptance criterion 16. `R<n>.<k>` is the k-th `### P…`
+heading in `docs/REPORT_<n>.md`, in file order; the count re-derives from
+`grep -c '^### P' docs/REPORT_*.md` → 9 + 11 + 13 + 12 + 11 + 12 + 10 + 9 + 10 = **97**.
+Every finding is repaired by the Epic 0 issue named; none is `won't-fix`, none was
+dropped as stale, none was dispositioned as drift. Where two issues share a finding,
+both are named.
+
+| # | Sev | Finding | Repaired by |
+|---|---|---|---|
+| R1.1 | P2 | Epic AC 2's single exception widened by issue 02 to two directories | 03 |
+| R1.2 | P2 | Epic AC 4 demands a single PR; the epic ships two | 03 |
+| R1.3 | P2 | Issue 01 mandates a `build:` commit type the conventions do not use | 03 |
+| R1.4 | P2 | Issue 02's `SPECS.md` rewrite is in Scope with no acceptance criterion | 03 |
+| R1.5 | P3 | Issue 02's reference and file counts do not reproduce (370 vs 369, 42 vs 44) | 03 |
+| R1.6 | P3 | Root `CONVENTIONS.md` line citation off by one | 03 |
+| R1.7 | P3 | `issues/index.md` uses `./` links where the bundle rule wants a leading slash | 14 |
+| R1.8 | P3 | `depends_on: [1]` does not match `issue: 01` | 14 |
+| R1.9 | P3 | Branch and status-commit conventions absent from both bodies | 14 |
+| R2.1 | P1 | Issue 05's "compiles without churn" is impossible in Go; the report's 218 broken call sites re-derived as 248 | 04, 05 |
+| R2.2 | P2 | Issue 10 needs issue 09's decision but declares no edge | 04 |
+| R2.3 | P2 | Issue 05 demands a test for a merge it assigns to issue 06 | 04 |
+| R2.4 | P2 | Issue 07's deep copy goes shallow once issues 03 and 05 land | 04 |
+| R2.5 | P2 | Issue 03's `ModelCost` embedding breaks twelve keyed literals | 04 |
+| R2.6 | P2 | Issue 08 concedes the size ceiling and leaves the split to be made mid-PR | 05, 13 |
+| R2.7 | P2 | Issue 10 points deferred-response adapter work at Epics 4 and 5 | 02 |
+| R2.8 | P2 | `SimpleStreamOptions.deferred` is owned by no issue in any epic | 02 |
+| R2.9 | P3 | Branch, base-branch and status-commit conventions appear in no body | 14 |
+| R2.10 | P3 | `issues/index.md` links `./NN-slug.md` | 14 |
+| R2.11 | P3 | Issue 07 is sized `S` but carries `M`'s work | 13 |
+| R3.1 | P1 | The `ImagesOptions` → `ProviderRequestOptions` reshape is deferred in a circle | 02 |
+| R3.2 | P1 | Issue 06 relocates `ai/apis/internal/httpretry` repo-wide | 06 |
+| R3.3 | P2 | `images-models.ts`'s `getAuth` reshape is owned by no issue | 02 |
+| R3.4 | P2 | Issues 02 and 06 mandate `SPECS.md` edits inside implementation PRs | 06 |
+| R3.5 | P2 | Issues 04 and 05 apply opposite sizing rules to generated data | 06, 13 |
+| R3.6 | P2 | Issue 04 has no criterion keeping the image catalog out of its diff | 06 |
+| R3.7 | P3 | All six PR size notes are identical boilerplate | 13 |
+| R3.8 | P3 | The images strict-decode test is owned twice | 06 |
+| R3.9 | P3 | Issue 03 inverts the epic's "strictly in this order", correctly | 06 |
+| R3.10 | P3 | Issue 01 makes rewriting its four successors part of its own DoD | 06 |
+| R3.11 | P3 | Issue 02 invents a `MODEL_CATALOG_DIR` configuration surface | 06 |
+| R3.12 | P3 | Issue 03's invariant battery exceeds the epic's criteria | 06 |
+| R3.13 | P3 | The epic's "41 `*.models.ts`" is never reconciled with 39 provider files | 06 |
+| R4.1 | P1 | Three issues wire an OpenAI `tool_choice` option that does not exist | 01 |
+| R4.2 | P1 | Issue 04 references `StreamOptions.ThinkingBudgets`, which does not exist | 01 |
+| R4.3 | P2 | Issue 01 reverses the epic's acceptance criterion 3 | 01 |
+| R4.4 | P2 | Issues 03, 10 and 11 omit their cross-epic blockers | 07 |
+| R4.5 | P2 | Sizing: issues 09 and 11 under-declared, issue 10 self-contradictory | 13 |
+| R4.6 | P2 | Epic AC 5 (provenance + `docs/PORTING.md`) absent from issues 05, 07, 08 | 07 |
+| R4.7 | P2 | Issue 12 adds `ai.UUIDv7`, a public API the epic never scoped | 02 |
+| R4.8 | P3 | Ten GitHub issue titles drop the colon present in the local files | 15 |
+| R4.9 | P3 | Issue 12 renames a required section heading | 07 |
+| R4.10 | P3 | `issues/index.md` links are `./file.md` | 14 |
+| R4.11 | P3 | The PR size note is identical boilerplate in eleven of twelve issues | 13 |
+| R4.12 | P3 | Issue 12 attributes the WebSocket recorders to the wrong file | 07 |
+| R5.1 | P1 | Seven of eleven issues are blocked by an Epic 4 issue the epic disclaims | 08 |
+| R5.2 | P2 | Epic acceptance criterion 3 can be closed without a Go home | 08 |
+| R5.3 | P2 | `## PR size note` boilerplate contradicts the declared `size` | 13 |
+| R5.4 | P2 | Issue 01's `size: S` does not match its own scope | 13 |
+| R5.5 | P2 | Epic AC 5's `docs/PORTING.md` half is dropped by seven issues | 08 |
+| R5.6 | P2 | Five acceptance criteria pass whichever way the implementer decides | 08 |
+| R5.7 | P3 | Two issues claim nobody owns work that Epic 6 owns | 08 |
+| R5.8 | P3 | Issue 01 asks for an unrequested edit to a finalized planning doc | 08 |
+| R5.9 | P3 | Two out-of-scope boundaries are crossed but never amended in the epic | 08 |
+| R5.10 | P3 | Three stale or off-by-one code citations | 08 |
+| R5.11 | P3 | Branch and status-commit conventions absent from the bodies | 14 |
+| R6.1 | P1 | Four issues build upstream files the epic never names; issue 08 contradicts its Out of scope | 09 |
+| R6.2 | P2 | Acceptance criterion 4's "catalog entry" half has no owner | 09 |
+| R6.3 | P2 | `depends_on` under-declares two conflicts the bodies do declare | 09 |
+| R6.4 | P2 | Issue 03 removes a criterion Epic 5 issue 11 (#169) promises to preserve | 09 |
+| R6.5 | P2 | AC 5 is unenforced, and three issues share one upstream test file | 09 |
+| R6.6 | P2 | `docs/auth.md` goes stale; issue 11 routes the fix to an epic that will not make it | 02, 09 |
+| R6.7 | P2 | Issue 08 is sized `M` for work that reads as `L` | 13 |
+| R6.8 | P2 | The PR size note is identical boilerplate in all eleven issues | 13 |
+| R6.9 | P3 | Acceptance criterion 2 ("no Go package moved or renamed") is verified nowhere | 09 |
+| R6.10 | P3 | `// Ports:` maintenance is a DoD item in six issues and absent from four | 09 |
+| R6.11 | P3 | Issue 11 names issue 07 as amending `docs/PORTING.md`; issue 07 does not | 09 |
+| R6.12 | P3 | Three small internal inconsistencies | 09 |
+| R7.1 | P2 | Issue 05 sorts the login list, then appends Radius | 10 |
+| R7.2 | P2 | `postForm`'s signature cannot produce the error strings issues 02 and 04 pin | 10 |
+| R7.3 | P2 | The `callbackHost` rename omits `codex.go` and miscounts the callers | 10 |
+| R7.4 | P2 | AC 5 half covered: four ported test files never require a `// Ports:` header | 10 |
+| R7.5 | P2 | Sizing is internally inconsistent and every size note contradicts its `size` | 13 |
+| R7.6 | P3 | "epic 12" has no counterpart in this bundle | 10 |
+| R7.7 | P3 | Issue 01 claims Epic 6 lands two unused fields; it lands one | 10 |
+| R7.8 | P3 | Radius's default gateway constant lands in `cmd/pi-ai` | 10 |
+| R7.9 | P3 | Minor citation drift and a case-inconsistent symbol name | 10 |
+| R7.10 | P3 | `issues/index.md` uses `./`-relative links | 14 |
+| R8.1 | P1 | Ported test files are exempted from the `// Ports:` header the epic requires | 11 |
+| R8.2 | P2 | `size:` is contradicted by an identical size note in all five issues | 13 |
+| R8.3 | P2 | Issue 05's count-sweep criterion greps frozen artifacts and can never pass | 11 |
+| R8.4 | P2 | Issue 05's Scope misses two files carrying the same stale counts | 11 |
+| R8.5 | P3 | Every `docs/PORTING.md` line citation in issue 05 is wrong | 11 |
+| R8.6 | P3 | "fetched at provider setup" becomes "gated refresh", unacknowledged | 11 |
+| R8.7 | P3 | AC 2 ("248 test lines ported") is claimed by issue 02, half-executed in issue 01 | 11 |
+| R8.8 | P3 | `events.go` departs from the named adapter file layout without a note | 11 |
+| R8.9 | P3 | Issue 04 leaves a stop-work branch its own dependency already answers | 11 |
+| R9.1 | P1 | The disposition checker measures a different file set than "232 files in range" | 12 |
+| R9.2 | P2 | Issue 03 builds tooling the epic never asked for, unflagged | 12 |
+| R9.3 | P2 | Issue 01's row-count criterion does not match the code it counts | 12 |
+| R9.4 | P2 | Issue 04's escape hatch lets a genuinely unported file ship as a "gap" | 12 |
+| R9.5 | P3 | Epic AC 2's `docs/planning/DRIFT.md` entry is written by no issue in the epic | 12 |
+| R9.6 | P3 | Issues 01 and 02 both claim the same `httpretry` regression criterion | 12 |
+| R9.7 | P3 | `docs/classifier-parity.md` lands in the consumer-facing docs bundle | 12 |
+| R9.8 | P3 | PR size notes are boilerplate and disagree with the declared `size` | 13 |
+| R9.9 | P3 | `./` bullets in `issues/index.md`, and bundle-absolute links inside GitHub bodies | 14, 15 |
+| R9.10 | P3 | Issue 05 does not mention the CHANGELOG link-reference footer | 12 |
+
+**Caveats recorded rather than repaired**, all noticed while building the ledger:
+
+- Several issues' one-line `Findings repaired:` tallies undercount their own `## Scope`.
+  Issue 03 says "REPORT_1 P2 ×3" for the four P2 findings its Scope items 1–4 repair;
+  issue 06 says "P3 ×5" and then lists six; issues 08, 09, 10 and 12 each say "P3 ×3" or
+  "P3 ×5" over a list of one more. The prose was left alone — the findings themselves are
+  repaired, and rewriting fourteen merged issue bodies for a tally is churn. **This table
+  is the authority on which issue repaired what.**
+- Acceptance criterion 15's literal form ("no issue body contains a link beginning
+  `](/epic-`") cannot be satisfied byte-for-byte: issues #212 and #213 are the two issues
+  whose job is to describe that pattern, so their bodies must quote it. It is read as
+  "no *link*" — four literal occurrences survive inside inline-code spans in #212 and
+  #213, and every one of the 946 real links in the ten tracking issues and 89 sub-issue
+  bodies is an absolute `https://github.com/kern-ia/kern-link/blob/develop/…` URL.
+- Issues **#87–#97** are the closed sub-issues of a retired epic bundle
+  (`epic-1-reliability-api-fixes`, `epic-2-release-process-hygiene`) that no longer exists
+  on disk. Their bodies still carry bundle-absolute links. They are outside the
+  `upstream-sync` program and were deliberately left untouched: rewriting their links to
+  `blob/develop` URLs would point at files that do not exist.

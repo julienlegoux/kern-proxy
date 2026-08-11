@@ -3,7 +3,7 @@ type: Issue
 title: "Reshape ai/images.Options onto ProviderRequestOptions, honor the fetch override, and carry the getAuth overrides"
 description: "Adopt the two forced ai/images consequences of the upstream core-type and auth restructures — Options on the shared request base with its fetch injection, and Models.GetAuth's overrides plus provider-id form — neither of which any other epic accepts."
 tags: [epic-3]
-timestamp: 2026-08-11T20:00:00Z
+timestamp: 2026-08-11T21:30:00Z
 epic: 3
 issue: 07
 slug: images-options-base-and-auth-overrides
@@ -45,11 +45,12 @@ epic (`:59-67`). It was nonetheless deferred in a circle:
 pushed it here, and this epic's
 [issues 05](/epic-3-catalog-schema-and-export-tooling/issues/05-regenerate-image-catalog.md)
 and [06](/epic-3-catalog-schema-and-export-tooling/issues/06-images-adapter-retry.md)
-pushed it back to Epic 2. Epic 2 issue 05's condition — "touch it only if the
-refactor breaks compilation" — could never fire: `images.Options` is a
-standalone struct that does not embed `ai.StreamOptions`, so nothing in
-`ai/images` stops compiling when `ai.StreamOptions` is split. The circle is
-broken here.
+pushed it back to Epic 2. The condition Epic 2 issue 05 carried at the time —
+touch `ai/images` only if the refactor breaks compilation — could never fire:
+`images.Options` is a standalone struct that does not embed `ai.StreamOptions`,
+so nothing in `ai/images` stops compiling when `ai.StreamOptions` is split.
+Epic 2 issue 05 now disclaims `ai/images` unconditionally and names this issue
+as its owner, so the circle is broken here.
 
 **2. `getAuth` gains overrides and a provider-id form.** Upstream's
 `packages/ai/src/images-models.ts` at `936aff00` declares, on the images
@@ -82,7 +83,7 @@ hands back to this epic by name.
   only `Metadata` declared locally, mirroring upstream's one-field extension.
   Cancellation stays on `context.Context`; `telemetryContext` stays unported —
   both are established deviations
-  ([Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  ([Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
   records the second in `docs/PORTING.md`). Callers writing
   `&images.Options{APIKey: "k", Timeout: time.Second}` keep working through
   embedded-field promotion; **composite literals that set those fields by key
@@ -112,10 +113,11 @@ hands back to this epic by name.
 
 ## Out of scope
 
-- **Anything `ai.ProviderRequestOptions` itself.** Declaring the base, the
-  `FetchFunction` type and the `telemetryContext` non-port is
+- **Anything `ai.ProviderRequestOptions` itself.** Declaring the base is
   [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md);
-  this issue consumes it.
+  the `FetchFunction` type and the `telemetryContext` non-port are
+  [Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md).
+  This issue consumes both.
 - **`ResolveProviderAuth`'s own signature change** (dropping `model`) —
   [Epic 6 issue 03](/epic-6-auth-core-and-env-api-key-bindings/issues/03-provider-scoped-apikey-resolution.md),
   which already lists `ai/images/`'s call sites and tests among its mechanical
@@ -186,7 +188,9 @@ hands back to this epic by name.
 - **Cross-epic** (`depends_on` carries intra-epic numbers only, so these edges
   live here in prose):
   [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
-  (#133) declares `ProviderRequestOptions` and `FetchFunction`;
+  (#133) declares `ProviderRequestOptions` and
+  [Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
+  (#225) adds `Fetch` and the `FetchFunction` type;
   [Epic 6 issue 03](/epic-6-auth-core-and-env-api-key-bindings/issues/03-provider-scoped-apikey-resolution.md)
   (#172) settles `ResolveProviderAuth`'s signature; and
   [Epic 6 issue 06](/epic-6-auth-core-and-env-api-key-bindings/issues/06-models-login-logout.md)

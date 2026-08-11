@@ -3,7 +3,7 @@ type: Issue
 title: "Honor Fetch and SamplingParams in the four OpenAI-family adapters"
 description: "Make the injectable HTTP doer actually carry requests through httpretry, and merge arbitrary samplingParams into each adapter's request body last."
 tags: [epic-4]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T21:30:00Z
 epic: 4
 issue: 02
 slug: fetch-and-sampling-params
@@ -42,10 +42,10 @@ Both are one-line changes upstream and neither is one line in Go:
 
 ## Scope
 
-- **Fetch** — in `httpretry` (at whatever path
+- **Fetch** — in `ai/apis/internal/httpretry`, where it stays: relocating the
+  package was decided against for this program, and
   [Epic 3 issue 06](/epic-3-catalog-schema-and-export-tooling/issues/06-images-adapter-retry.md)
-  left it: `ai/internal/httpretry` if that landed, `ai/apis/internal/httpretry`
-  otherwise):
+  reaches the loop through a thin exported shim in `package apis` instead:
   - Use `Config.Opts.Fetch` as the doer when non-nil, falling back to the
     current default client when nil. Retry, timeout, and error classification
     behavior must be identical either way — the override replaces the transport,
@@ -117,7 +117,7 @@ Both are one-line changes upstream and neither is one line in Go:
 
 - `ai/apis/internal/httpretry/httpretry.go` — `Do`, `Config` (`:60-76` per
   [Epic 3 issue 06](/epic-3-catalog-schema-and-export-tooling/issues/06-images-adapter-retry.md));
-  may already be `ai/internal/httpretry` by the time this lands.
+  the package does not move, so this path is the one this PR edits.
 - `ai/apis/openaicompletions/openaicompletions.go:123,340`
 - `ai/apis/openairesponses/openairesponses.go:129,326`
 - `ai/apis/azure/azure.go:257`
