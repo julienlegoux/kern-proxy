@@ -46,7 +46,7 @@ Four changes to the chat-completions request/response contract, all in
 
 Also here, because it is a one-line change on the same options struct: this
 adapter starts reading `ai.StreamOptions.OpenAIToolChoice` (declared by
-[Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+[Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
 as `any`), so `tool_choice` accepts the full OpenAI tool-choice union
 (upstream: `OpenAICompletionsOptions.toolChoice?:
 OpenAI.Chat.Completions.ChatCompletionToolChoiceOption`,
@@ -156,7 +156,7 @@ four hand-listed shapes.
   for `RawStopReason` and `AddedToolNames`;
   [Epic 2 issue 04](/epic-2-core-types-and-models-contracts/issues/04-compat-flags-and-bedrock-compat.md)
   for `SupportsFinishReason` / `DeferredToolsMode`;
-  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  [Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
   (`OpenAIToolChoice` on `ai.StreamOptions`). The two cross-epic edges cannot sit
   in `depends_on`, which holds intra-epic numbers only.
 - **Blocks**: None.

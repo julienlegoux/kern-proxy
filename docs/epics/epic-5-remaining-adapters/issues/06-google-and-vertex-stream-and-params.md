@@ -158,7 +158,7 @@ same review twice.
   [issue 01](/epic-2-core-types-and-models-contracts/issues/01-widen-stopreason-and-thinkinglevel.md)
   (`StopReasonPending`, `ThinkingMax`),
   [issue 02](/epic-2-core-types-and-models-contracts/issues/02-message-model-deferred-fields.md)
-  (`RawStopReason`), [issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  (`RawStopReason`), [issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
   (`Fetch`).
 - **Blocks**: None.
 

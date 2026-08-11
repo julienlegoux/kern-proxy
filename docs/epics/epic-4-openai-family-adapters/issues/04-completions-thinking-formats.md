@@ -67,7 +67,7 @@ both `chat_template_kwargs` and `chat_template_args`.
     comment; do not invent a different name.
 - The caller-side override is `StreamOptions.OpenAIThinkingBudgets
   *ai.ThinkingBudgets`, declared by
-  [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  [Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
   and mirroring `BedrockThinkingBudgets` (`ai/options.go:276-278`). The
   `ai.ThinkingBudgets` **type** exists today, but the only field of that type on
   the caller path is `SimpleStreamOptions.ThinkingBudgets` (`:325-326`), which
@@ -148,7 +148,7 @@ both `chat_template_kwargs` and `chat_template_args`.
 ## Dependencies
 
 - **Blocked by**: [Epic 2 issue 04](/epic-2-core-types-and-models-contracts/issues/04-compat-flags-and-bedrock-compat.md).
-- **Blocked by**: [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+- **Blocked by**: [Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
   (`OpenAIThinkingBudgets` on `ai.StreamOptions`). Cross-epic, so `depends_on`
   cannot carry it — it holds intra-epic numbers only.
 - **Blocks**: None.

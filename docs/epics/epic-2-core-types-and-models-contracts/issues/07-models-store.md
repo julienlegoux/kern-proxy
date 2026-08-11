@@ -91,7 +91,7 @@ reasoning. Verify that reading before writing it down.
   `TestInMemoryModelsStoreReadReturnsCopy` proves the copy is deep for
   everything `ModelsStoreEntry` and `Model` carry as of this PR.
   [Issue 03](/epic-2-core-types-and-models-contracts/issues/03-tiered-model-cost.md)
-  and [issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
+  and [issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
   each add a field to `Model` afterward (`Cost.Tiers`, `SamplingParams`) that
   the copy must also clone; extending the copy and this test when they land is
   their criterion, not this one's.

@@ -3,13 +3,14 @@ type: Issue
 title: "Pre-split Epic 2 issues 05 and 08 into reviewable halves"
 description: "Cut the two Epic 2 issues that concede their own size ceiling into four, so the split is made now against the plan rather than mid-PR at the point of no return."
 tags: [epic-0]
-timestamp: 2026-08-10T03:10:00Z
+timestamp: 2026-08-11T16:40:00Z
 epic: 0
 issue: 05
 slug: pre-split-epic-2-issues-05-and-08
 size: M
-status: open
+status: pr-open
 gh_issue: 203
+gh_pr: 228
 resource: https://github.com/kern-ia/kern-link/issues/203
 depends_on: [4]
 ---
@@ -141,7 +142,11 @@ the numbering reads as deliberate.
   [issue 02](/epic-0-plan-remediation/issues/02-adopt-the-orphaned-scope-items.md) and
   [issue 01](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md).
 - **Blocks**: [Issue 13](/epic-0-plan-remediation/issues/13-rewrite-the-pr-size-notes.md)
-  — the size sweep must count 73 issues, not 71, and
+  — the size sweep must count **74** issues, not 71 (corrected from this file's
+  own "73": the bundle was already at 72 before this split, since merged
+  [issue 02](/epic-0-plan-remediation/issues/02-adopt-the-orphaned-scope-items.md)
+  created Epic 3 issue 07 (#218), and this issue adds two more — Epic 2 issues
+  13 and 14) — and
   [issue 15](/epic-0-plan-remediation/issues/15-reconcile-github-state-with-the-files.md),
   which reconciles titles for the two new GitHub issues too.
 
