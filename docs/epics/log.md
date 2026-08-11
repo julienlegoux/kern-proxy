@@ -2,6 +2,8 @@
 
 ## 2026-08-11
 
+* **Started**: [Issue 07: Repair the Epic 4 issue set: provenance, the undeclared cross-epic blockers, and the renamed section heading](/epic-0-plan-remediation/issues/07-repair-the-epic-4-issue-set.md) (#205) moved to `in-progress` on branch `issue-07-epic0-epic4-recheck`.
+* **PR opened**: [Issue 07: Repair the Epic 4 issue set: provenance, the undeclared cross-epic blockers, and the renamed section heading](/epic-0-plan-remediation/issues/07-repair-the-epic-4-issue-set.md) (#205) moved to `pr-open` — [PR #220](https://github.com/kern-ia/kern-link/pull/220), targeting `develop`.
 * **Status**: [Issue 01: Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md) (#199) moved to `pr-open` — PR [#216](https://github.com/kern-ia/kern-link/pull/216) targets `develop`.
 * **PR opened**: [Issue 03: Repair the Epic 1 issue set: the two acceptance criteria its issues fail, and the off-convention commit type](/epic-0-plan-remediation/issues/03-repair-the-epic-1-issue-set.md) (#201) — [PR #215](https://github.com/kern-ia/kern-link/pull/215).
 * **Completed**: [Issue 01: Settle the Epic 4 core-type contracts: the tool-choice field, the thinking-budget carrier, and ConstrainedSamplingConfig](/epic-0-plan-remediation/issues/01-epic-4-core-type-contracts.md) (#199) moved to `done` — [PR #216](https://github.com/kern-ia/kern-link/pull/216) merged into `develop` 2026-08-11.
@@ -12,6 +14,7 @@
 * **Started**: [Issue 02: Adopt the six orphaned scope items, or record each as out of scope with a reason](/epic-0-plan-remediation/issues/02-adopt-the-orphaned-scope-items.md) (#200) moved to `in-progress` on branch `epic0-issue02-orphaned-scope`.
 * **Creation**: Established [Issue 07: Reshape ai/images.Options onto ProviderRequestOptions, honor the fetch override, and carry the getAuth overrides](/epic-3-catalog-schema-and-export-tooling/issues/07-images-options-base-and-auth-overrides.md) (#218) — the owner Epic 0 issue 02 gives the `ImagesOptions` reshape and the images `getAuth` overrides.
 * **PR opened**: [Issue 02: Adopt the six orphaned scope items, or record each as out of scope with a reason](/epic-0-plan-remediation/issues/02-adopt-the-orphaned-scope-items.md) (#200) moved to `pr-open` — [PR #219](https://github.com/kern-ia/kern-link/pull/219), targeting `develop`.
+* **Completed**: [Issue 02: Adopt the six orphaned scope items, or record each as out of scope with a reason](/epic-0-plan-remediation/issues/02-adopt-the-orphaned-scope-items.md) (#200) moved to `done` — [PR #219](https://github.com/kern-ia/kern-link/pull/219) merged into `develop` 2026-08-11.
 
 ## 2026-08-10
 
