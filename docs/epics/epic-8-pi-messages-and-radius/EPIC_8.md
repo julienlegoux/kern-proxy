@@ -3,7 +3,7 @@ type: Epic
 title: "pi-messages and radius"
 description: "Add pi's own protocol as the tenth ai/apis package and land the radius provider binding, whose gateway config is fetched over the network at provider setup."
 tags: [epic]
-timestamp: 2026-08-10T14:00:00Z
+timestamp: 2026-08-11T20:10:00Z
 epic: 8
 slug: pi-messages-and-radius
 status: open
@@ -86,3 +86,11 @@ They are grouped because radius is the one provider that needs both.
   `AllowNetwork`), not at provider construction — issues 03 and 04 already
   build it that way; the epic file just never said so, and a reviewer checking
   AC 3 against 04's tests could otherwise read a met criterion as missed.
+- **Branch, base-branch and status-commit conventions**
+  (`docs/planning/CONVENTIONS.md:213-224`). Feature branches are named
+  `issue-<NN>-<slug>` (`:216-218`). PRs target `develop` and merge with a merge
+  commit — no rebase, no squash (`:213-219`). Each status transition gets its own
+  `docs(epics): …` commit, separate from the implementation commit (`:221-224`).
+  `Closes #N` will not auto-close the issue, because PRs merge into `develop`
+  rather than the repo's default branch — the explicit close at reconcile is the
+  normal route, not a fallback.

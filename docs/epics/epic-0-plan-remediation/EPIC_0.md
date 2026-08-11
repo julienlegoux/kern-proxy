@@ -3,7 +3,7 @@ type: Epic
 title: "Plan remediation"
 description: "Repair the 97 findings the nine issue-review reports raised against the epic and issue bundle, so the sync program implements against a plan that agrees with itself."
 tags: [epic, remediation]
-timestamp: 2026-08-10T01:07:42Z
+timestamp: 2026-08-11T20:10:00Z
 epic: 0
 slug: plan-remediation
 status: open
@@ -276,3 +276,11 @@ the next increment of the plan; they are what makes the rest of the plan impleme
 This epic is temporary by design: once every issue is `done` and its milestone closed,
 it is retired, and the record of what it fixed stays in
 [the log](/log.md).
+
+**Branch, base-branch and status-commit conventions** (`docs/planning/CONVENTIONS.md:213-224`).
+Feature branches are named `issue-<NN>-<slug>` (`:216-218`). PRs target `develop` and
+merge with a merge commit — no rebase, no squash (`:213-219`). Each status transition
+gets its own `docs(epics): …` commit, separate from the implementation commit
+(`:221-224`). `Closes #N` will not auto-close the issue, because PRs merge into
+`develop` rather than the repo's default branch — Epic 1 is the first epic to exercise
+that path; the explicit close at reconcile is the normal route, not a fallback.
