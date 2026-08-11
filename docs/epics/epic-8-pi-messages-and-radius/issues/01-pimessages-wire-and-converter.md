@@ -3,7 +3,7 @@ type: Issue
 title: "Open the pi-messages package with its wire event union and the converter onto ai.Event"
 description: "Add ai.ApiPiMessages and the ai/apis/pimessages package's decode half: the serialized pi-messages event union, its SSE frame decoding, and the converter that assembles an ai.AssistantMessage partial and emits unified events."
 tags: [epic-8]
-timestamp: 2026-08-09T14:45:00Z
+timestamp: 2026-08-10T14:00:00Z
 epic: 8
 issue: 01
 slug: pimessages-wire-and-converter
@@ -28,7 +28,10 @@ offline-testable, and needs no HTTP at all.
 This PR lands: the `ai.ApiPiMessages` constant, the package, the wire event
 union with its SSE frame decoding, and the converter that turns each wire event
 into an `ai.Event` while maintaining the `*ai.AssistantMessage` partial. Issue
-02 puts a request and a response body in front of it.
+02 puts a request and a response body in front of it. Epic 8's acceptance
+criterion 2 — upstream's 248 test lines ported and passing offline — is
+completed across both PRs: this issue ports the converter cases, issue 02
+ports the transport and error cases.
 
 **The correspondence is close but not exact, and the gaps are the work.**
 Upstream's `PiMessagesEvent` union is *nearly* kern-link's `ai.Event` union, so
@@ -98,6 +101,10 @@ The wire `usage` object is the unified `ai.Usage` already
   `convert(piEvent) (ai.Event, error)` method. Initial partial: `Api` from
   `model.Api`, `Provider`, `Model` from the model, empty `ai.Usage`,
   `StopReason: ai.StopReasonPending`, `Timestamp: time.Now().UnixMilli()`.
+  `events.go` rather than `messages.go` is a deliberate departure from
+  `docs/planning/CONVENTIONS.md:37-40`'s file-split convention, which assigns
+  translation to `messages.go`; the name reflects that this unit converts
+  *events*, not messages. Note the reason in the file's doc comment.
 - `ai/apis/pimessages/wire_test.go`, `events_test.go` (new) — the criteria
   below. No HTTP: feed frames from a `strings.Reader`, feed events to the
   converter directly.
@@ -171,7 +178,10 @@ The wire `usage` object is the unified `ai.Usage` already
       no build tags, discrete named functions
       (`docs/planning/CONVENTIONS.md`, "Testing").
 - [ ] `// Ports: packages/ai/src/api/pi-messages.ts` after the `package` clause
-      on every new non-test file.
+      on every new file that ports upstream code, tests included
+      (`pimessages.go`, `wire.go`, `events.go`, `wire_test.go`,
+      `events_test.go` — the latter two port the converter cases of
+      `test/pi-messages.test.ts`).
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

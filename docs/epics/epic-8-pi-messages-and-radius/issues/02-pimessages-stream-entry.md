@@ -3,7 +3,7 @@ type: Issue
 title: "Stream pi-messages over net/http: request, options, error mapping, and the Stream entry points"
 description: "Complete ai/apis/pimessages with Stream and StreamSimple — the POST to <baseUrl>/messages, the flat per-adapter options, the response-error type with its diagnostic, and the ported upstream test suite."
 tags: [epic-8]
-timestamp: 2026-08-09T14:45:00Z
+timestamp: 2026-08-10T14:00:00Z
 epic: 8
 issue: 02
 slug: pimessages-stream-entry
@@ -24,7 +24,8 @@ converter: one POST of `{model, context, options}` to `<baseUrl>/messages`, an
 SSE stream back, and the two `ai.StreamFunc`s the provider binding in
 [issue 04](/epic-8-pi-messages-and-radius/issues/04-radius-provider-binding.md)
 plugs into `ai.StreamFuncs`. Epic 8's acceptance criterion 2 — upstream's 248
-test lines ported and passing offline — is settled here.
+test lines ported and passing offline — is completed here: issue 01 ports the
+converter cases, this PR ports the transport and error cases.
 
 **The request body is `ai.Context` verbatim.** No `apis.TransformMessages`, no
 vendor message shapes: the backend speaks pi's own model, so
@@ -193,7 +194,9 @@ lifts the backend's error code into the diagnostic without any special-casing.
       overrides `PiMessagesToolChoice`.
 - [ ] Every test is offline, stdlib-only (`testing` + `net/http/httptest`), has
       no `t.Parallel()` and no build tag, and is a discrete named function.
-- [ ] `// Ports: packages/ai/src/api/pi-messages.ts` on both new files.
+- [ ] `// Ports: packages/ai/src/api/pi-messages.ts` on all three new files
+      (`errors.go`, `stream.go`, and `stream_test.go` — it is the port of
+      `test/pi-messages.test.ts`'s transport and error cases).
 - [ ] `GOTMPDIR=$PWD/.gotmp go test ./...` passes locally; CI green
       (`go test ./... -race -v`, `bash upstream/sync_test.sh`, `golangci-lint`
       v2.12.2). `gofmt -l .` prints nothing.

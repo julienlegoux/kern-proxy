@@ -3,13 +3,14 @@ type: Issue
 title: "Repair the Epic 8 issues: provenance on ported tests, the unsatisfiable grep, and the two missing scope files"
 description: "Stop exempting ported test files from the // Ports: header, narrow issue 05's count sweep to the files it owns, add the two files carrying the same stale counts, and resolve issue 04's stop-work branch."
 tags: [epic-0]
-timestamp: 2026-08-10T03:10:00Z
+timestamp: 2026-08-11T10:05:00Z
 epic: 0
 issue: 11
 slug: repair-the-epic-8-issue-set
 size: S
-status: open
+status: done
 gh_issue: 209
+gh_pr: 214
 resource: https://github.com/kern-ia/kern-link/issues/209
 depends_on: []
 ---
