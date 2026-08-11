@@ -3,7 +3,7 @@ type: Issue
 title: "openai-codex-responses: grammar and deferred tools in the request body, end_turn and stop-reason guards"
 description: "Wire Codex onto the updated shared responses core, add tool_choice, and record end_turn plus the pending/error stop-reason guards on every transport."
 tags: [epic-4]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 4
 issue: 11
 slug: codex-request-body-and-stop-reasons
@@ -11,7 +11,7 @@ size: L
 status: open
 gh_issue: 157
 resource: https://github.com/kern-ia/kern-link/issues/157
-depends_on: [6, 7, 8]
+depends_on: ["06", "07", "08"]
 ---
 
 # openai-codex-responses: grammar and deferred tools in the request body, end_turn and stop-reason guards

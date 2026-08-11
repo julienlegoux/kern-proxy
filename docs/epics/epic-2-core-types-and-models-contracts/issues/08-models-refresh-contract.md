@@ -3,7 +3,7 @@ type: Issue
 title: "Port the Models refresh contract: the two-phase refresh, ModelsPublication types, and the provider overlay"
 description: "Replace refreshModels() with the context-carrying refresh contract, add ModelsRefreshOptions/Result, and rebuild createProvider around a static baseline plus a dynamic overlay — the generation-checked publish machinery is issue 14."
 tags: [epic-2]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 2
 issue: 08
 slug: models-refresh-contract
@@ -11,7 +11,7 @@ size: L
 status: open
 gh_issue: 136
 resource: https://github.com/kern-ia/kern-link/issues/136
-depends_on: [5, 7]
+depends_on: ["05", "07"]
 ---
 
 # Port the Models refresh contract: the two-phase refresh, ModelsPublication types, and the provider overlay

@@ -3,7 +3,7 @@ type: Issue
 title: "Bind the radius provider over pi-messages, with its two-phase catalog refresh"
 description: "Port src/providers/radius.ts as ai/providers/radius.go — a gateway-parameterised binding with env-API-key and OAuth auth, no static catalog, and a refresh that restores the stored catalog before it ever touches the network."
 tags: [epic-8]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 8
 issue: 04
 slug: radius-provider-binding
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 190
 resource: https://github.com/kern-ia/kern-link/issues/190
-depends_on: [2, 3]
+depends_on: ["02", "03"]
 ---
 
 # Bind the radius provider over pi-messages, with its two-phase catalog refresh

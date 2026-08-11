@@ -3,7 +3,7 @@ type: Issue
 title: "Provider-scope api-key resolution: drop Model from APIKeyResolveInput and rebuild the Cloudflare resolvers"
 description: "Follow upstream in making auth resolution provider-scoped rather than model-scoped, and move Cloudflare's account/gateway placeholder substitution off the auth path it can no longer reach."
 tags: [epic-6]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 6
 issue: 03
 slug: provider-scoped-apikey-resolution
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 172
 resource: https://github.com/kern-ia/kern-link/issues/172
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # Provider-scope api-key resolution: drop Model from APIKeyResolveInput and rebuild the Cloudflare resolvers

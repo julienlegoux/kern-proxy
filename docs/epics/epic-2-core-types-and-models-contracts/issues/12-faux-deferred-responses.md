@@ -3,7 +3,7 @@ type: Issue
 title: "Prove the pending and deferred stop reasons end to end through the faux provider"
 description: "Port faux's deferred scripting, pending partial snapshots, and deferred fetch/cancel counters, so the new stop reasons are emitted and observed by a test rather than merely declared."
 tags: [epic-2]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 2
 issue: 12
 slug: faux-deferred-responses
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 140
 resource: https://github.com/kern-ia/kern-link/issues/140
-depends_on: [1, 2, 10]
+depends_on: ["01", "02", "10"]
 ---
 
 # Prove the pending and deferred stop reasons end to end through the faux provider

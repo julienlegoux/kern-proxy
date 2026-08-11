@@ -3,7 +3,7 @@ type: Issue
 title: "Add ModelsRequestTransforms, case-insensitive header merging, and drop the AuthModel export"
 description: "Let Models-level callers rewrite fully assembled headers before dispatch, fix header override to be case-insensitive, and remove the AuthModel export upstream deleted."
 tags: [epic-2]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 2
 issue: 09
 slug: models-request-transforms
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 137
 resource: https://github.com/kern-ia/kern-link/issues/137
-depends_on: [5, 8]
+depends_on: ["05", "08"]
 ---
 
 # Add ModelsRequestTransforms, case-insensitive header merging, and drop the AuthModel export

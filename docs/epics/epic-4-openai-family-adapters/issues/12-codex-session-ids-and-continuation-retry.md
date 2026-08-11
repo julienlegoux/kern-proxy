@@ -3,7 +3,7 @@ type: Issue
 title: "openai-codex-responses: cache-derived session ids, UUIDv7 request ids, and the missing-continuation retry"
 description: "Derive one clamped cache session id and use it everywhere, port utils/uuid.ts as the request-id source, retry once on previous_response_not_found, and record the connection-cache changes with no Go counterpart."
 tags: [epic-4]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 4
 issue: 12
 slug: codex-session-ids-and-continuation-retry
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 158
 resource: https://github.com/kern-ia/kern-link/issues/158
-depends_on: [11]
+depends_on: ["11"]
 ---
 
 # openai-codex-responses: cache-derived session ids, UUIDv7 request ids, and the missing-continuation retry

@@ -3,7 +3,7 @@ type: Issue
 title: "google + vertex: pending and raw stop reasons, toolConfig wiring, and the max thinking level"
 description: "Start both Google streams at pending, surface the raw Gemini finish reason in the error text, emit toolConfig from the resolved function-calling mode, and clamp the new max thinking level."
 tags: [epic-5]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 5
 issue: 06
 slug: google-and-vertex-stream-and-params
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 164
 resource: https://github.com/kern-ia/kern-link/issues/164
-depends_on: [5]
+depends_on: ["05"]
 ---
 
 # google + vertex: pending and raw stop reasons, toolConfig wiring, and the max thinking level

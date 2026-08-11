@@ -3,7 +3,7 @@ type: Epic
 title: "OpenAI-family adapters"
 description: "Sync the four adapters built on the shared OpenAI responses core — completions, responses, Azure and Codex — together with constrained sampling."
 tags: [epic]
-timestamp: 2026-08-11T12:30:00Z
+timestamp: 2026-08-11T20:10:00Z
 epic: 4
 slug: openai-family-adapters
 status: open
@@ -102,3 +102,11 @@ diverge from upstream.
   non-portability, never by cost.** "Large" or "no consumer asked for it" are
   not admissible grounds.
 - Upstream target frozen at `936aff00`.
+- **Branch, base-branch and status-commit conventions**
+  (`docs/planning/CONVENTIONS.md:213-224`). Feature branches are named
+  `issue-<NN>-<slug>` (`:216-218`). PRs target `develop` and merge with a merge
+  commit — no rebase, no squash (`:213-219`). Each status transition gets its own
+  `docs(epics): …` commit, separate from the implementation commit (`:221-224`).
+  `Closes #N` will not auto-close the issue, because PRs merge into `develop`
+  rather than the repo's default branch — the explicit close at reconcile is the
+  normal route, not a fallback.

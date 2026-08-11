@@ -13,6 +13,11 @@ Epic 0 is the remediation lane: the repairs the nine review reports
 ([REPORT_1](../REPORT_1.md)–[REPORT_9](../REPORT_9.md)) turned up, which land before
 Epic 1 opens a branch. It is temporary and is retired once its issues are done.
 
+Every issue file's `depends_on:` is a list of zero-padded, quoted issue numbers
+matching its own epic's `issue:` field (e.g. `depends_on: ["05", "13"]` referencing
+`issue: 05` and `issue: 13`) — the form every issue in every epic uses. Write new
+issues to this bundle in that form.
+
 * [Epic 0: Plan remediation](/epic-0-plan-remediation/EPIC_0.md) - open, [#198](https://github.com/kern-ia/kern-link/issues/198)
 * [Epic 1: Repository hygiene](/epic-1-repository-hygiene/EPIC_1.md) - open, [#118](https://github.com/kern-ia/kern-link/issues/118)
 * [Epic 2: Core types and Models contracts](/epic-2-core-types-and-models-contracts/EPIC_2.md) - open, [#119](https://github.com/kern-ia/kern-link/issues/119)

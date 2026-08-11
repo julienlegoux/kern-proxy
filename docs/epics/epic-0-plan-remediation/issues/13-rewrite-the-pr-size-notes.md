@@ -3,16 +3,16 @@ type: Issue
 title: "Rewrite the PR size note in every issue against its own band, and correct the mis-declared sizes"
 description: "Replace the one identical sentence copied into 70 of 71 issue bodies with a per-issue note that matches its size field, re-label the issues whose size contradicts their scope, and state the generated-catalog rule once."
 tags: [epic-0]
-timestamp: 2026-08-11T19:30:00Z
+timestamp: 2026-08-11T19:45:00Z
 epic: 0
 issue: 13
 slug: rewrite-the-pr-size-notes
 size: M
-status: pr-open
+status: done
 gh_issue: 211
 gh_pr: 229
 resource: https://github.com/kern-ia/kern-link/issues/211
-depends_on: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+depends_on: ["03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 ---
 
 # Rewrite the PR size note in every issue against its own band, and correct the mis-declared sizes

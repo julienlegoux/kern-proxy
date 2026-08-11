@@ -3,7 +3,7 @@ type: Epic
 title: "Classifier audit, disposition sweep, and release"
 description: "Audit the retry and overflow classifiers against upstream, dispose of all 232 files in range, bump the upstream lock, and ship v0.2.0."
 tags: [epic]
-timestamp: 2026-08-11T15:10:00Z
+timestamp: 2026-08-11T20:10:00Z
 epic: 9
 slug: classifier-audit-and-release
 status: open
@@ -124,3 +124,11 @@ Transitively, every epic in the program.
   `CHANGELOG.md` scope now names the missing `[0.2.0]` footer link (not an
   org-link refresh — Epic 1 issue 02 already owns that, a premise the epic-0
   issue got wrong; see its PR body).
+- **Branch, base-branch and status-commit conventions**
+  (`docs/planning/CONVENTIONS.md:213-224`). Feature branches are named
+  `issue-<NN>-<slug>` (`:216-218`). PRs target `develop` and merge with a merge
+  commit — no rebase, no squash (`:213-219`). Each status transition gets its own
+  `docs(epics): …` commit, separate from the implementation commit (`:221-224`).
+  `Closes #N` will not auto-close the issue, because PRs merge into `develop`
+  rather than the repo's default branch — the explicit close at reconcile is the
+  normal route, not a fallback.

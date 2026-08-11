@@ -3,7 +3,7 @@ type: Issue
 title: "Add Fetch and SamplingParams to the provider request base, and declare the deferred option variants"
 description: "Extend ProviderRequestOptions with fetch injection, add samplingParams to Model and StreamOptions, declare DeferredFetchOptions/DeferredCancelOptions and the two OpenAI-family StreamOptions fields Epic 4 waits on, and record the telemetry and TModel-generic PORTING decisions."
 tags: [epic-2]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 2
 issue: 13
 slug: fetch-sampling-and-deferred-options
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 225
 resource: https://github.com/kern-ia/kern-link/issues/225
-depends_on: [5]
+depends_on: ["05"]
 ---
 
 # Add Fetch and SamplingParams to the provider request base, and declare the deferred option variants

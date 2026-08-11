@@ -3,7 +3,7 @@ type: Issue
 title: "Stream pi-messages over net/http: request, options, error mapping, and the Stream entry points"
 description: "Complete ai/apis/pimessages with Stream and StreamSimple — the POST to <baseUrl>/messages, the flat per-adapter options, the response-error type with its diagnostic, and the ported upstream test suite."
 tags: [epic-8]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 8
 issue: 02
 slug: pimessages-stream-entry
@@ -11,7 +11,7 @@ size: L
 status: open
 gh_issue: 188
 resource: https://github.com/kern-ia/kern-link/issues/188
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # Stream pi-messages over net/http: request, options, error mapping, and the Stream entry points

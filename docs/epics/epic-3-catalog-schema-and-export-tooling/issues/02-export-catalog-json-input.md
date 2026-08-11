@@ -3,7 +3,7 @@ type: Issue
 title: "Rework tools/export-catalog to consume upstream's generated JSON catalog"
 description: "Replace the TypeScript-import input path with upstream's JSON catalog output, and document the regeneration procedure honestly now that it is no longer reproducible from the pinned SHA alone."
 tags: [epic-3]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 3
 issue: 02
 slug: export-catalog-json-input
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 142
 resource: https://github.com/kern-ia/kern-link/issues/142
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # Rework tools/export-catalog to consume upstream's generated JSON catalog

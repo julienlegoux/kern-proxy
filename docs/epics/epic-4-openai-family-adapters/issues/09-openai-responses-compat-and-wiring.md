@@ -3,7 +3,7 @@ type: Issue
 title: "openai-responses: compat resolution, session affinity, explicit prompt cache, and tool wiring"
 description: "Resolve the five new responses compat flags with OpenRouter session-affinity detection, wire grammar and deferred tools into the request, and add explicit prompt-cache mode, tool_choice and the xai reasoning include."
 tags: [epic-4]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 4
 issue: 09
 slug: openai-responses-compat-and-wiring
@@ -11,7 +11,7 @@ size: L
 status: open
 gh_issue: 155
 resource: https://github.com/kern-ia/kern-link/issues/155
-depends_on: [6, 7, 8]
+depends_on: ["06", "07", "08"]
 ---
 
 # openai-responses: compat resolution, session affinity, explicit prompt cache, and tool wiring

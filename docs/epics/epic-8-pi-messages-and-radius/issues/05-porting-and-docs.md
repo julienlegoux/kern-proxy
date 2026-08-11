@@ -3,7 +3,7 @@ type: Issue
 title: "Disposition pi-messages and radius in docs/PORTING.md, and document the tenth adapter"
 description: "Add the mapping rows and deviations for pi-messages.ts, pi-messages.lazy.ts, radius.ts and radius-config.ts, give radius its auth-doc entries, and update every place that still counts nine adapters and 35 providers."
 tags: [epic-8]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 8
 issue: 05
 slug: porting-and-docs
@@ -11,7 +11,7 @@ size: S
 status: open
 gh_issue: 191
 resource: https://github.com/kern-ia/kern-link/issues/191
-depends_on: [1, 2, 3, 4]
+depends_on: ["01", "02", "03", "04"]
 ---
 
 # Disposition pi-messages and radius in docs/PORTING.md, and document the tenth adapter

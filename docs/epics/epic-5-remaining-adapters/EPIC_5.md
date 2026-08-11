@@ -3,7 +3,7 @@ type: Epic
 title: "Remaining adapters"
 description: "Sync the Anthropic, Google/Vertex, Mistral and Bedrock adapters, close the long-standing Copilot dynamic-headers gap, and classify cloudflare-stream."
 tags: [epic]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T20:10:00Z
 epic: 5
 slug: remaining-adapters
 status: open
@@ -138,3 +138,11 @@ rules out the cost-driven alternative in every case:
   deviation. It is ~20 lines, idempotent against the existing auth-time pass,
   and Epic 6 issue 03 (#172) already named the alternative a regression: a
   literal `{CLOUDFLARE_ACCOUNT_ID}` shipping in a request URL.
+
+**Branch, base-branch and status-commit conventions** (`docs/planning/CONVENTIONS.md:213-224`).
+Feature branches are named `issue-<NN>-<slug>` (`:216-218`). PRs target `develop` and
+merge with a merge commit — no rebase, no squash (`:213-219`). Each status transition
+gets its own `docs(epics): …` commit, separate from the implementation commit
+(`:221-224`). `Closes #N` will not auto-close the issue, because PRs merge into
+`develop` rather than the repo's default branch — the explicit close at reconcile is
+the normal route, not a fallback.

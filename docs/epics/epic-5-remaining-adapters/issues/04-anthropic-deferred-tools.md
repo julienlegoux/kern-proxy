@@ -3,7 +3,7 @@ type: Issue
 title: "anthropic: deferred tools via defer_loading and tool_reference blocks"
 description: "Split the tool list with SplitDeferredTools, send withheld tools with defer_loading, and load them at their tool-result markers as tool_reference blocks with displaced sibling content."
 tags: [epic-5]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 5
 issue: 04
 slug: anthropic-deferred-tools
@@ -11,7 +11,7 @@ size: L
 status: open
 gh_issue: 162
 resource: https://github.com/kern-ia/kern-link/issues/162
-depends_on: [3]
+depends_on: ["03"]
 ---
 
 # anthropic: deferred tools via defer_loading and tool_reference blocks

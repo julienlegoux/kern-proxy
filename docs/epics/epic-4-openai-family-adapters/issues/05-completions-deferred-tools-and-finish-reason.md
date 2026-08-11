@@ -3,7 +3,7 @@ type: Issue
 title: "openai-completions: Kimi deferred tools, finish-reason inference, and item-unique tool call ids"
 description: "Withhold transcript-loaded tools and re-announce them in a Kimi system message, infer the stop reason when a provider omits finish_reason, record rawStopReason, and stop collapsing distinct tool calls onto one id."
 tags: [epic-4]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 4
 issue: 05
 slug: completions-deferred-tools-and-finish-reason
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 151
 resource: https://github.com/kern-ia/kern-link/issues/151
-depends_on: [3]
+depends_on: ["03"]
 ---
 
 # openai-completions: Kimi deferred tools, finish-reason inference, and item-unique tool call ids

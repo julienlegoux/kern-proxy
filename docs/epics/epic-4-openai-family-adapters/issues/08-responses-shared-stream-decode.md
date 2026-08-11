@@ -3,7 +3,7 @@ type: Issue
 title: "openai-responses shared: custom tool-call streaming, reasoning backfill, and stop-reason mapping"
 description: "Decode custom_tool_call input deltas into JSON tool-call deltas, backfill encrypted reasoning signatures at completion, split incomplete responses by reason, and account cache-write tokens."
 tags: [epic-4]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 4
 issue: 08
 slug: responses-shared-stream-decode
@@ -11,7 +11,7 @@ size: L
 status: open
 gh_issue: 154
 resource: https://github.com/kern-ia/kern-link/issues/154
-depends_on: [6]
+depends_on: ["06"]
 ---
 
 # openai-responses shared: custom tool-call streaming, reasoning backfill, and stop-reason mapping

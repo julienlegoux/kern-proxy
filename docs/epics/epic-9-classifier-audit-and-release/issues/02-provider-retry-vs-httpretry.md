@@ -3,7 +3,7 @@ type: Issue
 title: "Settle whether upstream's provider-retry.ts supersedes ai/apis/internal/httpretry"
 description: "Compare upstream's new request-level retry helper against the Go port's own httpretry package, port what is portable, and record the rest as a drift record rather than a silent difference."
 tags: [epic-9]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 9
 issue: 02
 slug: provider-retry-vs-httpretry
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 193
 resource: https://github.com/kern-ia/kern-link/issues/193
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # Settle whether upstream's provider-retry.ts supersedes ai/apis/internal/httpretry

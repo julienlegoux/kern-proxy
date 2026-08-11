@@ -3,7 +3,7 @@ type: Issue
 title: "Dispatch deferred responses through ProviderStreams, Provider, and Models"
 description: "Add the optional fetchDeferred/cancelDeferred capability across the three dispatch layers, with capability detection in CreateProvider and the upstream-verbatim unsupported-provider errors."
 tags: [epic-2]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 2
 issue: 10
 slug: deferred-response-dispatch
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 138
 resource: https://github.com/kern-ia/kern-link/issues/138
-depends_on: [1, 2, 5, 8, 9, 13]
+depends_on: ["01", "02", "05", "08", "09", "13"]
 ---
 
 # Dispatch deferred responses through ProviderStreams, Provider, and Models

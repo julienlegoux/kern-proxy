@@ -3,7 +3,7 @@ type: Issue
 title: "mistral: request-shape and header parity with the SDK-free upstream client"
 description: "Send prefix and tool-call index on assistant replay, make x-affinity suppression case-insensitive across model and request headers, apply a default request timeout, and stop assuming streamed content parts are non-null."
 tags: [epic-5]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 5
 issue: 08
 slug: mistral-wire-and-header-parity
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 166
 resource: https://github.com/kern-ia/kern-link/issues/166
-depends_on: [7]
+depends_on: ["07"]
 ---
 
 # mistral: request-shape and header parity with the SDK-free upstream client

@@ -3,7 +3,7 @@ type: Issue
 title: "Port the 0.84.1 message-model additions: DeferredHandle, JsonValue, and the new message fields"
 description: "Add DeferredHandle and JsonValue plus the new AssistantMessage, ToolResultMessage, and ToolCall fields, with JSON round-trip coverage."
 tags: [epic-2]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 2
 issue: 02
 slug: message-model-deferred-fields
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 130
 resource: https://github.com/kern-ia/kern-link/issues/130
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # Port the 0.84.1 message-model additions: DeferredHandle, JsonValue, and the new message fields

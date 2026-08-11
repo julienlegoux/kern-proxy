@@ -3,7 +3,7 @@ type: Issue
 title: "Reshape ai/images.Options onto ProviderRequestOptions, honor the fetch override, and carry the getAuth overrides"
 description: "Adopt the two forced ai/images consequences of the upstream core-type and auth restructures — Options on the shared request base with its fetch injection, and Models.GetAuth's overrides plus provider-id form — neither of which any other epic accepts."
 tags: [epic-3]
-timestamp: 2026-08-11T12:20:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 3
 issue: 07
 slug: images-options-base-and-auth-overrides
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 218
 resource: https://github.com/kern-ia/kern-link/issues/218
-depends_on: [6]
+depends_on: ["06"]
 ---
 
 # Reshape ai/images.Options onto ProviderRequestOptions, honor the fetch override, and carry the getAuth overrides

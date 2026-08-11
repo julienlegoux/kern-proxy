@@ -3,7 +3,7 @@ type: Epic
 title: "Repository hygiene"
 description: "Move the module path to github.com/kern-ia/kern-link and bump the go directive to 1.26, before any sync work opens branches against the old path."
 tags: [epic]
-timestamp: 2026-08-10T04:00:00Z
+timestamp: 2026-08-11T20:10:00Z
 epic: 1
 slug: repository-hygiene
 status: open
@@ -91,3 +91,11 @@ boundary decisions:
 
 The breaking module-path move is part of what makes the program's release a
 breaking **v0.2.0**; no compatibility shim is planned for it.
+
+**Branch, base-branch and status-commit conventions** (`docs/planning/CONVENTIONS.md:213-224`).
+Feature branches are named `issue-<NN>-<slug>` (`:216-218`). PRs target `develop` and
+merge with a merge commit — no rebase, no squash (`:213-219`). Each status transition
+gets its own `docs(epics): …` commit, separate from the implementation commit
+(`:221-224`). `Closes #N` will not auto-close the issue, because PRs merge into
+`develop` rather than the repo's default branch — this is the first epic to exercise
+that path; the explicit close at reconcile is the normal route, not a fallback.

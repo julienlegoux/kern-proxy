@@ -3,7 +3,7 @@ type: Issue
 title: "Generation-check ModelsPublication so a superseded refresh returns false and mutates nothing"
 description: "Port the generation-counter and per-provider publication serialization behind Models.Refresh's publish(), plus in-flight cancellation, so setProvider/deleteProvider/clearProviders correctly supersede a running refresh."
 tags: [epic-2]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 2
 issue: 14
 slug: refresh-generation-and-publication
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 226
 resource: https://github.com/kern-ia/kern-link/issues/226
-depends_on: [8]
+depends_on: ["08"]
 ---
 
 # Generation-check ModelsPublication so a superseded refresh returns false and mutates nothing

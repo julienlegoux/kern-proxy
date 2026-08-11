@@ -3,7 +3,7 @@ type: Epic
 title: "Auth core and env-API-key bindings"
 description: "Port the content of upstream's restructured auth tree without moving any Go package, refresh PORTING.md's upstream paths, and add four env-API-key provider bindings."
 tags: [epic]
-timestamp: 2026-08-11T13:05:00Z
+timestamp: 2026-08-11T20:10:00Z
 epic: 6
 slug: auth-core-and-env-api-key-bindings
 status: open
@@ -107,3 +107,11 @@ Blocks [Epic 7: Four new OAuth flows](/epic-7-four-new-oauth-flows/EPIC_7.md).
   move — not the no-op directory move itself. This amendment records the
   hand-off and the work that was always there; it does not change what any
   issue does.
+- **Branch, base-branch and status-commit conventions**
+  (`docs/planning/CONVENTIONS.md:213-224`). Feature branches are named
+  `issue-<NN>-<slug>` (`:216-218`). PRs target `develop` and merge with a merge
+  commit — no rebase, no squash (`:213-219`). Each status transition gets its own
+  `docs(epics): …` commit, separate from the implementation commit (`:221-224`).
+  `Closes #N` will not auto-close the issue, because PRs merge into `develop`
+  rather than the repo's default branch — the explicit close at reconcile is the
+  normal route, not a fallback.

@@ -3,7 +3,7 @@ type: Issue
 title: "Rein in Epic 3's invented scope, route its SPECS.md edits through drift, and reconcile EPIC_3.md with its issues"
 description: "Scope Epic 3 issue 06 to the images adapter instead of relocating a shared internal package, drop the two invented tool surfaces, convert two un-triaged planning-doc edits to drift records, and fix the epic's stated order."
 tags: [epic-0]
-timestamp: 2026-08-11T15:00:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 0
 issue: 06
 slug: rein-in-epic-3-invented-scope
@@ -12,7 +12,7 @@ status: done
 gh_issue: 204
 gh_pr: 223
 resource: https://github.com/kern-ia/kern-link/issues/204
-depends_on: [2]
+depends_on: ["02"]
 ---
 
 # Rein in Epic 3's invented scope, route its SPECS.md edits through drift, and reconcile EPIC_3.md with its issues

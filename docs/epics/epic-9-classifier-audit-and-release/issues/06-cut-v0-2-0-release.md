@@ -3,7 +3,7 @@ type: Issue
 title: "Cut v0.2.0: merge develop into main, tag the release, and close #113"
 description: "The program's closing act — the develop-to-main release PR, the v0.2.0 tag and GitHub release on a green commit, and the umbrella tracking issue closed."
 tags: [epic-9]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 9
 issue: 06
 slug: cut-v0-2-0-release
@@ -11,7 +11,7 @@ size: S
 status: open
 gh_issue: 197
 resource: https://github.com/kern-ia/kern-link/issues/197
-depends_on: [5]
+depends_on: ["05"]
 ---
 
 # Cut v0.2.0: merge develop into main, tag the release, and close #113

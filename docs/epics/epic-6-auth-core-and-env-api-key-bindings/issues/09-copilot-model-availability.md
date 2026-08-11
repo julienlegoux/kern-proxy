@@ -3,7 +3,7 @@ type: Issue
 title: "Copilot: policy-state model fallback for individual accounts, and a disposition for the unported availability calls"
 description: "Port upstream's individual-account fallback to policy.state == enabled when no model reports model_picker_enabled, and settle whether the OAuth-side availability and policy-enable calls stay unported."
 tags: [epic-6]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 6
 issue: 09
 slug: copilot-model-availability
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 178
 resource: https://github.com/kern-ia/kern-link/issues/178
-depends_on: [1]
+depends_on: ["01"]
 ---
 
 # Copilot: policy-state model fallback for individual accounts, and a disposition for the unported availability calls

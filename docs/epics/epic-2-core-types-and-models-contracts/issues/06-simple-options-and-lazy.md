@@ -3,7 +3,7 @@ type: Issue
 title: "Update simple-options and lazy to 0.84.1"
 description: "Carry the new request knobs through BuildBaseOptions, export the min-answer-token constant, and make LazyStream forward the inner stream's result."
 tags: [epic-2]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 2
 issue: 06
 slug: simple-options-and-lazy
@@ -11,7 +11,7 @@ size: S
 status: open
 gh_issue: 134
 resource: https://github.com/kern-ia/kern-link/issues/134
-depends_on: [1, 5, 13]
+depends_on: ["01", "05", "13"]
 ---
 
 # Update simple-options and lazy to 0.84.1

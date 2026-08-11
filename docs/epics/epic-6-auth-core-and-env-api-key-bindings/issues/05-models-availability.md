@@ -3,7 +3,7 @@ type: Issue
 title: "Add Models.CheckAuth, Models.GetAvailable, and Provider.FilterModels"
 description: "Port the availability half of upstream's Models auth surface: a side-effect-free per-provider auth check, the models a configured provider can actually serve, and the credential-scoped filter that narrows them."
 tags: [epic-6]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 6
 issue: 05
 slug: models-availability
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 174
 resource: https://github.com/kern-ia/kern-link/issues/174
-depends_on: [1, 3]
+depends_on: ["01", "03"]
 ---
 
 # Add Models.CheckAuth, Models.GetAvailable, and Provider.FilterModels

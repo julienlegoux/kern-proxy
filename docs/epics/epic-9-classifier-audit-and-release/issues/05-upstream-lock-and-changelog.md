@@ -3,7 +3,7 @@ type: Issue
 title: "Bump upstream/UPSTREAM.lock to 936aff00 / 0.84.1 and write the v0.2.0 changelog"
 description: "Advance the pin once, at the end, and enumerate every break of the nine-epic program in a Keep a Changelog 0.2.0 entry."
 tags: [epic-9]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T20:00:00Z
 epic: 9
 issue: 05
 slug: upstream-lock-and-changelog
@@ -11,7 +11,7 @@ size: M
 status: open
 gh_issue: 196
 resource: https://github.com/kern-ia/kern-link/issues/196
-depends_on: [4]
+depends_on: ["04"]
 ---
 
 # Bump upstream/UPSTREAM.lock to 936aff00 / 0.84.1 and write the v0.2.0 changelog
