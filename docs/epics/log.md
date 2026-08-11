@@ -18,6 +18,7 @@
 * **Started**: [Issue 09: Amend EPIC_6.md to absorb the work its issues build, and close Epic 6's ownership and dependency gaps](/epic-0-plan-remediation/issues/09-amend-epic-6-and-close-its-gaps.md) (#207) moved to `in-progress` on branch `issue-09-epic0-epic6-recheck`.
 * **PR opened**: [Issue 09: Amend EPIC_6.md to absorb the work its issues build, and close Epic 6's ownership and dependency gaps](/epic-0-plan-remediation/issues/09-amend-epic-6-and-close-its-gaps.md) (#207) — [PR #221](https://github.com/kern-ia/kern-link/pull/221), targeting `develop`.
 * **Completed**: [Issue 09: Amend EPIC_6.md to absorb the work its issues build, and close Epic 6's ownership and dependency gaps](/epic-0-plan-remediation/issues/09-amend-epic-6-and-close-its-gaps.md) (#207) moved to `done` — [PR #221](https://github.com/kern-ia/kern-link/pull/221) merged into `develop` 2026-08-11.
+* **Started**: [Issue 10: Repair the Epic 7 issues: the postForm contract, the callbackHost rename, and the picker order](/epic-0-plan-remediation/issues/10-repair-the-epic-7-issue-set.md) (#208) moved to `in-progress` on branch `issue-10-epic0-plan-remediation`.
 
 ## 2026-08-10
 
