@@ -56,7 +56,7 @@ record wins.
     `generate-model-catalog` destination is `../../.artifacts/model-catalog`,
     i.e. the upstream repo root). **Derive it from `UPSTREAM_CLONE_DIR` and stop
     there** — no second env var and no positional argument. The existing
-    `UPSTREAM_CLONE_DIR` seam (`tools/export-catalog/export-catalog.ts:23`)
+    `UPSTREAM_CLONE_DIR` seam (`tools/export-catalog/export-catalog.ts:22`)
     already points the tool at any checkout, so a second knob would be a new
     configuration surface the epic never asked for.
   - Write `ai/catalog/data/models/<provider>.json` from `Object.values()` of
@@ -114,9 +114,10 @@ record wins.
       `ai/catalog/data/images/`, and prints the provider counts.
 - [ ] Running it with no catalog directory present exits non-zero with a message
       naming both the missing path and the upstream command that produces it.
-- [ ] The catalog directory is derived from `UPSTREAM_CLONE_DIR` alone:
-      `git grep -n 'MODEL_CATALOG_DIR'` returns nothing, and the tool takes no
-      positional argument.
+- [ ] The catalog directory is derived from `UPSTREAM_CLONE_DIR` alone — the
+      tool reads no second environment variable and takes no positional
+      argument. `git grep -nE '\bprocess\.(env|argv)\b' tools/export-catalog/`
+      shows `UPSTREAM_CLONE_DIR` and nothing else.
 - [ ] `git diff --name-only` lists nothing under `docs/planning/`; any
       contradiction with SPECS.md is recorded under the epic's `drift/` folder
       instead.

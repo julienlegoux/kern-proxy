@@ -138,9 +138,9 @@ against a real checkout and correct the record where it turns out to be wrong:
 
 ## Relevant files / areas
 
-- `tools/export-catalog/export-catalog.ts` (58 lines) — `:39-40` the two
+- `tools/export-catalog/export-catalog.ts` (58 lines) — `:40-41` the two
   `await import(...)` calls that are the subject of this spike; `:1-14` the doc
-  comment whose byte-stability claim is under test; `:23` honors
+  comment whose byte-stability claim is under test; `:22` honors
   `UPSTREAM_CLONE_DIR`.
 - `upstream/sync.sh:25-27` — the clone/reuse logic and the
   `UPSTREAM_CLONE_DIR` default (`upstream/.upstream-clone`).
@@ -150,8 +150,9 @@ against a real checkout and correct the record where it turns out to be wrong:
   step that says catalog changes are "re-run `tools/export-catalog`…; no Go code
   changes") — both become wrong if the expected finding holds; note that here,
   fix them in issue 02.
-- `docs/planning/SPECS.md` — "The model catalog is not hand-maintained" and the
-  `tools/export-catalog` description under "Stack".
+- Read-only: `docs/planning/SPECS.md` — "The model catalog is not
+  hand-maintained" and the `tools/export-catalog` description under "Stack". The
+  spike records contradictions in its drift record; it does not edit them.
 - Upstream at `936aff00`: `.gitignore`, `packages/ai/package.json` (`scripts`
   block), `packages/ai/scripts/generate-models.ts`,
   `packages/ai/scripts/model-data.ts`, `packages/ai/src/model-catalog.ts`,
