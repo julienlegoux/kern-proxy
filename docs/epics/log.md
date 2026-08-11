@@ -2,6 +2,8 @@
 
 ## 2026-08-11
 
+* **Started**: [Issue 05: Pre-split Epic 2 issues 05 and 08 into reviewable halves](/epic-0-plan-remediation/issues/05-pre-split-epic-2-issues-05-and-08.md) (#203) moved to `in-progress` on branch `issue-203-pre-split-epic-2-issues-05-and-08`.
+
 * **Started**: [Issue 07: Repair the Epic 4 issue set: provenance, the undeclared cross-epic blockers, and the renamed section heading](/epic-0-plan-remediation/issues/07-repair-the-epic-4-issue-set.md) (#205) moved to `in-progress` on branch `issue-07-epic0-epic4-recheck`.
 * **PR opened**: [Issue 07: Repair the Epic 4 issue set: provenance, the undeclared cross-epic blockers, and the renamed section heading](/epic-0-plan-remediation/issues/07-repair-the-epic-4-issue-set.md) (#205) moved to `pr-open` — [PR #220](https://github.com/kern-ia/kern-link/pull/220), targeting `develop`.
 * **Started**: [Issue 04: Repair the Epic 2 issue set: the criterion Go cannot satisfy, the missing edge, and the duplicated ownership](/epic-0-plan-remediation/issues/04-repair-the-epic-2-issue-set.md) (#202) moved to `in-progress` on branch `issue-04-repair-the-epic-2-issue-set`.
