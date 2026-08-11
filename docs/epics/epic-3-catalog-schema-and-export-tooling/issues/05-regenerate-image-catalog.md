@@ -3,7 +3,7 @@ type: Issue
 title: "Regenerate the image catalog from upstream 936aff00 and cover its decode path"
 description: "Refresh ai/catalog/data/images/openrouter.json to the 42 image models upstream declares at the frozen revision, and prove ai/images decodes every entry."
 tags: [epic-3]
-timestamp: 2026-08-11T20:00:00Z
+timestamp: 2026-08-11T21:30:00Z
 epic: 3
 issue: 05
 slug: regenerate-image-catalog
@@ -86,7 +86,9 @@ the file is non-empty — it never decodes it.
   [issue 07](/epic-3-catalog-schema-and-export-tooling/issues/07-images-options-base-and-auth-overrides.md)
   (#218), which consumes the `ProviderRequestOptions` base
   [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
-  declares.
+  declares and the `Fetch` field
+  [Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
+  adds to it.
 - The model catalog (issue 04).
 
 ## Acceptance criteria / Definition of done

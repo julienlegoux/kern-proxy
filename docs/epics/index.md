@@ -7,7 +7,8 @@ okf_version: "0.1"
 Epics for the upstream sync program (`@earendil-works/pi-ai` v0.80.3 → v0.84.1,
 frozen at `936aff00`), split from
 [the scope](../planning/SCOPE.md). GitHub issue **#113** is the umbrella
-tracking issue for the program; all nine epic issues are its sub-issues.
+tracking issue for the program; all ten epic tracking issues — Epic 0's #198 included —
+are its sub-issues.
 
 Epic 0 is the remediation lane: the repairs the nine review reports
 ([REPORT_1](../REPORT_1.md)–[REPORT_9](../REPORT_9.md)) turned up, which land before

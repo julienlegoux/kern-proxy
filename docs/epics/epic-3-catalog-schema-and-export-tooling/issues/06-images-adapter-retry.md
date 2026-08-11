@@ -3,7 +3,7 @@ type: Issue
 title: "Honor MaxRetries and MaxRetryDelay in the OpenRouter images adapter"
 description: "Port upstream's retryProviderRequest wrapping of the images request by reaching the shared httpretry loop from ai/images through a thin ai/apis shim, with offline httptest coverage."
 tags: [epic-3]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-11T21:30:00Z
 epic: 3
 issue: 06
 slug: images-adapter-retry
@@ -128,8 +128,9 @@ smoke, which is true and stays as it is.
   (#218), which lands after this one and injects `Options.Fetch` into the retry
   loop this PR introduces.
   [Epic 2 issue 05](/epic-2-core-types-and-models-contracts/issues/05-provider-request-options.md)
-  declares `ProviderRequestOptions` and `FetchFunction`; it does not touch
-  `ai/images`.
+  declares `ProviderRequestOptions` and
+  [Epic 2 issue 13](/epic-2-core-types-and-models-contracts/issues/13-fetch-sampling-and-deferred-options.md)
+  adds `Fetch` and the `FetchFunction` type; neither touches `ai/images`.
 - OpenRouter images **OAuth** — [Epic 7](/epic-7-four-new-oauth-flows/EPIC_7.md).
 - The `getAuth(providerId | model, overrides)` overload and
   `AuthResolutionOverrides` on the images `Models` —
