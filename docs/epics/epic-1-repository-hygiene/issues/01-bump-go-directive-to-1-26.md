@@ -3,12 +3,12 @@ type: Issue
 title: "Bump the go directive from 1.25.0 to 1.26"
 description: "Raise the go.mod language version to 1.26 to align with the other Kern packages, and prove CI is green on the new toolchain before the module-path rename lands."
 tags: [epic-1]
-timestamp: 2026-08-11T18:15:00Z
+timestamp: 2026-08-17T00:00:00Z
 epic: 1
 issue: 01
 slug: bump-go-directive-to-1-26
 size: S
-status: open
+status: in-progress
 gh_issue: 127
 resource: https://github.com/kern-ia/kern-link/issues/127
 depends_on: []
