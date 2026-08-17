@@ -1,5 +1,10 @@
 # Log
 
+## 2026-08-17
+
+* **Started**: [Issue 01: Bump the go directive from 1.25.0 to 1.26](/epic-1-repository-hygiene/issues/01-bump-go-directive-to-1-26.md) (#127) moved to `in-progress` on branch `issue-01-bump-go-directive-to-1-26`.
+* **PR opened**: [Issue 01: Bump the go directive from 1.25.0 to 1.26](/epic-1-repository-hygiene/issues/01-bump-go-directive-to-1-26.md) (#127) moved to `pr-open` — [PR #232](https://github.com/kern-ia/kern-link/pull/232), targeting `develop`.
+
 ## 2026-08-11
 
 * **Started**: [Issue 05: Pre-split Epic 2 issues 05 and 08 into reviewable halves](/epic-0-plan-remediation/issues/05-pre-split-epic-2-issues-05-and-08.md) (#203) moved to `in-progress` on branch `issue-203-pre-split-epic-2-issues-05-and-08`.
