@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // Provider is an image-generation provider: the image-side counterpart of

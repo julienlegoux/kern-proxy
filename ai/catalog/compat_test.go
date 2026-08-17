@@ -14,7 +14,7 @@ package catalog
 import (
 	"testing"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 func TestCatalogCompatMatchesApi(t *testing.T) {

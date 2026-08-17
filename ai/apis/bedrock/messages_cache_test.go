@@ -8,7 +8,7 @@ package bedrock
 import (
 	"testing"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 func TestBuildSystemPrompt_AppendsCachePointForSupportedClaudeModel(t *testing.T) {

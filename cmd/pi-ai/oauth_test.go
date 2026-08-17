@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // fakeOAuthAuth builds an *ai.OAuthAuth whose Login is scripted, for tests

@@ -1,4 +1,4 @@
-module github.com/julienlegoux/kern-link
+module github.com/kern-ia/kern-link
 
 go 1.26
 

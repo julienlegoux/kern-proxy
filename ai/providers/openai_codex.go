@@ -7,10 +7,10 @@ package providers
 // token derivation.
 
 import (
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis/codex"
-	"github.com/julienlegoux/kern-link/ai/auth/oauth"
-	"github.com/julienlegoux/kern-link/ai/catalog"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis/codex"
+	"github.com/kern-ia/kern-link/ai/auth/oauth"
+	"github.com/kern-ia/kern-link/ai/catalog"
 )
 
 // OpenAICodexProvider builds the OpenAI Codex provider binding.

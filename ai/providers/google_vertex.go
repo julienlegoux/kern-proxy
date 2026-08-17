@@ -11,9 +11,9 @@ package providers
 import (
 	"context"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis/google/vertex"
-	"github.com/julienlegoux/kern-link/ai/catalog"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis/google/vertex"
+	"github.com/kern-ia/kern-link/ai/catalog"
 )
 
 const vertexADCPath = "~/.config/gcloud/application_default_credentials.json"

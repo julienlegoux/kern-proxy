@@ -8,7 +8,7 @@ package auth
 import (
 	"context"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // EnvAPIKeyAuth builds a standard api-key auth strategy: a stored credential

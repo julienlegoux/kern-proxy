@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // writeResponsesSSE formats each event as "event: <type>\ndata: <json>\n\n",

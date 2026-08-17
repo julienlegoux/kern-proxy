@@ -11,8 +11,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/julienlegoux/kern-link/ai/auth/oauth"
-	"github.com/julienlegoux/kern-link/ai/catalog"
+	"github.com/kern-ia/kern-link/ai/auth/oauth"
+	"github.com/kern-ia/kern-link/ai/catalog"
 )
 
 func TestGitHubCopilotProviderIsDynamic(t *testing.T) {

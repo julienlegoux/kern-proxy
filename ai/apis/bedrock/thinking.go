@@ -9,7 +9,7 @@ package bedrock
 import (
 	"strings"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // defaultThinkingBudgets are the per-level token budgets for non-adaptive

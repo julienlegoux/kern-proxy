@@ -23,7 +23,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 //go:embed data

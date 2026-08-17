@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // TestNormalizeAzureBaseURL is a table port of every case in

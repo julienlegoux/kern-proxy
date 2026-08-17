@@ -1,7 +1,7 @@
 # kern-link
 
-[![Test](https://github.com/julienlegoux/kern-link/actions/workflows/test.yml/badge.svg)](https://github.com/julienlegoux/kern-link/actions/workflows/test.yml)
-[![Go Reference](https://pkg.go.dev/badge/github.com/julienlegoux/kern-link/ai.svg)](https://pkg.go.dev/github.com/julienlegoux/kern-link/ai)
+[![Test](https://github.com/kern-ia/kern-link/actions/workflows/test.yml/badge.svg)](https://github.com/kern-ia/kern-link/actions/workflows/test.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/kern-ia/kern-link/ai.svg)](https://pkg.go.dev/github.com/kern-ia/kern-link/ai)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A unified LLM API for Go: one streaming interface across 35 providers —
@@ -40,7 +40,7 @@ that tracks upstream over time.
 ## Install
 
 ```sh
-go get github.com/julienlegoux/kern-link
+go get github.com/kern-ia/kern-link
 ```
 
 ## Quick start
@@ -54,8 +54,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/providers"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/providers"
 )
 
 func main() {
@@ -108,7 +108,7 @@ Set the provider's env var (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
 `GEMINI_API_KEY`, …) or log in once over OAuth:
 
 ```sh
-go run github.com/julienlegoux/kern-link/cmd/pi-ai login
+go run github.com/kern-ia/kern-link/cmd/pi-ai login
 ```
 
 Credentials land in `~/.pi/agent/auth.json` and are picked up (and refreshed)
@@ -137,7 +137,7 @@ the details.
 
 | Doc | What's in it |
 |---|---|
-| [pkg.go.dev](https://pkg.go.dev/github.com/julienlegoux/kern-link/ai) | API reference with runnable examples |
+| [pkg.go.dev](https://pkg.go.dev/github.com/kern-ia/kern-link/ai) | API reference with runnable examples |
 | [docs/usage.md](docs/usage.md) | Streaming, tool calls, thinking levels, cost tracking, persistence & model hand-off, offline testing |
 | [docs/architecture.md](docs/architecture.md) | Package layering, the unified message/event model, request flow, provider list |
 | [docs/auth.md](docs/auth.md) | Env keys per provider, credential store, OAuth flows, the `pi-ai` CLI |

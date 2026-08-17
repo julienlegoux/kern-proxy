@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 func TestFireworksModels_KimiK2_6ViaAnthropicMessages(t *testing.T) {

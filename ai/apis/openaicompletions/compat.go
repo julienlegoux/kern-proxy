@@ -4,7 +4,7 @@ package openaicompletions
 import (
 	"strings"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // resolvedCompat is the fully-resolved (no nil/tri-state) compatibility

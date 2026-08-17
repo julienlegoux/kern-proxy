@@ -21,8 +21,8 @@ import (
 
 	"github.com/klauspost/compress/zstd"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis/internal/httpretry"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis/internal/httpretry"
 )
 
 func mockCodexToken(t *testing.T, accountID string) string {

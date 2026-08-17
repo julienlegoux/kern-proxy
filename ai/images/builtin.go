@@ -6,8 +6,8 @@ package images
 // live in ai/providers, epic 11).
 
 import (
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/auth"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/auth"
 )
 
 // OpenRouterProvider builds the OpenRouter image-generation provider

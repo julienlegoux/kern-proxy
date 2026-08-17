@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	ai "github.com/julienlegoux/kern-link/ai"
+	ai "github.com/kern-ia/kern-link/ai"
 )
 
 // echoToolWithPlainSchema mirrors upstream's createToolCallWithPlainSchema:

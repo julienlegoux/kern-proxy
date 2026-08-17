@@ -17,9 +17,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis/google"
-	"github.com/julienlegoux/kern-link/ai/providers"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis/google"
+	"github.com/kern-ia/kern-link/ai/providers"
 )
 
 func TestGoogleCatalogModelBuildsSingleV1BetaPath(t *testing.T) {

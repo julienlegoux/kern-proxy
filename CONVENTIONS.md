@@ -70,11 +70,12 @@ of `@earendil-works/pi-ai`), not a pattern to generalize elsewhere in the org.
 
 ## Go module
 
-- Current path: `github.com/julienlegoux/kern-link` — consistent with the GitHub account of
-  the repo's main author, but diverges from the `github.com/kern-ia/...` path one would
-  expect for a repo hosted under the organization. Same decision to make at the org level as
-  for `kern-ui`/`kern-orch`/`kern-anon` (see the global report) — do not rename unilaterally
-  here, it's a module consumed downstream.
+- Current path: `github.com/kern-ia/kern-link` — aligned with the organization that hosts
+  the repository, its tags and its releases. The move off the personal-account path
+  was decided at org level (alongside `kern-ui`/`kern-orch`/`kern-anon`) and executed in
+  epic 1; it is a breaking change shipping in v0.2.0, with no `/v2` suffix because the
+  project is v0.x. Consumers pinned to the old path at `v0.1.1` keep working — module
+  versions are immutable in `proxy.golang.org`.
 
 ## Release / CHANGELOG
 

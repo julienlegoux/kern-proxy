@@ -16,7 +16,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 const (

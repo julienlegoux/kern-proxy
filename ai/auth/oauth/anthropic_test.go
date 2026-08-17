@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // withFakeAnthropicTokenServer points anthropicTokenURL at an httptest server

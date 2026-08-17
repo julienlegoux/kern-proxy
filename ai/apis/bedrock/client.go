@@ -24,7 +24,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
 	"github.com/aws/smithy-go/auth/bearer"
 
-	"github.com/julienlegoux/kern-link/ai/apis/internal/httpretry"
+	"github.com/kern-ia/kern-link/ai/apis/internal/httpretry"
 )
 
 // defaultMaxRetries is the retry cap used when StreamOptions.MaxRetries is

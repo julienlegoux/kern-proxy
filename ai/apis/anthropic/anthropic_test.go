@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // sseEvent is one event to serialize into a test SSE response body.

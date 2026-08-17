@@ -12,8 +12,8 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis"
 )
 
 // wireInputItem is any Responses API input item: an easy-input message

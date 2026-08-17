@@ -21,9 +21,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis"
-	"github.com/julienlegoux/kern-link/ai/apis/internal/httpretry"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis"
+	"github.com/kern-ia/kern-link/ai/apis/internal/httpretry"
 )
 
 const responsesPath = "/responses"

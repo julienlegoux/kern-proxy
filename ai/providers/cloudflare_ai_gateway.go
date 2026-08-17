@@ -3,11 +3,11 @@ package providers
 // Ports: packages/ai/src/providers/cloudflare-ai-gateway.ts
 
 import (
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis/anthropic"
-	"github.com/julienlegoux/kern-link/ai/apis/openaicompletions"
-	"github.com/julienlegoux/kern-link/ai/apis/openairesponses"
-	"github.com/julienlegoux/kern-link/ai/catalog"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis/anthropic"
+	"github.com/kern-ia/kern-link/ai/apis/openaicompletions"
+	"github.com/kern-ia/kern-link/ai/apis/openairesponses"
+	"github.com/kern-ia/kern-link/ai/catalog"
 )
 
 // CloudflareAIGatewayProvider builds the Cloudflare AI Gateway provider

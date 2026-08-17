@@ -9,7 +9,7 @@ import (
 	"io"
 	"sort"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // runList writes every provider's id, display name, and known models to w,

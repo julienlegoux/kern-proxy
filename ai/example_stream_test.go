@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/providers/faux"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/providers/faux"
 )
 
 // ExampleStream_Events consumes the typed event protocol: text arrives as

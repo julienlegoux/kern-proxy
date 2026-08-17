@@ -13,8 +13,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/auth/oauth"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/auth/oauth"
 )
 
 // oauthProviderEntry is one selectable login target: an id (used on the
