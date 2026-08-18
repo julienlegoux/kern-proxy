@@ -10,8 +10,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/julienlegoux/kern-link/ai/auth"
-	"github.com/julienlegoux/kern-link/ai/providers"
+	"github.com/kern-ia/kern-link/ai/auth"
+	"github.com/kern-ia/kern-link/ai/providers"
 )
 
 func main() {

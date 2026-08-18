@@ -19,13 +19,13 @@ import (
 	"context"
 	"os"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis/anthropic"
-	"github.com/julienlegoux/kern-link/ai/apis/openaicompletions"
-	"github.com/julienlegoux/kern-link/ai/apis/openairesponses"
-	"github.com/julienlegoux/kern-link/ai/auth"
-	"github.com/julienlegoux/kern-link/ai/auth/oauth"
-	"github.com/julienlegoux/kern-link/ai/catalog"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis/anthropic"
+	"github.com/kern-ia/kern-link/ai/apis/openaicompletions"
+	"github.com/kern-ia/kern-link/ai/apis/openairesponses"
+	"github.com/kern-ia/kern-link/ai/auth"
+	"github.com/kern-ia/kern-link/ai/auth/oauth"
+	"github.com/kern-ia/kern-link/ai/catalog"
 )
 
 // githubCopilotModelsBaseURL is a var so tests can point RefreshModels at an

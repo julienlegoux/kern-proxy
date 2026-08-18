@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 const oauthTestToken = "sk-ant-oat01-test-token"

@@ -14,17 +14,17 @@ model registry, and stream.
 # Install
 
 ```sh
-go get github.com/julienlegoux/kern-link
+go get github.com/kern-ia/kern-link
 ```
 
 Import paths:
 
 | Package | Purpose |
 |---|---|
-| `github.com/julienlegoux/kern-link/ai` | Core types: `Context`, `Model`, messages, events, options, cost |
-| `github.com/julienlegoux/kern-link/ai/providers` | Built-in provider registry (`providers.Models`) |
-| `github.com/julienlegoux/kern-link/ai/auth` | Persistent credential store, env-key helpers |
-| `github.com/julienlegoux/kern-link/ai/providers/faux` | In-process fake provider for tests |
+| `github.com/kern-ia/kern-link/ai` | Core types: `Context`, `Model`, messages, events, options, cost |
+| `github.com/kern-ia/kern-link/ai/providers` | Built-in provider registry (`providers.Models`) |
+| `github.com/kern-ia/kern-link/ai/auth` | Persistent credential store, env-key helpers |
+| `github.com/kern-ia/kern-link/ai/providers/faux` | In-process fake provider for tests |
 
 # Quick start
 
@@ -39,9 +39,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/auth"
-	"github.com/julienlegoux/kern-link/ai/providers"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/auth"
+	"github.com/kern-ia/kern-link/ai/providers"
 )
 
 func main() {

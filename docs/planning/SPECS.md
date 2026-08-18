@@ -19,7 +19,7 @@ shapes nearly every decision recorded below.
 
 ## Stack
 
-Single Go module, `github.com/julienlegoux/kern-link`, at Go **1.25.0**
+Single Go module, `github.com/kern-ia/kern-link`, at Go **1.26**
 (`go.mod`). CI pins the toolchain from `go-version-file: go.mod`, so the
 declared version is the only version.
 
@@ -244,7 +244,7 @@ the module, and nothing else references it.
 ## Deployment & operations
 
 **No deployment.** kern-link is distributed as a Go module; consumers run
-`go get github.com/julienlegoux/kern-link`. There is no Dockerfile, no IaC, no
+`go get github.com/kern-ia/kern-link`. There is no Dockerfile, no IaC, no
 platform config, no release workflow — releases are a git tag plus a `CHANGELOG.md`
 entry, prepared by hand (`d654012`, "chore(release): prepare v0.1.1 changelog").
 Current version is **v0.1.1**. `CHANGELOG.md` follows Keep a Changelog 1.1.0 and

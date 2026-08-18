@@ -7,10 +7,10 @@ package providers
 // baseUrl on this provider's catalog models.
 
 import (
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis/azure"
-	"github.com/julienlegoux/kern-link/ai/auth"
-	"github.com/julienlegoux/kern-link/ai/catalog"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis/azure"
+	"github.com/kern-ia/kern-link/ai/auth"
+	"github.com/kern-ia/kern-link/ai/catalog"
 )
 
 // AzureOpenAIResponsesProvider builds the Azure OpenAI provider binding.

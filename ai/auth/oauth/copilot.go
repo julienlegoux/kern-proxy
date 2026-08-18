@@ -28,7 +28,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // copilotClientID is upstream's atob-decoded client id literal

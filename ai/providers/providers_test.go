@@ -16,8 +16,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/auth/oauth"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/auth/oauth"
 )
 
 type fakeAuthContext struct {

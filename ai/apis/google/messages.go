@@ -17,8 +17,8 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis"
 )
 
 // GoogleContent is one entry of the Gemini `contents` array. Parts are kept

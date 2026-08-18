@@ -3,10 +3,10 @@ package providers
 // Ports: packages/ai/src/providers/minimax-cn.ts
 
 import (
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis/anthropic"
-	"github.com/julienlegoux/kern-link/ai/auth"
-	"github.com/julienlegoux/kern-link/ai/catalog"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis/anthropic"
+	"github.com/kern-ia/kern-link/ai/auth"
+	"github.com/kern-ia/kern-link/ai/catalog"
 )
 
 // MiniMaxCNProvider builds the MiniMax CN provider binding, over the

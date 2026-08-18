@@ -19,7 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // withFakeCopilotURLs points copilotURLsFunc at a fixed set of URLs

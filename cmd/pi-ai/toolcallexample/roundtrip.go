@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // WeatherTool is the single tool offered in the round trip.

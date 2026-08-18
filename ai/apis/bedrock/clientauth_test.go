@@ -12,7 +12,7 @@ package bedrock
 import (
 	"testing"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // withAmbientEnv sets real process-environment AWS_* variables for the

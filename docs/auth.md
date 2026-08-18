@@ -91,9 +91,9 @@ keyed by provider id; `auth.DefaultPath()` is `~/.pi/agent/auth.json`
 # OAuth logins — the `pi-ai` CLI
 
 ```sh
-go run github.com/julienlegoux/kern-link/cmd/pi-ai login            # interactive picker
-go run github.com/julienlegoux/kern-link/cmd/pi-ai login anthropic  # direct
-go run github.com/julienlegoux/kern-link/cmd/pi-ai list             # providers + models
+go run github.com/kern-ia/kern-link/cmd/pi-ai login            # interactive picker
+go run github.com/kern-ia/kern-link/cmd/pi-ai login anthropic  # direct
+go run github.com/kern-ia/kern-link/cmd/pi-ai list             # providers + models
 ```
 
 `login` saves to `~/.pi/agent/auth.json`; any program using

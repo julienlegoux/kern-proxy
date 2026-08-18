@@ -12,7 +12,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // Model is an image-generation model descriptor: the image-side counterpart

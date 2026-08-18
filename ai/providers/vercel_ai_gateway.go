@@ -14,10 +14,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis/anthropic"
-	"github.com/julienlegoux/kern-link/ai/auth"
-	"github.com/julienlegoux/kern-link/ai/catalog"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis/anthropic"
+	"github.com/kern-ia/kern-link/ai/auth"
+	"github.com/kern-ia/kern-link/ai/catalog"
 )
 
 // vercelAIGatewayModelsURL is a var so tests can point it at an httptest

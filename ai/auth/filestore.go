@@ -18,7 +18,7 @@ import (
 
 	"github.com/gofrs/flock"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 // lockRetryInterval is how often a blocked lock acquisition retries; the

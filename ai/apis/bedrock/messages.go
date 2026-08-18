@@ -20,8 +20,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis"
 )
 
 const emptyTextPlaceholder = "<empty>"

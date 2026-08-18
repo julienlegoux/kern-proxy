@@ -12,8 +12,8 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime/types"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/internal/partialjson"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/internal/partialjson"
 )
 
 // toolCallScratch tracks the in-flight partial-JSON argument buffer for one

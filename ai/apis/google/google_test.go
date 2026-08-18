@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 func TestBuildParams_BasicRequestShape(t *testing.T) {

@@ -3,9 +3,9 @@ package providers
 // Ports: packages/ai/src/providers/cloudflare-workers-ai.ts
 
 import (
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis/openaicompletions"
-	"github.com/julienlegoux/kern-link/ai/catalog"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis/openaicompletions"
+	"github.com/kern-ia/kern-link/ai/catalog"
 )
 
 // CloudflareWorkersAIProvider builds the Cloudflare Workers AI provider

@@ -6,7 +6,7 @@ package apis
 // Ports: packages/ai/src/api/simple-options.ts
 
 import (
-	"github.com/julienlegoux/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai"
 )
 
 const (

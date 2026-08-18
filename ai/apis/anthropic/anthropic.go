@@ -19,11 +19,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/apis"
-	"github.com/julienlegoux/kern-link/ai/apis/internal/httpretry"
-	"github.com/julienlegoux/kern-link/ai/internal/partialjson"
-	"github.com/julienlegoux/kern-link/ai/internal/sse"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/apis"
+	"github.com/kern-ia/kern-link/ai/apis/internal/httpretry"
+	"github.com/kern-ia/kern-link/ai/internal/partialjson"
+	"github.com/kern-ia/kern-link/ai/internal/sse"
 )
 
 const (

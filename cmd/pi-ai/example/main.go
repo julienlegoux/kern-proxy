@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/julienlegoux/kern-link/ai"
-	"github.com/julienlegoux/kern-link/ai/providers"
-	"github.com/julienlegoux/kern-link/ai/providers/faux"
-	"github.com/julienlegoux/kern-link/cmd/pi-ai/toolcallexample"
+	"github.com/kern-ia/kern-link/ai"
+	"github.com/kern-ia/kern-link/ai/providers"
+	"github.com/kern-ia/kern-link/ai/providers/faux"
+	"github.com/kern-ia/kern-link/cmd/pi-ai/toolcallexample"
 )
 
 const prompt = "What is the weather in Paris? Use the get_weather tool, then answer in one short sentence."
