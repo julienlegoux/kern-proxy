@@ -98,12 +98,15 @@ Commit as `refactor!: move module path to github.com/kern-ia/kern-link`, per the
       [issue 01](/epic-1-repository-hygiene/issues/01-bump-go-directive-to-1-26.md)
       survived the 170-file rename.
 - [ ] No unintended reference survives:
-      `git grep -l 'julienlegoux/kern-link' -- ':!CHANGELOG.md' ':!docs/planning' ':!docs/epics'`
-      prints nothing.
+      `git grep -l 'julienlegoux/kern-link' -- ':!CHANGELOG.md' ':!docs/planning' ':!docs/epics' ':!docs/REPORT_*.md'`
+      prints nothing. The `docs/REPORT_*.md` exclusion was added at epic close,
+      from [drift 01](/epic-1-repository-hygiene/drift/01-report-files-keep-the-old-module-path.md):
+      the review reports quote the very records the other exclusions protect.
 - [ ] The surviving references are exactly the intended ones —
       `git grep -n 'julienlegoux/kern-link' -- CHANGELOG.md` returns only line 20
-      (the 0.1.1 historical entry), and every remaining `docs/planning/` and
-      `docs/epics/` hit is a decision, scope, log or epic record.
+      (the 0.1.1 historical entry), and every remaining `docs/planning/`,
+      `docs/epics/` and `docs/REPORT_*.md` hit is a decision, scope, log, epic or
+      review record.
 - [ ] `docs/planning/SPECS.md` carries both fixes:
       `git grep -n 'julienlegoux/kern-link' -- docs/planning/SPECS.md` prints
       nothing, and `docs/planning/SPECS.md:22` reads

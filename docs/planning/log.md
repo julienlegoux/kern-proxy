@@ -1,5 +1,14 @@
 # Log
 
+## 2026-08-18
+
+* **Creation**: [DRIFT.md](DRIFT.md), the drift register, at the close of
+  [Epic 1](../epics/epic-1-repository-hygiene/EPIC_1.md). First entry promoted:
+  the module-path rename's grep criterion excluded the planning and epic bundles
+  but not `docs/REPORT_*.md`, whose occurrences of the old path are all
+  quotations of those same bundles. Disposition `accepted` — both acceptance
+  criteria were amended to add the exclusion rather than the reports rewritten.
+
 ## 2026-08-09
 
 * **Creation**: scoped the upstream sync 0.80.3 → 0.84.1 into [SCOPE.md](SCOPE.md)

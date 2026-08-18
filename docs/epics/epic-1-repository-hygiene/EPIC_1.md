@@ -51,10 +51,11 @@ conflict once per branch.
 1. `go.mod` declares `module github.com/kern-ia/kern-link` and `go 1.26`.
 2. No reference to `github.com/julienlegoux/kern-link` remains anywhere in the
    tree, except in historical CHANGELOG entries for already-released versions
-   and in `docs/planning/` and `docs/epics/`, whose records exist to state the
-   old path being migrated — rewriting them would erase the decision they
-   record. [Issue 02](/epic-1-repository-hygiene/issues/02-move-module-path-to-kern-ia.md)
-   forced this amendment.
+   and in `docs/planning/`, `docs/epics/` and `docs/REPORT_*.md`, whose records
+   exist to state the old path being migrated — rewriting them would erase the
+   decision they record. [Issue 02](/epic-1-repository-hygiene/issues/02-move-module-path-to-kern-ia.md)
+   forced this amendment; the `docs/REPORT_*.md` exclusion was added at epic
+   close, from [drift 01](/epic-1-repository-hygiene/drift/01-report-files-keep-the-old-module-path.md).
 3. CI is green: `go test ./... -race -v`, `bash upstream/sync_test.sh`, and
    `golangci-lint` (pinned v2.12.2).
 4. The epic ships as two PRs, each merged into `develop` before any other epic

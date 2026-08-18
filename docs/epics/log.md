@@ -4,6 +4,7 @@
 
 * **PR opened**: [Issue 02: Move the module path to github.com/kern-ia/kern-link](/epic-1-repository-hygiene/issues/02-move-module-path-to-kern-ia.md) (#128) moved to `pr-open` — [PR #233](https://github.com/kern-ia/kern-link/pull/233), targeting `develop`.
 * **Completed**: [Issue 02: Move the module path to github.com/kern-ia/kern-link](/epic-1-repository-hygiene/issues/02-move-module-path-to-kern-ia.md) (#128) moved to `done` — [PR #233](https://github.com/kern-ia/kern-link/pull/233) merged into `develop`.
+* **Closed**: [Epic 1: Repository hygiene](/epic-1-repository-hygiene/EPIC_1.md) (#118) — both issues `done`, milestone 18 closed. One drift record promoted to [DRIFT.md](../planning/DRIFT.md) with disposition `accepted`; the acceptance criteria of [EPIC_1.md](/epic-1-repository-hygiene/EPIC_1.md) and [issue 02](/epic-1-repository-hygiene/issues/02-move-module-path-to-kern-ia.md) were amended to exclude `docs/REPORT_*.md`.
 
 ## 2026-08-17
 
