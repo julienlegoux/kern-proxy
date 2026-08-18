@@ -1,5 +1,10 @@
 # Log
 
+## 2026-08-18
+
+* **PR opened**: [Issue 02: Move the module path to github.com/kern-ia/kern-link](/epic-1-repository-hygiene/issues/02-move-module-path-to-kern-ia.md) (#128) moved to `pr-open` — [PR #233](https://github.com/kern-ia/kern-link/pull/233), targeting `develop`.
+* **Completed**: [Issue 02: Move the module path to github.com/kern-ia/kern-link](/epic-1-repository-hygiene/issues/02-move-module-path-to-kern-ia.md) (#128) moved to `done` — [PR #233](https://github.com/kern-ia/kern-link/pull/233) merged into `develop`.
+
 ## 2026-08-17
 
 * **Started**: [Issue 01: Bump the go directive from 1.25.0 to 1.26](/epic-1-repository-hygiene/issues/01-bump-go-directive-to-1-26.md) (#127) moved to `in-progress` on branch `issue-01-bump-go-directive-to-1-26`.
